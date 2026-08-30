@@ -422,8 +422,8 @@ function Overview() {
         </div>
 
         {/* Intelligence rail */}
-        <aside className="flex flex-col gap-4" aria-label="Intelligence rail">
-          <PanelCard title="Gold Impact Score" subtitle="-100 to +100">
+        <aside className="flex flex-col gap-4" aria-label={t("overview.rail")}>
+          <PanelCard title={t("overview.impactScore")} subtitle={t("overview.impactRange")}>
             <AdvisoryTag />
             <div className="mt-3 flex items-center gap-4">
               <div className="num grid size-20 shrink-0 place-items-center rounded-full border-4 border-primary/70 text-xl font-semibold text-primary">
@@ -433,7 +433,7 @@ function Overview() {
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-primary">{impact.band}</p>
                 <p className="num text-xs text-muted-foreground">
-                  vs yesterday {impact.vsYesterday > 0 ? "+" : ""}
+                  {t("kpi.vsYesterday")} {impact.vsYesterday > 0 ? "+" : ""}
                   {impact.vsYesterday}
                 </p>
               </div>
@@ -451,50 +451,50 @@ function Overview() {
             </ul>
           </PanelCard>
 
-          <PanelCard title="Market bias" subtitle="1D horizon view">
+          <PanelCard title={t("overview.marketBias")} subtitle={t("overview.biasSubtitle")}>
             <AdvisoryTag />
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <StatusBadge tone={bias.direction === "Bullish" ? "positive" : bias.direction === "Bearish" ? "negative" : "neutral"}>
                 {bias.direction}
               </StatusBadge>
               <span className="text-xs text-muted-foreground">
-                Confidence <span className="text-foreground">{bias.confidence}</span>
+                {t("common.confidence")} <span className="text-foreground">{bias.confidence}</span>
               </span>
               <span className="text-xs text-muted-foreground">
-                Horizon <span className="text-foreground">{bias.horizon}</span>
+                {t("common.horizon")} <span className="text-foreground">{bias.horizon}</span>
               </span>
             </div>
             <dl className="mt-3 space-y-2 text-xs">
               <div>
-                <dt className="font-medium text-foreground">Rationale</dt>
+                <dt className="font-medium text-foreground">{t("overview.rationale")}</dt>
                 <dd className="text-muted-foreground">{bias.rationale}</dd>
               </div>
               <div>
-                <dt className="font-medium text-foreground">Counter-evidence</dt>
+                <dt className="font-medium text-foreground">{t("overview.counterEvidence")}</dt>
                 <dd className="text-muted-foreground">{bias.counterEvidence}</dd>
               </div>
               <div>
-                <dt className="font-medium text-foreground">Invalidation</dt>
+                <dt className="font-medium text-foreground">{t("overview.invalidation")}</dt>
                 <dd className="text-negative">{bias.invalidation}</dd>
               </div>
             </dl>
           </PanelCard>
 
-          <PanelCard title="Risk monitor">
+          <PanelCard title={t("overview.riskMonitor")}>
             <dl className="space-y-2.5 text-xs">
               <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">Exposure</dt>
+                <dt className="text-muted-foreground">{t("risk.exposure")}</dt>
                 <dd className="num">
                   {money(risk.exposure, 0)} <span className="text-muted-foreground">({risk.exposurePct}%)</span>
                 </dd>
               </div>
               <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">Margin headroom</dt>
+                <dt className="text-muted-foreground">{t("risk.marginHeadroom")}</dt>
                 <dd className="num">{money(risk.marginHeadroom, 0)}</dd>
               </div>
               <div>
                 <div className="flex items-center justify-between gap-2">
-                  <dt className="text-muted-foreground">Daily loss used</dt>
+                  <dt className="text-muted-foreground">{t("risk.dailyLossUsed")}</dt>
                   <dd className="num">
                     {money(risk.dailyLossUsed, 0)} / {money(risk.dailyLossLimit, 0)}
                   </dd>
@@ -507,19 +507,19 @@ function Overview() {
                 </div>
               </div>
               <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">VaR (1D, 95%)</dt>
+                <dt className="text-muted-foreground">{t("risk.var")}</dt>
                 <dd className="num">{money(risk.var1d, 0)}</dd>
               </div>
               <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">Max position risk</dt>
+                <dt className="text-muted-foreground">{t("risk.maxPositionRisk")}</dt>
                 <dd className="num">{risk.maxPositionRisk}%</dd>
               </div>
               <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">Connection freshness</dt>
-                <dd className="num text-positive">{risk.connectionAgeSeconds}s ago</dd>
+                <dt className="text-muted-foreground">{t("risk.freshness")}</dt>
+                <dd className="num text-positive">{t("risk.secondsAgo", { n: risk.connectionAgeSeconds })}</dd>
               </div>
               <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">Risk status</dt>
+                <dt className="text-muted-foreground">{t("risk.status")}</dt>
                 <dd className="text-positive">{risk.status}</dd>
               </div>
             </dl>
@@ -527,15 +527,14 @@ function Overview() {
 
           <div className="rounded-md border border-primary/40 bg-primary/8 p-3">
             <p className="text-xs font-semibold tracking-[0.1em] text-primary uppercase">
-              AI advisory only
+              {t("overview.aiOnly")}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              AURIQ analyses and explains. It never submits orders, and the browser never talks to a
-              broker directly.
+              {t("overview.aiOnlyBody")}
             </p>
           </div>
 
-          <StaleState age="12s ago (demo)" />
+          <StaleState age={t("overview.staleAge")} />
         </aside>
       </div>
     </>
