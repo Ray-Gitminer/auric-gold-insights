@@ -92,6 +92,7 @@ export const en = {
   "overview.desc":
     "Paper-trading account snapshot, gold market workspace and advisory intelligence. All figures are synthetic fixtures.",
   "overview.feed": "Demo feed · simulated",
+  "overview.feedLive": "Feed live · demo",
   "kpi.netLiquidation": "Net liquidation",
   "kpi.availableCash": "Available cash",
   "kpi.todayPnl": "Today P/L",
