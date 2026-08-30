@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as JournalRouteImport } from './routes/journal'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PositionsOrdersRouteImport } from './routes/positions-orders'
 import { Route as TradeHistoryRouteImport } from './routes/trade-history'
@@ -17,6 +18,11 @@ import { Route as TradeHistoryRouteImport } from './routes/trade-history'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JournalRoute = JournalRouteImport.update({
+  id: '/journal',
+  path: '/journal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortfolioRoute = PortfolioRouteImport.update({
@@ -37,12 +43,14 @@ const TradeHistoryRoute = TradeHistoryRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/journal': typeof JournalRoute
   '/portfolio': typeof PortfolioRoute
   '/positions-orders': typeof PositionsOrdersRoute
   '/trade-history': typeof TradeHistoryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/journal': typeof JournalRoute
   '/portfolio': typeof PortfolioRoute
   '/positions-orders': typeof PositionsOrdersRoute
   '/trade-history': typeof TradeHistoryRoute
@@ -50,20 +58,29 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/journal': typeof JournalRoute
   '/portfolio': typeof PortfolioRoute
   '/positions-orders': typeof PositionsOrdersRoute
   '/trade-history': typeof TradeHistoryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/portfolio' | '/positions-orders' | '/trade-history'
+  fullPaths:
+    '/' | '/journal' | '/portfolio' | '/positions-orders' | '/trade-history'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/portfolio' | '/positions-orders' | '/trade-history'
-  id: '__root__' | '/' | '/portfolio' | '/positions-orders' | '/trade-history'
+  to: '/' | '/journal' | '/portfolio' | '/positions-orders' | '/trade-history'
+  id:
+    | '__root__'
+    | '/'
+    | '/journal'
+    | '/portfolio'
+    | '/positions-orders'
+    | '/trade-history'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  JournalRoute: typeof JournalRoute
   PortfolioRoute: typeof PortfolioRoute
   PositionsOrdersRoute: typeof PositionsOrdersRoute
   TradeHistoryRoute: typeof TradeHistoryRoute
@@ -76,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/journal': {
+      id: '/journal'
+      path: '/journal'
+      fullPath: '/journal'
+      preLoaderRoute: typeof JournalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/portfolio': {
@@ -104,6 +128,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  JournalRoute: JournalRoute,
   PortfolioRoute: PortfolioRoute,
   PositionsOrdersRoute: PositionsOrdersRoute,
   TradeHistoryRoute: TradeHistoryRoute,
