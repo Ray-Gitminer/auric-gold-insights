@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/contexts/I18nContext";
 import { candlesByTimeframe, instrument, type Candle } from "@/data/fixtures";
 import { num } from "@/lib/format";
 
@@ -35,6 +36,7 @@ export function GoldChart({
   onTimeframeChange?: (tf: Timeframe) => void;
   compact?: boolean;
 }) {
+  const { t } = useI18n();
   const candles = candlesByTimeframe[timeframe] ?? candlesByTimeframe["1D"]!;
   const { y, x, slot } = useScale(candles);
   const last = candles[candles.length - 1]!;
@@ -52,7 +54,7 @@ export function GoldChart({
         <div
           className="flex flex-wrap items-center gap-1 border-b border-border px-2 py-2"
           role="tablist"
-          aria-label="Chart timeframe"
+          aria-label={t("chart.timeframe")}
         >
           {TIMEFRAMES.map((tf) => (
             <button
@@ -72,7 +74,7 @@ export function GoldChart({
             </button>
           ))}
           <span className="ml-auto pr-2 text-[10px] tracking-[0.12em] text-muted-foreground uppercase">
-            Static demo series · not live
+            {t("chart.staticDemo")}
           </span>
         </div>
       ) : null}
@@ -82,7 +84,7 @@ export function GoldChart({
           viewBox={`0 0 ${W} ${H}`}
           className={cn("w-full", compact ? "h-48" : "h-[300px] sm:h-[380px]")}
           role="img"
-          aria-label={`${instrument.label} demo candlestick chart, ${timeframe} timeframe. Last price ${num(instrument.last, 1)}.`}
+          aria-label={t("chart.aria", { label: instrument.label, tf: timeframe, price: num(instrument.last, 1) })}
         >
           {/* session shading */}
           <rect x={0} y={PAD_T} width={(W - PAD_R) * 0.32} height={H - PAD_T - PAD_B} fill="var(--color-info)" opacity={0.04} />

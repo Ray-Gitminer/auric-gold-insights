@@ -30,6 +30,7 @@ import {
 import { money, num, pct, signedMoney, toneFor } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { GoldChart, type Timeframe } from "@/components/auriq/GoldChart";
+import { useI18n } from "@/contexts/I18nContext";
 import {
   AdvisoryTag,
   DemoDataTag,
@@ -158,20 +159,20 @@ function Overview() {
                 </div>
                 <dl className="num hidden gap-x-4 text-xs text-muted-foreground sm:grid sm:grid-cols-3">
                   <div>
-                    <dt className="text-[10px] uppercase">High</dt>
+                    <dt className="text-[10px] uppercase">{t("common.high")}</dt>
                     <dd className="text-foreground">{num(instrument.high, 1)}</dd>
                   </div>
                   <div>
-                    <dt className="text-[10px] uppercase">Low</dt>
+                    <dt className="text-[10px] uppercase">{t("common.low")}</dt>
                     <dd className="text-foreground">{num(instrument.low, 1)}</dd>
                   </div>
                   <div>
-                    <dt className="text-[10px] uppercase">Vol</dt>
+                    <dt className="text-[10px] uppercase">{t("common.vol")}</dt>
                     <dd className="text-foreground">{instrument.volume}</dd>
                   </div>
                 </dl>
                 <StatusBadge tone={setupTone[strategy.state] ?? "neutral"}>
-                  Setup: {strategy.state}
+                  {t("overview.setup")}: {strategy.state}
                 </StatusBadge>
               </div>
             </div>
@@ -179,10 +180,10 @@ function Overview() {
             <div className="border-t border-border p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="text-xs font-semibold tracking-wide uppercase">
-                  Strategy conditions · {strategy.name}
+                  {t("overview.strategyConditions")} · {strategy.name}
                 </h3>
                 <Link to="/chart-strategy" className="text-xs text-info hover:underline">
-                  Open Chart &amp; Strategy
+                  {t("overview.openChartStrategy")}
                 </Link>
               </div>
               <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
