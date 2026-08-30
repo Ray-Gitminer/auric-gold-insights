@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { AlertTriangle, Inbox, Loader2, Lock, WifiOff } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/contexts/I18nContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export function DemoDataTag({ className }: { className?: string }) {
+  const { t } = useI18n();
   return (
     <span
       className={cn(
@@ -21,7 +23,7 @@ export function DemoDataTag({ className }: { className?: string }) {
         className,
       )}
     >
-      Demo data
+      {t("common.demoData")}
     </span>
   );
 }
@@ -39,7 +41,7 @@ export function PageHeader({
     <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-border pb-5 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
       <div className="min-w-0">
         <div className="flex min-w-0 items-center gap-2">
-          <h1 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">{title}</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-balance sm:text-2xl">{title}</h1>
           <DemoDataTag />
         </div>
         <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{description}</p>
@@ -69,9 +71,9 @@ export function PanelCard({
       {title ? (
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-3">
           <div className="min-w-0">
-            <h2 className="truncate text-sm font-semibold tracking-tight">{title}</h2>
+            <h2 className="text-sm leading-snug font-semibold tracking-tight">{title}</h2>
             {subtitle ? (
-              <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
+              <p className="text-xs leading-snug text-muted-foreground">{subtitle}</p>
             ) : null}
           </div>
           {action ? <div className="shrink-0">{action}</div> : null}
@@ -99,9 +101,9 @@ export function KpiCard({
 }) {
   return (
     <div className="rounded-md border border-border bg-card p-4 transition-colors hover:border-primary/40">
-      <div className="flex items-center gap-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-        {icon ? <span className="shrink-0 text-primary">{icon}</span> : null}
-        <span className="truncate">{label}</span>
+      <div className="flex min-h-8 items-start gap-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+        {icon ? <span className="mt-0.5 shrink-0 text-primary">{icon}</span> : null}
+        <span className="leading-snug">{label}</span>
       </div>
       <p className="num mt-3 text-xl font-semibold tracking-tight sm:text-2xl">{value}</p>
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
@@ -154,9 +156,10 @@ export function StatusBadge({
 }
 
 export function AdvisoryTag() {
+  const { t } = useI18n();
   return (
     <span className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-[0.12em] text-info uppercase">
-      AI analysis · advisory only
+      {t("common.advisory")}
     </span>
   );
 }
@@ -167,7 +170,7 @@ export function ConfirmDialog({
   title,
   description,
   details,
-  confirmLabel = "Acknowledge",
+  confirmLabel,
   onConfirm,
 }: {
   open: boolean;
@@ -178,6 +181,7 @@ export function ConfirmDialog({
   confirmLabel?: string;
   onConfirm?: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="border-border bg-popover">
@@ -199,12 +203,13 @@ export function ConfirmDialog({
           </dl>
         ) : null}
         <p className="rounded-md border border-primary/35 bg-primary/10 px-3 py-2 text-xs text-primary">
-          Prototype control. Paper trading only — AURIQ will not transmit any order to a broker.
-          A real action would require deterministic risk checks and an audit record.
+          {t("confirm.notice")}
         </p>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>{confirmLabel}</AlertDialogAction>
+          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm}>
+            {confirmLabel ?? t("common.acknowledge")}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -221,38 +226,42 @@ export function EmptyState({ title, description }: { title: string; description:
   );
 }
 
-export function LoadingState({ label = "Loading" }: { label?: string }) {
+export function LoadingState({ label }: { label?: string }) {
+  const { t } = useI18n();
   return (
     <div className="flex items-center gap-2 rounded-md border border-border px-4 py-6 text-sm text-muted-foreground">
       <Loader2 className="size-4 animate-spin" aria-hidden />
-      {label}…
+      {label ?? t("common.loading")}…
     </div>
   );
 }
 
 export function StaleState({ age }: { age: string }) {
+  const { t } = useI18n();
   return (
     <div className="flex items-center gap-2 rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-xs text-primary">
       <AlertTriangle className="size-3.5 shrink-0" aria-hidden />
-      Data is stale — last update {age}. Values may not reflect current market.
+      {t("state.stale", { age })}
     </div>
   );
 }
 
 export function OfflineState() {
+  const { t } = useI18n();
   return (
     <div className="flex items-center gap-2 rounded-md border border-negative/40 bg-negative/10 px-3 py-2 text-xs text-negative">
       <WifiOff className="size-3.5 shrink-0" aria-hidden />
-      Connector offline — reconnect the gateway service to resume streaming.
+      {t("state.offline")}
     </div>
   );
 }
 
 export function UnauthorisedState() {
+  const { t } = useI18n();
   return (
     <div className="flex items-center gap-2 rounded-md border border-border bg-accent/30 px-3 py-2 text-xs text-muted-foreground">
       <Lock className="size-3.5 shrink-0" aria-hidden />
-      Unauthorised — this area requires an account with elevated permissions.
+      {t("state.unauthorised")}
     </div>
   );
 }

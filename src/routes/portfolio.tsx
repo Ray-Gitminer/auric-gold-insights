@@ -4,6 +4,7 @@ import { account, allocation, performance, performanceSummary, positions, risk }
 import { money, num, pct, signedMoney, toneFor } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { KpiCard, PageHeader, PanelCard, StatusBadge } from "@/components/auriq/primitives";
+import { useI18n } from "@/contexts/I18nContext";
 
 export const Route = createFileRoute("/portfolio")({
   head: () => ({
@@ -22,25 +23,26 @@ export const Route = createFileRoute("/portfolio")({
 });
 
 function Portfolio() {
+  const { t } = useI18n();
   const maxPnl = Math.max(...performance.map((p) => Math.abs(p.pnl)));
 
   return (
     <>
       <PageHeader
-        title="Portfolio"
-        description="Allocation, exposure, margin usage and performance across the paper-trading account."
-        actions={<StatusBadge tone="gold">Paper account {account.accountId}</StatusBadge>}
+        title={t("portfolio.title")}
+        description={t("portfolio.desc")}
+        actions={<StatusBadge tone="gold">{t("portfolio.account", { id: account.accountId })}</StatusBadge>}
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <KpiCard label="Net liquidation" value={money(account.netLiquidation)} delta={pct(1.25)} deltaTone="positive" freshness="vs yesterday" />
-        <KpiCard label="Gross exposure" value={money(risk.exposure)} delta={`${risk.exposurePct}% of NLV`} deltaTone="neutral" />
-        <KpiCard label="Margin headroom" value={money(risk.marginHeadroom)} delta="Comfortable" deltaTone="positive" />
-        <KpiCard label="Drawdown (MTD)" value={pct(account.drawdownPct)} delta={signedMoney(account.drawdownValue)} deltaTone="negative" />
+        <KpiCard label={t("kpi.netLiquidation")} value={money(account.netLiquidation)} delta={pct(1.25)} deltaTone="positive" freshness={t("kpi.vsYesterday")} />
+        <KpiCard label={t("portfolio.grossExposure")} value={money(risk.exposure)} delta={t("kpi.ofNlv", { pct: risk.exposurePct })} deltaTone="neutral" />
+        <KpiCard label={t("risk.marginHeadroom")} value={money(risk.marginHeadroom)} delta={t("portfolio.comfortable")} deltaTone="positive" />
+        <KpiCard label={t("kpi.drawdown")} value={pct(account.drawdownPct)} delta={signedMoney(account.drawdownValue)} deltaTone="negative" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <PanelCard title="Allocation" subtitle="By instrument group">
+        <PanelCard title={t("portfolio.allocation")} subtitle={t("portfolio.allocationSub")}>
           <ul className="space-y-3">
             {allocation.map((a) => (
               <li key={a.name}>
@@ -58,7 +60,7 @@ function Portfolio() {
           </ul>
         </PanelCard>
 
-        <PanelCard title="Performance" subtitle="Rolling week, demo series">
+        <PanelCard title={t("portfolio.performance")} subtitle={t("portfolio.performanceSub")}>
           <div className="grid grid-cols-3 gap-3">
             {performanceSummary.map((p) => (
               <div key={p.label} className="rounded-sm border border-border bg-surface/60 p-3">
@@ -83,19 +85,19 @@ function Portfolio() {
         </PanelCard>
       </div>
 
-      <PanelCard title="Exposure by position" bodyClassName="p-0">
+      <PanelCard title={t("portfolio.exposure")} bodyClassName="p-0">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-sm">
-            <caption className="sr-only">Exposure by position — demo data</caption>
+            <caption className="sr-only">{t("portfolio.exposureCaption")}</caption>
             <thead>
               <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                <th scope="col" className="px-4 py-2 text-left font-medium">Instrument</th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">Side</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">Qty</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">Avg price</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">Last</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">Unrealised</th>
-                <th scope="col" className="px-4 py-2 text-right font-medium">P/L %</th>
+                <th scope="col" className="px-4 py-2 text-left font-medium">{t("common.instrument")}</th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.side")}</th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.qty")}</th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.avgPrice")}</th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.last")}</th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.unrealised")}</th>
+                <th scope="col" className="px-4 py-2 text-right font-medium">{t("common.plPct")}</th>
               </tr>
             </thead>
             <tbody>
@@ -122,13 +124,13 @@ function Portfolio() {
         </div>
       </PanelCard>
 
-      <PanelCard title="Risk limits">
+      <PanelCard title={t("portfolio.riskLimits")}>
         <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { label: "Daily loss limit", value: money(risk.dailyLossLimit, 0), sub: `${money(risk.dailyLossUsed, 0)} used` },
-            { label: "VaR (1D, 95%)", value: money(risk.var1d, 0), sub: "Historical simulation" },
-            { label: "Max position risk", value: `${risk.maxPositionRisk}%`, sub: "Limit 2.00%" },
-            { label: "Margin used", value: money(account.marginUsed, 0), sub: `${account.marginUsedPct}% of NLV` },
+            { label: t("portfolio.dailyLossLimit"), value: money(risk.dailyLossLimit, 0), sub: t("portfolio.used", { value: money(risk.dailyLossUsed, 0) }) },
+            { label: t("risk.var"), value: money(risk.var1d, 0), sub: t("portfolio.historical") },
+            { label: t("risk.maxPositionRisk"), value: `${risk.maxPositionRisk}%`, sub: t("portfolio.limitTwo") },
+            { label: t("kpi.marginUsed"), value: money(account.marginUsed, 0), sub: t("kpi.ofNlv", { pct: account.marginUsedPct }) },
           ].map((r) => (
             <div key={r.label} className="rounded-sm border border-border bg-surface/60 p-3">
               <dt className="text-[11px] tracking-wide text-muted-foreground uppercase">{r.label}</dt>

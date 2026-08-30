@@ -4,10 +4,12 @@ import { toast } from "sonner";
 
 import { account, risk } from "@/data/fixtures";
 import { money } from "@/lib/format";
+import { useI18n } from "@/contexts/I18nContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 import { PageHeader, PanelCard, StatusBadge } from "@/components/auriq/primitives";
 
 export const Route = createFileRoute("/settings")({
@@ -27,6 +29,7 @@ export const Route = createFileRoute("/settings")({
 });
 
 function Settings() {
+  const { t, lang, setLang } = useI18n();
   const [notifications, setNotifications] = useState({
     riskBreaches: true,
     strategyChanges: true,
@@ -34,105 +37,134 @@ function Settings() {
     staleData: true,
   });
 
+  const NOTIFY_LABELS: Record<keyof typeof notifications, string> = {
+    riskBreaches: t("settings.notifyRisk"),
+    strategyChanges: t("settings.notifyStrategy"),
+    newsDigest: t("settings.notifyNews"),
+    staleData: t("settings.notifyStale"),
+  };
+
   return (
     <>
       <PageHeader
-        title="Settings"
-        description="Preferences for the paper-trading prototype. Values are local to this session and reset on reload."
-        actions={<StatusBadge tone="gold">Paper trading only</StatusBadge>}
+        title={t("settings.title")}
+        description={t("settings.desc")}
+        actions={<StatusBadge tone="gold">{t("settings.paperOnly")}</StatusBadge>}
       />
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <PanelCard title="Account" subtitle="Read-only in the prototype">
+        <PanelCard title={t("settings.account")} subtitle={t("settings.accountSub")}>
           <dl className="space-y-2 text-sm">
             <div className="flex items-center justify-between">
-              <dt className="text-muted-foreground">Account ID</dt>
+              <dt className="text-muted-foreground">{t("settings.accountId")}</dt>
               <dd className="num">{account.accountId}</dd>
             </div>
             <div className="flex items-center justify-between">
-              <dt className="text-muted-foreground">Mode</dt>
+              <dt className="text-muted-foreground">{t("settings.mode")}</dt>
               <dd>
                 <StatusBadge tone="gold">Paper</StatusBadge>
               </dd>
             </div>
             <div className="flex items-center justify-between">
-              <dt className="text-muted-foreground">Base currency</dt>
+              <dt className="text-muted-foreground">{t("settings.baseCurrency")}</dt>
               <dd className="num">USD</dd>
             </div>
             <div className="flex items-center justify-between">
-              <dt className="text-muted-foreground">Net liquidation</dt>
+              <dt className="text-muted-foreground">{t("kpi.netLiquidation")}</dt>
               <dd className="num">{money(account.netLiquidation)}</dd>
             </div>
           </dl>
         </PanelCard>
 
-        <PanelCard title="Risk limits">
+        <PanelCard title={t("settings.riskLimits")}>
           <form
             className="space-y-3"
             onSubmit={(e) => {
               e.preventDefault();
-              toast("Prototype control", { description: "Risk limits are not persisted in the demo." });
+              toast(t("toast.prototype"), { description: t("settings.saveToast") });
             }}
           >
             <div className="grid gap-1.5">
-              <Label htmlFor="dailyLoss">Daily loss limit (USD)</Label>
+              <Label htmlFor="dailyLoss">{t("settings.dailyLoss")}</Label>
               <Input id="dailyLoss" className="num" defaultValue={risk.dailyLossLimit} inputMode="numeric" />
             </div>
             <div className="grid gap-1.5">
-              <Label htmlFor="maxRisk">Max risk per trade (% of NLV)</Label>
+              <Label htmlFor="maxRisk">{t("settings.maxRisk")}</Label>
               <Input id="maxRisk" className="num" defaultValue={1} inputMode="decimal" />
             </div>
             <div className="grid gap-1.5">
-              <Label htmlFor="maxContracts">Max gold contracts</Label>
+              <Label htmlFor="maxContracts">{t("settings.maxContracts")}</Label>
               <Input id="maxContracts" className="num" defaultValue={3} inputMode="numeric" />
             </div>
             <Button type="submit" size="sm">
-              Save limits
+              {t("settings.save")}
             </Button>
           </form>
         </PanelCard>
 
-        <PanelCard title="Session & security">
+        <PanelCard title={t("settings.session")}>
           <dl className="space-y-2 text-sm">
             <div className="flex items-center justify-between">
-              <dt className="text-muted-foreground">Session timeout</dt>
-              <dd className="num">30 minutes idle</dd>
+              <dt className="text-muted-foreground">{t("settings.timeout")}</dt>
+              <dd className="num">{t("settings.timeoutValue")}</dd>
             </div>
             <div className="flex items-center justify-between">
-              <dt className="text-muted-foreground">Two-factor</dt>
+              <dt className="text-muted-foreground">{t("settings.twoFactor")}</dt>
               <dd>
-                <StatusBadge tone="positive">Enabled</StatusBadge>
+                <StatusBadge tone="positive">{t("settings.enabled")}</StatusBadge>
               </dd>
             </div>
             <div className="flex items-center justify-between">
-              <dt className="text-muted-foreground">Last sign-in</dt>
-              <dd className="num">Today 07:42 UTC</dd>
+              <dt className="text-muted-foreground">{t("settings.lastSignIn")}</dt>
+              <dd className="num">{t("settings.lastSignInValue")}</dd>
             </div>
           </dl>
           <p className="mt-3 text-xs text-muted-foreground">
-            Credentials are never stored in the browser. All broker access is server-side and audited.
+            {t("settings.securityNote")}
           </p>
         </PanelCard>
 
-        <PanelCard title="Data & notifications">
+        <PanelCard title={t("settings.data")}>
           <div className="grid gap-1.5">
-            <Label htmlFor="refresh">Refresh cadence (seconds)</Label>
+            <Label htmlFor="refresh">{t("settings.refresh")}</Label>
             <Input id="refresh" className="num" defaultValue={15} inputMode="numeric" />
           </div>
+
+          <div className="mt-4 flex items-center justify-between gap-4">
+            <span className="text-sm">{t("settings.language")}</span>
+            <div className="inline-flex overflow-hidden rounded-sm border border-border" role="group" aria-label={t("lang.switchTo")}>
+              <button
+                type="button"
+                onClick={() => setLang("th")}
+                aria-pressed={lang === "th"}
+                className={cn(
+                  "px-3 py-1 text-xs font-medium transition-colors",
+                  lang === "th" ? "bg-primary text-primary-foreground" : "bg-transparent text-muted-foreground hover:text-foreground",
+                )}
+              >
+                ไทย (TH)
+              </button>
+              <button
+                type="button"
+                onClick={() => setLang("en")}
+                aria-pressed={lang === "en"}
+                className={cn(
+                  "px-3 py-1 text-xs font-medium transition-colors",
+                  lang === "en" ? "bg-primary text-primary-foreground" : "bg-transparent text-muted-foreground hover:text-foreground",
+                )}
+              >
+                English (EN)
+              </button>
+            </div>
+          </div>
+
           <ul className="mt-4 space-y-3">
-            {(
-              [
-                ["riskBreaches", "Risk limit breaches"],
-                ["strategyChanges", "Strategy state changes"],
-                ["newsDigest", "Daily news digest"],
-                ["staleData", "Stale data warnings"],
-              ] as const
-            ).map(([key, label]) => (
+            {(Object.keys(notifications) as Array<keyof typeof notifications>).map((key) => (
               <li key={key} className="flex items-center justify-between gap-4">
-                <span className="text-sm">{label}</span>
+                <span className="text-sm">{NOTIFY_LABELS[key]}</span>
                 <Switch
                   checked={notifications[key]}
-                  aria-label={label}
+                  aria-label={NOTIFY_LABELS[key]}
                   onCheckedChange={(v) => setNotifications((p) => ({ ...p, [key]: v }))}
                 />
               </li>

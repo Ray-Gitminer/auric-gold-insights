@@ -30,6 +30,7 @@ import {
 import { money, num, pct, signedMoney, toneFor } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { GoldChart, type Timeframe } from "@/components/auriq/GoldChart";
+import { useI18n } from "@/contexts/I18nContext";
 import {
   AdvisoryTag,
   DemoDataTag,
@@ -67,68 +68,69 @@ const setupTone: Record<string, "gold" | "positive" | "negative" | "info"> = {
 };
 
 function Overview() {
+  const { t } = useI18n();
   const [timeframe, setTimeframe] = useState<Timeframe>("1D");
 
   return (
     <>
       <PageHeader
-        title="Overview"
-        description="Paper-trading account snapshot, gold market workspace and advisory intelligence. All figures are synthetic fixtures."
+        title={t("overview.title")}
+        description={t("overview.desc")}
         actions={
           <>
-            <StatusBadge tone="positive">Feed live · demo</StatusBadge>
-            <StatusBadge tone="neutral">Asia/Bangkok</StatusBadge>
+            <StatusBadge tone="positive">{t("overview.feedLive")}</StatusBadge>
+            <StatusBadge tone="neutral">{t("common.timezone")}</StatusBadge>
           </>
         }
       />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <KpiCard
-          label="Net liquidation"
+          label={t("kpi.netLiquidation")}
           value={money(account.netLiquidation)}
           delta={pct(1.25)}
           deltaTone="positive"
-          freshness="vs yesterday"
+          freshness={t("kpi.vsYesterday")}
           icon={<CircleDollarSign className="size-3.5" />}
         />
         <KpiCard
-          label="Available cash"
+          label={t("kpi.availableCash")}
           value={money(account.availableCash)}
           delta={pct(0.68)}
           deltaTone="positive"
-          freshness="settled"
+          freshness={t("kpi.settled")}
           icon={<Wallet className="size-3.5" />}
         />
         <KpiCard
-          label="Today P/L"
+          label={t("kpi.todayPnl")}
           value={signedMoney(account.todayPnl)}
           delta={pct(account.todayPnlPct)}
           deltaTone="positive"
-          freshness={`as of ${account.lastSync}`}
+          freshness={t("kpi.asOf", { time: account.lastSync })}
           icon={<TrendingUp className="size-3.5" />}
         />
         <KpiCard
-          label="Unrealised P/L"
+          label={t("kpi.unrealisedPnl")}
           value={signedMoney(account.unrealisedPnl)}
           delta={pct(account.unrealisedPnlPct)}
           deltaTone="positive"
-          freshness="4 open positions"
+          freshness={t("kpi.openPositions", { count: 4 })}
           icon={<Gauge className="size-3.5" />}
         />
         <KpiCard
-          label="Margin used"
+          label={t("kpi.marginUsed")}
           value={money(account.marginUsed)}
-          delta={`${account.marginUsedPct}% of NLV`}
+          delta={t("kpi.ofNlv", { pct: account.marginUsedPct })}
           deltaTone="neutral"
-          freshness="within limits"
+          freshness={t("kpi.withinLimits")}
           icon={<Landmark className="size-3.5" />}
         />
         <KpiCard
-          label="Drawdown (MTD)"
+          label={t("kpi.drawdown")}
           value={pct(account.drawdownPct)}
           delta={signedMoney(account.drawdownValue)}
           deltaTone="negative"
-          freshness="limit -1.00%"
+          freshness={t("kpi.limit", { value: "-1.00%" })}
           icon={<ShieldAlert className="size-3.5" />}
         />
       </div>
@@ -157,20 +159,20 @@ function Overview() {
                 </div>
                 <dl className="num hidden gap-x-4 text-xs text-muted-foreground sm:grid sm:grid-cols-3">
                   <div>
-                    <dt className="text-[10px] uppercase">High</dt>
+                    <dt className="text-[10px] uppercase">{t("common.high")}</dt>
                     <dd className="text-foreground">{num(instrument.high, 1)}</dd>
                   </div>
                   <div>
-                    <dt className="text-[10px] uppercase">Low</dt>
+                    <dt className="text-[10px] uppercase">{t("common.low")}</dt>
                     <dd className="text-foreground">{num(instrument.low, 1)}</dd>
                   </div>
                   <div>
-                    <dt className="text-[10px] uppercase">Vol</dt>
+                    <dt className="text-[10px] uppercase">{t("common.vol")}</dt>
                     <dd className="text-foreground">{instrument.volume}</dd>
                   </div>
                 </dl>
                 <StatusBadge tone={setupTone[strategy.state] ?? "neutral"}>
-                  Setup: {strategy.state}
+                  {t("overview.setup")}: {strategy.state}
                 </StatusBadge>
               </div>
             </div>
@@ -178,10 +180,10 @@ function Overview() {
             <div className="border-t border-border p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="text-xs font-semibold tracking-wide uppercase">
-                  Strategy conditions · {strategy.name}
+                  {t("overview.strategyConditions")} · {strategy.name}
                 </h3>
                 <Link to="/chart-strategy" className="text-xs text-info hover:underline">
-                  Open Chart &amp; Strategy
+                  {t("overview.openChartStrategy")}
                 </Link>
               </div>
               <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -198,7 +200,7 @@ function Overview() {
                       aria-hidden
                     />
                     <div className="min-w-0">
-                      <p className="truncate text-xs font-medium">{c.label}</p>
+                      <p className="text-xs leading-snug font-medium">{c.label}</p>
                       <p className="num truncate text-[11px] text-muted-foreground">{c.detail}</p>
                     </div>
                   </li>
@@ -209,25 +211,25 @@ function Overview() {
 
           <div className="grid gap-4 lg:grid-cols-2">
             <PanelCard
-              title={`Open positions (${positions.length})`}
+              title={`${t("overview.openPositions")} (${positions.length})`}
               action={
                 <Link to="/positions-orders" className="text-xs text-info hover:underline">
-                  View all
+                  {t("common.viewAll")}
                 </Link>
               }
               bodyClassName="p-0"
             >
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[560px] text-sm">
-                  <caption className="sr-only">Open positions — demo data</caption>
+                  <caption className="sr-only">{t("overview.positionsCaption")}</caption>
                   <thead>
                     <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                      <th scope="col" className="px-4 py-2 text-left font-medium">Symbol</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">Qty</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">Avg</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">Last</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">Unrlzd</th>
-                      <th scope="col" className="px-4 py-2 text-right font-medium">P/L %</th>
+                      <th scope="col" className="px-4 py-2 text-left font-medium">{t("common.symbol")}</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.qty")}</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.avg")}</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.last")}</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.unrlzd")}</th>
+                      <th scope="col" className="px-4 py-2 text-right font-medium">{t("common.plPct")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -253,25 +255,25 @@ function Overview() {
             </PanelCard>
 
             <PanelCard
-              title={`Open orders (${orders.length})`}
+              title={`${t("overview.openOrders")} (${orders.length})`}
               action={
                 <Link to="/positions-orders" className="text-xs text-info hover:underline">
-                  View all
+                  {t("common.viewAll")}
                 </Link>
               }
               bodyClassName="p-0"
             >
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[560px] text-sm">
-                  <caption className="sr-only">Open orders — demo data</caption>
+                  <caption className="sr-only">{t("overview.ordersCaption")}</caption>
                   <thead>
                     <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                      <th scope="col" className="px-4 py-2 text-left font-medium">Symbol</th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">Side</th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">Type</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">Qty</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">Price</th>
-                      <th scope="col" className="px-4 py-2 text-right font-medium">Status</th>
+                      <th scope="col" className="px-4 py-2 text-left font-medium">{t("common.symbol")}</th>
+                      <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.side")}</th>
+                      <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.type")}</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.qty")}</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.price")}</th>
+                      <th scope="col" className="px-4 py-2 text-right font-medium">{t("common.status")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -297,8 +299,8 @@ function Overview() {
 
           <div className="grid gap-4 lg:grid-cols-2">
             <PanelCard
-              title="US economic events"
-              subtitle="Investing.com Official Economic Calendar Widget — placeholder"
+              title={t("overview.events")}
+              subtitle={t("overview.eventsSubtitle")}
               action={
                 <a
                   href="https://www.investing.com/economic-calendar/"
@@ -306,21 +308,21 @@ function Overview() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs text-info hover:underline"
                 >
-                  Open calendar <ExternalLink className="size-3" aria-hidden />
+                  {t("overview.openCalendar")} <ExternalLink className="size-3" aria-hidden />
                 </a>
               }
               bodyClassName="p-0"
             >
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[520px] text-sm">
-                  <caption className="sr-only">US economic events — widget placeholder</caption>
+                  <caption className="sr-only">{t("overview.eventsCaption")}</caption>
                   <thead>
                     <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                      <th scope="col" className="px-4 py-2 text-left font-medium">Time</th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">Event</th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">Impact</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">Actual</th>
-                      <th scope="col" className="px-4 py-2 text-right font-medium">Forecast</th>
+                      <th scope="col" className="px-4 py-2 text-left font-medium">{t("common.time")}</th>
+                      <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.event")}</th>
+                      <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.impact")}</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.actual")}</th>
+                      <th scope="col" className="px-4 py-2 text-right font-medium">{t("common.forecast")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -329,7 +331,7 @@ function Overview() {
                         <td className="num px-4 py-2">{e.time}</td>
                         <td className="px-2 py-2">{e.event}</td>
                         <td className="px-2 py-2">
-                          <span className="flex gap-0.5" aria-label={`${e.impact} impact`}>
+                          <span className="flex gap-0.5" aria-label={t("overview.impactAria", { impact: e.impact })}>
                             {Array.from({ length: e.impact === "High" ? 3 : e.impact === "Medium" ? 2 : 1 }).map((_, i) => (
                               <span key={i} className="size-1.5 rounded-full bg-negative" aria-hidden />
                             ))}
@@ -343,17 +345,15 @@ function Overview() {
                 </table>
               </div>
               <p className="border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
-                Widget placeholder configured for United States · High/Medium impact · Asia/Bangkok ·
-                Actual/Forecast/Previous · date picker. Data will be rendered by the official
-                Investing.com widget; nothing is scraped or copied. Attribution: Investing.com.
+                {t("overview.eventsNote")}
               </p>
             </PanelCard>
 
             <PanelCard
-              title="Journal (latest)"
+              title={t("overview.journalLatest")}
               action={
                 <Link to="/journal" className="text-xs text-info hover:underline">
-                  Full journal
+                  {t("overview.fullJournal")}
                 </Link>
               }
               bodyClassName="p-0"
@@ -368,7 +368,7 @@ function Overview() {
                       <p className="truncate text-sm font-medium">{j.title}</p>
                       <p className="truncate text-xs text-muted-foreground">{j.thesis}</p>
                       <p className="num mt-1 text-[11px] text-muted-foreground">
-                        {j.setup} · {j.emotion} · discipline {j.disciplineScore}/10
+                        {j.setup} · {j.emotion} · {t("overview.discipline")} {j.disciplineScore}/10
                       </p>
                     </div>
                     <span className="num shrink-0 text-[11px] text-muted-foreground">
@@ -381,10 +381,10 @@ function Overview() {
           </div>
 
           <PanelCard
-            title="Alerts & system health"
+            title={t("overview.alertsHealth")}
             action={
               <Link to="/alerts" className="inline-flex items-center gap-1 text-xs text-info hover:underline">
-                View all alerts <ArrowRight className="size-3" aria-hidden />
+                {t("overview.viewAllAlerts")} <ArrowRight className="size-3" aria-hidden />
               </Link>
             }
             bodyClassName="p-0"
@@ -422,8 +422,8 @@ function Overview() {
         </div>
 
         {/* Intelligence rail */}
-        <aside className="flex flex-col gap-4" aria-label="Intelligence rail">
-          <PanelCard title="Gold Impact Score" subtitle="-100 to +100">
+        <aside className="flex flex-col gap-4" aria-label={t("overview.rail")}>
+          <PanelCard title={t("overview.impactScore")} subtitle={t("overview.impactRange")}>
             <AdvisoryTag />
             <div className="mt-3 flex items-center gap-4">
               <div className="num grid size-20 shrink-0 place-items-center rounded-full border-4 border-primary/70 text-xl font-semibold text-primary">
@@ -433,7 +433,7 @@ function Overview() {
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-primary">{impact.band}</p>
                 <p className="num text-xs text-muted-foreground">
-                  vs yesterday {impact.vsYesterday > 0 ? "+" : ""}
+                  {t("kpi.vsYesterday")} {impact.vsYesterday > 0 ? "+" : ""}
                   {impact.vsYesterday}
                 </p>
               </div>
@@ -451,50 +451,50 @@ function Overview() {
             </ul>
           </PanelCard>
 
-          <PanelCard title="Market bias" subtitle="1D horizon view">
+          <PanelCard title={t("overview.marketBias")} subtitle={t("overview.biasSubtitle")}>
             <AdvisoryTag />
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <StatusBadge tone={bias.direction === "Bullish" ? "positive" : bias.direction === "Bearish" ? "negative" : "neutral"}>
                 {bias.direction}
               </StatusBadge>
               <span className="text-xs text-muted-foreground">
-                Confidence <span className="text-foreground">{bias.confidence}</span>
+                {t("common.confidence")} <span className="text-foreground">{bias.confidence}</span>
               </span>
               <span className="text-xs text-muted-foreground">
-                Horizon <span className="text-foreground">{bias.horizon}</span>
+                {t("common.horizon")} <span className="text-foreground">{bias.horizon}</span>
               </span>
             </div>
             <dl className="mt-3 space-y-2 text-xs">
               <div>
-                <dt className="font-medium text-foreground">Rationale</dt>
+                <dt className="font-medium text-foreground">{t("overview.rationale")}</dt>
                 <dd className="text-muted-foreground">{bias.rationale}</dd>
               </div>
               <div>
-                <dt className="font-medium text-foreground">Counter-evidence</dt>
+                <dt className="font-medium text-foreground">{t("overview.counterEvidence")}</dt>
                 <dd className="text-muted-foreground">{bias.counterEvidence}</dd>
               </div>
               <div>
-                <dt className="font-medium text-foreground">Invalidation</dt>
+                <dt className="font-medium text-foreground">{t("overview.invalidation")}</dt>
                 <dd className="text-negative">{bias.invalidation}</dd>
               </div>
             </dl>
           </PanelCard>
 
-          <PanelCard title="Risk monitor">
+          <PanelCard title={t("overview.riskMonitor")}>
             <dl className="space-y-2.5 text-xs">
               <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">Exposure</dt>
+                <dt className="text-muted-foreground">{t("risk.exposure")}</dt>
                 <dd className="num">
                   {money(risk.exposure, 0)} <span className="text-muted-foreground">({risk.exposurePct}%)</span>
                 </dd>
               </div>
               <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">Margin headroom</dt>
+                <dt className="text-muted-foreground">{t("risk.marginHeadroom")}</dt>
                 <dd className="num">{money(risk.marginHeadroom, 0)}</dd>
               </div>
               <div>
                 <div className="flex items-center justify-between gap-2">
-                  <dt className="text-muted-foreground">Daily loss used</dt>
+                  <dt className="text-muted-foreground">{t("risk.dailyLossUsed")}</dt>
                   <dd className="num">
                     {money(risk.dailyLossUsed, 0)} / {money(risk.dailyLossLimit, 0)}
                   </dd>
@@ -507,19 +507,19 @@ function Overview() {
                 </div>
               </div>
               <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">VaR (1D, 95%)</dt>
+                <dt className="text-muted-foreground">{t("risk.var")}</dt>
                 <dd className="num">{money(risk.var1d, 0)}</dd>
               </div>
               <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">Max position risk</dt>
+                <dt className="text-muted-foreground">{t("risk.maxPositionRisk")}</dt>
                 <dd className="num">{risk.maxPositionRisk}%</dd>
               </div>
               <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">Connection freshness</dt>
-                <dd className="num text-positive">{risk.connectionAgeSeconds}s ago</dd>
+                <dt className="text-muted-foreground">{t("risk.freshness")}</dt>
+                <dd className="num text-positive">{t("risk.secondsAgo", { n: risk.connectionAgeSeconds })}</dd>
               </div>
               <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">Risk status</dt>
+                <dt className="text-muted-foreground">{t("risk.status")}</dt>
                 <dd className="text-positive">{risk.status}</dd>
               </div>
             </dl>
@@ -527,15 +527,14 @@ function Overview() {
 
           <div className="rounded-md border border-primary/40 bg-primary/8 p-3">
             <p className="text-xs font-semibold tracking-[0.1em] text-primary uppercase">
-              AI advisory only
+              {t("overview.aiOnly")}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              AURIQ analyses and explains. It never submits orders, and the browser never talks to a
-              broker directly.
+              {t("overview.aiOnlyBody")}
             </p>
           </div>
 
-          <StaleState age="12s ago (demo)" />
+          <StaleState age={t("overview.staleAge")} />
         </aside>
       </div>
     </>
