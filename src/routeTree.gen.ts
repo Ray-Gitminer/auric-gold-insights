@@ -10,33 +10,154 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AlertsRouteImport } from './routes/alerts'
+import { Route as AuditLogRouteImport } from './routes/audit-log'
+import { Route as ChartStrategyRouteImport } from './routes/chart-strategy'
+import { Route as JournalRouteImport } from './routes/journal'
+import { Route as NewsRouteImport } from './routes/news'
+import { Route as PortfolioRouteImport } from './routes/portfolio'
+import { Route as PositionsOrdersRouteImport } from './routes/positions-orders'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as TradeHistoryRouteImport } from './routes/trade-history'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AlertsRoute = AlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuditLogRoute = AuditLogRouteImport.update({
+  id: '/audit-log',
+  path: '/audit-log',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChartStrategyRoute = ChartStrategyRouteImport.update({
+  id: '/chart-strategy',
+  path: '/chart-strategy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JournalRoute = JournalRouteImport.update({
+  id: '/journal',
+  path: '/journal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsRoute = NewsRouteImport.update({
+  id: '/news',
+  path: '/news',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioRoute = PortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PositionsOrdersRoute = PositionsOrdersRouteImport.update({
+  id: '/positions-orders',
+  path: '/positions-orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TradeHistoryRoute = TradeHistoryRouteImport.update({
+  id: '/trade-history',
+  path: '/trade-history',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/audit-log': typeof AuditLogRoute
+  '/chart-strategy': typeof ChartStrategyRoute
+  '/journal': typeof JournalRoute
+  '/news': typeof NewsRoute
+  '/portfolio': typeof PortfolioRoute
+  '/positions-orders': typeof PositionsOrdersRoute
+  '/settings': typeof SettingsRoute
+  '/trade-history': typeof TradeHistoryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/audit-log': typeof AuditLogRoute
+  '/chart-strategy': typeof ChartStrategyRoute
+  '/journal': typeof JournalRoute
+  '/news': typeof NewsRoute
+  '/portfolio': typeof PortfolioRoute
+  '/positions-orders': typeof PositionsOrdersRoute
+  '/settings': typeof SettingsRoute
+  '/trade-history': typeof TradeHistoryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/audit-log': typeof AuditLogRoute
+  '/chart-strategy': typeof ChartStrategyRoute
+  '/journal': typeof JournalRoute
+  '/news': typeof NewsRoute
+  '/portfolio': typeof PortfolioRoute
+  '/positions-orders': typeof PositionsOrdersRoute
+  '/settings': typeof SettingsRoute
+  '/trade-history': typeof TradeHistoryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/alerts'
+    | '/audit-log'
+    | '/chart-strategy'
+    | '/journal'
+    | '/news'
+    | '/portfolio'
+    | '/positions-orders'
+    | '/settings'
+    | '/trade-history'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/alerts'
+    | '/audit-log'
+    | '/chart-strategy'
+    | '/journal'
+    | '/news'
+    | '/portfolio'
+    | '/positions-orders'
+    | '/settings'
+    | '/trade-history'
+  id:
+    | '__root__'
+    | '/'
+    | '/alerts'
+    | '/audit-log'
+    | '/chart-strategy'
+    | '/journal'
+    | '/news'
+    | '/portfolio'
+    | '/positions-orders'
+    | '/settings'
+    | '/trade-history'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AlertsRoute: typeof AlertsRoute
+  AuditLogRoute: typeof AuditLogRoute
+  ChartStrategyRoute: typeof ChartStrategyRoute
+  JournalRoute: typeof JournalRoute
+  NewsRoute: typeof NewsRoute
+  PortfolioRoute: typeof PortfolioRoute
+  PositionsOrdersRoute: typeof PositionsOrdersRoute
+  SettingsRoute: typeof SettingsRoute
+  TradeHistoryRoute: typeof TradeHistoryRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +169,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/alerts': {
+      id: '/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/audit-log': {
+      id: '/audit-log'
+      path: '/audit-log'
+      fullPath: '/audit-log'
+      preLoaderRoute: typeof AuditLogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chart-strategy': {
+      id: '/chart-strategy'
+      path: '/chart-strategy'
+      fullPath: '/chart-strategy'
+      preLoaderRoute: typeof ChartStrategyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/journal': {
+      id: '/journal'
+      path: '/journal'
+      fullPath: '/journal'
+      preLoaderRoute: typeof JournalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news': {
+      id: '/news'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof NewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio': {
+      id: '/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof PortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/positions-orders': {
+      id: '/positions-orders'
+      path: '/positions-orders'
+      fullPath: '/positions-orders'
+      preLoaderRoute: typeof PositionsOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trade-history': {
+      id: '/trade-history'
+      path: '/trade-history'
+      fullPath: '/trade-history'
+      preLoaderRoute: typeof TradeHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AlertsRoute: AlertsRoute,
+  AuditLogRoute: AuditLogRoute,
+  ChartStrategyRoute: ChartStrategyRoute,
+  JournalRoute: JournalRoute,
+  NewsRoute: NewsRoute,
+  PortfolioRoute: PortfolioRoute,
+  PositionsOrdersRoute: PositionsOrdersRoute,
+  SettingsRoute: SettingsRoute,
+  TradeHistoryRoute: TradeHistoryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
