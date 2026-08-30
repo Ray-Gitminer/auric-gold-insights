@@ -4,6 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { instrument, strategy } from "@/data/fixtures";
 import { num, pct, toneFor } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/contexts/I18nContext";
 import { GoldChart, type Timeframe } from "@/components/auriq/GoldChart";
 import { PageHeader, PanelCard, StatusBadge } from "@/components/auriq/primitives";
 
@@ -23,29 +24,30 @@ export const Route = createFileRoute("/chart-strategy")({
   component: ChartStrategy,
 });
 
-const STATES = [
-  { state: "WAITING", detail: "Conditions incomplete — monitoring for the value-zone retest." },
-  { state: "VALID", detail: "All conditions pass; the setup may be traded within its window." },
-  { state: "INVALID", detail: "A condition failed after validation; the setup is discarded." },
-  { state: "TRIGGERED", detail: "Entry criteria met; a human confirmation would be required." },
-] as const;
+const STATE_KEYS = ["WAITING", "VALID", "INVALID", "TRIGGERED"] as const;
 
 function ChartStrategy() {
   const [primary, setPrimary] = useState<Timeframe>("1D");
+  const { t } = useI18n();
+
+  const STATES = STATE_KEYS.map((state) => ({
+    state,
+    detail: t(`state.${state}.detail` as const),
+  }));
 
   return (
     <>
       <PageHeader
-        title="Chart & Strategy"
-        description="Multi-timeframe gold workspace with a deterministic setup state machine. Chart data is a static demo series."
-        actions={<StatusBadge tone="gold">Setup: {strategy.state}</StatusBadge>}
+        title={t("cs.title")}
+        description={t("cs.desc")}
+        actions={<StatusBadge tone="gold">{t("common.setup")}: {strategy.state}</StatusBadge>}
       />
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="flex flex-col gap-4">
           <PanelCard
             title={instrument.label}
-            subtitle={`${instrument.exchange} · primary ${primary}`}
+            subtitle={`${instrument.exchange} · ${t("cs.primary", { tf: primary })}`}
             action={
               <span className={cn("num text-sm", toneFor(instrument.change))}>
                 {num(instrument.last, 1)} ({pct(instrument.changePct)})
@@ -58,7 +60,7 @@ function ChartStrategy() {
 
           <div className="grid gap-4 lg:grid-cols-3">
             {(["1h", "4h", "1D"] as Timeframe[]).map((tf) => (
-              <PanelCard key={tf} title={`Context · ${tf}`} bodyClassName="p-0">
+              <PanelCard key={tf} title={t("cs.context", { tf })} bodyClassName="p-0">
                 <GoldChart timeframe={tf} compact />
               </PanelCard>
             ))}
@@ -66,7 +68,7 @@ function ChartStrategy() {
         </div>
 
         <aside className="flex flex-col gap-4">
-          <PanelCard title="Setup state machine">
+          <PanelCard title={t("cs.stateMachine")}>
             <ol className="space-y-2">
               {STATES.map((s) => (
                 <li
@@ -82,7 +84,7 @@ function ChartStrategy() {
                       s.state === strategy.state ? "text-primary" : "text-muted-foreground",
                     )}
                   >
-                    {s.state}
+                    {t(`state.${s.state}` as const)}
                   </p>
                   <p className="mt-0.5 text-[11px] text-muted-foreground">{s.detail}</p>
                 </li>
@@ -90,7 +92,7 @@ function ChartStrategy() {
             </ol>
           </PanelCard>
 
-          <PanelCard title="Conditions" subtitle={strategy.name}>
+          <PanelCard title={t("cs.conditions")} subtitle={strategy.name}>
             <ul className="space-y-2">
               {strategy.conditions.map((c) => (
                 <li key={c.label} className="flex items-start gap-2">
@@ -107,17 +109,17 @@ function ChartStrategy() {
             </ul>
           </PanelCard>
 
-          <PanelCard title="Key levels">
+          <PanelCard title={t("cs.keyLevels")}>
             <ul className="space-y-1.5 text-xs">
               {instrument.resistance.map((r) => (
                 <li key={r.label} className="flex items-center justify-between">
-                  <span className="text-muted-foreground">{r.label} resistance</span>
+                  <span className="text-muted-foreground">{t("cs.resistance", { label: r.label })}</span>
                   <span className="num text-negative">{num(r.value, 1)}</span>
                 </li>
               ))}
               {instrument.support.map((s) => (
                 <li key={s.label} className="flex items-center justify-between">
-                  <span className="text-muted-foreground">{s.label} support</span>
+                  <span className="text-muted-foreground">{t("cs.support", { label: s.label })}</span>
                   <span className="num text-positive">{num(s.value, 1)}</span>
                 </li>
               ))}

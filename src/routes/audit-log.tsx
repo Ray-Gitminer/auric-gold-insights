@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { auditLog } from "@/data/fixtures";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/contexts/I18nContext";
 import { PageHeader, PanelCard, StatusBadge } from "@/components/auriq/primitives";
 
 export const Route = createFileRoute("/audit-log")({
@@ -21,28 +22,30 @@ export const Route = createFileRoute("/audit-log")({
 });
 
 function AuditLog() {
+  const { t } = useI18n();
+
   return (
     <>
       <PageHeader
-        title="Audit Log"
-        description="Append-only record of every system and user action. In production this store is write-once and independently retained."
-        actions={<StatusBadge tone="info">Append-only</StatusBadge>}
+        title={t("audit.title")}
+        description={t("audit.desc")}
+        actions={<StatusBadge tone="info">{t("audit.badge")}</StatusBadge>}
       />
 
-      <PanelCard title={`Records (${auditLog.length})`} bodyClassName="p-0">
+      <PanelCard title={`${t("audit.records")} (${auditLog.length})`} bodyClassName="p-0">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] text-sm">
-            <caption className="sr-only">Audit records — demo data</caption>
+            <caption className="sr-only">{t("audit.caption")}</caption>
             <thead>
               <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                <th scope="col" className="px-4 py-2 text-left font-medium">Timestamp</th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">Actor</th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">Action</th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">Entity</th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">Before</th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">After</th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">Result</th>
-                <th scope="col" className="px-4 py-2 text-left font-medium">Correlation</th>
+                <th scope="col" className="px-4 py-2 text-left font-medium">{t("audit.timestamp")}</th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">{t("audit.actor")}</th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">{t("audit.action")}</th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">{t("audit.entity")}</th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">{t("audit.before")}</th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">{t("audit.after")}</th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">{t("audit.result")}</th>
+                <th scope="col" className="px-4 py-2 text-left font-medium">{t("audit.correlation")}</th>
               </tr>
             </thead>
             <tbody>

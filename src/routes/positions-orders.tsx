@@ -7,6 +7,7 @@ import { money, num, pct, signedMoney, toneFor } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog, PageHeader, PanelCard, StateGallery } from "@/components/auriq/primitives";
+import { useI18n } from "@/contexts/I18nContext";
 
 export const Route = createFileRoute("/positions-orders")({
   head: () => ({
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/positions-orders")({
 const SYMBOLS = ["All", "GCM5", "SILM5", "HGK5", "XAUUSD"] as const;
 
 function PositionsOrders() {
+  const { t } = useI18n();
   const [symbol, setSymbol] = useState<(typeof SYMBOLS)[number]>("All");
   const [dialog, setDialog] = useState<null | {
     title: string;
@@ -49,10 +51,10 @@ function PositionsOrders() {
   return (
     <>
       <PageHeader
-        title="Positions & Orders"
-        description="Review paper positions and working orders. Every action here is a prototype control that opens a confirmation modal and stops there."
+        title={t("po.title")}
+        description={t("po.desc")}
         actions={
-          <div className="flex flex-wrap gap-1" role="group" aria-label="Filter by symbol">
+          <div className="flex flex-wrap gap-1" role="group" aria-label={t("po.filterSymbol")}>
             {SYMBOLS.map((s) => (
               <button
                 key={s}
@@ -66,28 +68,28 @@ function PositionsOrders() {
                     : "border-border text-muted-foreground hover:text-foreground",
                 )}
               >
-                {s}
+                {s === "All" ? t("po.all") : s}
               </button>
             ))}
           </div>
         }
       />
 
-      <PanelCard title={`Positions (${shownPositions.length})`} bodyClassName="p-0">
+      <PanelCard title={`${t("po.positions")} (${shownPositions.length})`} bodyClassName="p-0">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px] text-sm">
-            <caption className="sr-only">Open positions — demo data</caption>
+            <caption className="sr-only">{t("overview.positionsCaption")}</caption>
             <thead>
               <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                <th scope="col" className="px-4 py-2 text-left font-medium">Instrument</th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">Side</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">Qty</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">Avg</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">Last</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">Unrealised</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">SL</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">TP</th>
-                <th scope="col" className="px-4 py-2 text-right font-medium">Action</th>
+                <th scope="col" className="px-4 py-2 text-left font-medium">{t("common.instrument")}</th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.side")}</th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.qty")}</th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.avg")}</th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.last")}</th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.unrealised")}</th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">{t("po.sl")}</th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">{t("po.tp")}</th>
+                <th scope="col" className="px-4 py-2 text-right font-medium">{t("common.action")}</th>
               </tr>
             </thead>
             <tbody>
@@ -114,20 +116,20 @@ function PositionsOrders() {
                       variant="outline"
                       onClick={() =>
                         setDialog({
-                          title: "Close position (prototype)",
-                          description: `Review the simulated close for ${p.symbol}. AURIQ will not send this to any broker.`,
+                          title: t("po.closeTitle"),
+                          description: t("po.closeDesc", { symbol: p.symbol }),
                           details: [
-                            { label: "Instrument", value: `${p.symbol} · ${p.name}` },
-                            { label: "Side / Qty", value: `${p.side} ${p.qty}` },
-                            { label: "Average price", value: num(p.avgPrice, 3) },
-                            { label: "Last price", value: num(p.lastPrice, 3) },
-                            { label: "Unrealised P/L", value: signedMoney(p.unrealisedPnl, 0) },
-                            { label: "Estimated proceeds", value: money(p.lastPrice * p.qty, 2) },
+                            { label: t("common.instrument"), value: `${p.symbol} · ${p.name}` },
+                            { label: t("po.sideQty"), value: `${p.side} ${p.qty}` },
+                            { label: t("common.avgPrice"), value: num(p.avgPrice, 3) },
+                            { label: t("po.lastPrice"), value: num(p.lastPrice, 3) },
+                            { label: t("po.unrealisedPl"), value: signedMoney(p.unrealisedPnl, 0) },
+                            { label: t("po.estProceeds"), value: money(p.lastPrice * p.qty, 2) },
                           ],
                         })
                       }
                     >
-                      Close
+                      {t("common.close")}
                     </Button>
                   </td>
                 </tr>
@@ -137,20 +139,20 @@ function PositionsOrders() {
         </div>
       </PanelCard>
 
-      <PanelCard title={`Working orders (${shownOrders.length})`} bodyClassName="p-0">
+      <PanelCard title={`${t("po.workingOrders")} (${shownOrders.length})`} bodyClassName="p-0">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[820px] text-sm">
-            <caption className="sr-only">Working orders — demo data</caption>
+            <caption className="sr-only">{t("po.ordersCaption")}</caption>
             <thead>
               <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                <th scope="col" className="px-4 py-2 text-left font-medium">Symbol</th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">Side</th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">Type</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">Qty</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">Limit / Stop</th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">Status</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">Submitted</th>
-                <th scope="col" className="px-4 py-2 text-right font-medium">Action</th>
+                <th scope="col" className="px-4 py-2 text-left font-medium">{t("common.symbol")}</th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.side")}</th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.type")}</th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.qty")}</th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">{t("po.limitStop")}</th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.status")}</th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.submitted")}</th>
+                <th scope="col" className="px-4 py-2 text-right font-medium">{t("common.action")}</th>
               </tr>
             </thead>
             <tbody>
@@ -171,19 +173,19 @@ function PositionsOrders() {
                       variant="outline"
                       onClick={() =>
                         setDialog({
-                          title: "Cancel order (prototype)",
-                          description: `Review the simulated cancellation for order ${o.id}. Nothing is transmitted to IBKR.`,
+                          title: t("po.cancelTitle"),
+                          description: t("po.cancelDesc", { id: o.id }),
                           details: [
-                            { label: "Order", value: `${o.side} ${o.qty} ${o.symbol}` },
-                            { label: "Type", value: o.type },
-                            { label: "Price", value: num(o.price, 2) },
-                            { label: "Status", value: o.status },
-                            { label: "Submitted", value: o.submitted },
+                            { label: t("po.order"), value: `${o.side} ${o.qty} ${o.symbol}` },
+                            { label: t("common.type"), value: o.type },
+                            { label: t("common.price"), value: num(o.price, 2) },
+                            { label: t("common.status"), value: o.status },
+                            { label: t("common.submitted"), value: o.submitted },
                           ],
                         })
                       }
                     >
-                      Cancel
+                      {t("common.cancel")}
                     </Button>
                   </td>
                 </tr>
@@ -193,7 +195,7 @@ function PositionsOrders() {
         </div>
       </PanelCard>
 
-      <PanelCard title="Connection & data states">
+      <PanelCard title={t("po.states")}>
         <StateGallery />
       </PanelCard>
 
@@ -203,10 +205,10 @@ function PositionsOrders() {
         title={dialog?.title ?? ""}
         description={dialog?.description ?? ""}
         details={dialog?.details ?? []}
-        confirmLabel="Acknowledge (no order sent)"
+        confirmLabel={t("po.confirmLabel")}
         onConfirm={() => {
-          toast("Prototype only — no order was transmitted", {
-            description: "A production action would run risk checks and write an audit record.",
+          toast(t("po.toast"), {
+            description: t("po.toastDesc"),
           });
           setDialog(null);
         }}

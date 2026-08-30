@@ -3,6 +3,7 @@ import { ExternalLink } from "lucide-react";
 
 import { news } from "@/data/fixtures";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/contexts/I18nContext";
 import { AdvisoryTag, PageHeader, PanelCard, StatusBadge } from "@/components/auriq/primitives";
 
 export const Route = createFileRoute("/news")({
@@ -22,11 +23,13 @@ export const Route = createFileRoute("/news")({
 });
 
 function News() {
+  const { t } = useI18n();
+
   return (
     <>
       <PageHeader
-        title="News Intelligence"
-        description="Headlines collected from permitted RSS sources, deduplicated, scored for gold relevance and explained with citations."
+        title={t("news.title")}
+        description={t("news.desc")}
         actions={<AdvisoryTag />}
       />
 
@@ -43,7 +46,7 @@ function News() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-xs text-info hover:underline"
               >
-                Source <ExternalLink className="size-3" aria-hidden />
+                {t("news.source")} <ExternalLink className="size-3" aria-hidden />
               </a>
             }
           >
@@ -53,14 +56,14 @@ function News() {
               >
                 {n.direction}
               </StatusBadge>
-              <StatusBadge tone="info">Confidence {n.confidence}</StatusBadge>
+              <StatusBadge tone="info">{t("common.confidence")} {n.confidence}</StatusBadge>
               <StatusBadge tone="neutral">{n.horizon}</StatusBadge>
               <StatusBadge tone={n.dedup === "Unique" ? "gold" : "neutral"}>{n.dedup}</StatusBadge>
             </div>
 
             <div className="mt-3">
               <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                <span>Gold relevance</span>
+                <span>{t("news.relevance")}</span>
                 <span className="num">{n.relevance}/100</span>
               </div>
               <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-accent">
@@ -74,7 +77,7 @@ function News() {
             <p className="mt-3 text-xs text-muted-foreground">{n.rationale}</p>
 
             <div className="mt-3 border-t border-border pt-2">
-              <p className="text-[10px] tracking-[0.12em] text-muted-foreground uppercase">Citations</p>
+              <p className="text-[10px] tracking-[0.12em] text-muted-foreground uppercase">{t("news.citations")}</p>
               <ul className="mt-1 space-y-0.5">
                 {n.citations.map((c) => (
                   <li key={c} className="text-[11px] text-info">
@@ -88,8 +91,7 @@ function News() {
       </div>
 
       <p className="rounded-md border border-border bg-card px-4 py-3 text-xs text-muted-foreground">
-        AURIQ links to original sources and never republishes licensed content. Analysis is generated
-        server-side and is advisory only — it can never place an order.
+        {t("news.footer")}
       </p>
     </>
   );
