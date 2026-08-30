@@ -94,7 +94,7 @@ export const th: Dictionary = {
   "overview.desc":
     "ภาพรวมบัญชี Paper Trading พื้นที่ทำงานตลาดทองคำ และข้อมูลวิเคราะห์ประกอบการตัดสินใจ ตัวเลขทั้งหมดเป็นข้อมูลสังเคราะห์",
   "overview.feed": "ฟีดจำลอง · ข้อมูลสังเคราะห์",
-  "overview.feedLive": "ฟีดสด · จำลอง",
+  "overview.feedLive": "ฟีดจำลอง · ไม่ใช่ข้อมูลตลาดจริง",
   "kpi.netLiquidation": "มูลค่าพอร์ตสุทธิ",
   "kpi.availableCash": "เงินสดที่ใช้ได้",
   "kpi.todayPnl": "กำไร/ขาดทุนวันนี้",

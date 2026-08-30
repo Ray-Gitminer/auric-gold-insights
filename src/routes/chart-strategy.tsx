@@ -28,7 +28,7 @@ const STATE_KEYS = ["WAITING", "VALID", "INVALID", "TRIGGERED"] as const;
 
 function ChartStrategy() {
   const [primary, setPrimary] = useState<Timeframe>("1D");
-  const { t } = useI18n();
+  const { t, tx } = useI18n();
 
   const STATES = STATE_KEYS.map((state) => ({
     state,
@@ -92,7 +92,7 @@ function ChartStrategy() {
             </ol>
           </PanelCard>
 
-          <PanelCard title={t("cs.conditions")} subtitle={strategy.name}>
+          <PanelCard title={t("cs.conditions")} subtitle={tx(strategy.name)}>
             <ul className="space-y-2">
               {strategy.conditions.map((c) => (
                 <li key={c.label} className="flex items-start gap-2">
@@ -101,8 +101,8 @@ function ChartStrategy() {
                     aria-hidden
                   />
                   <div className="min-w-0">
-                    <p className="text-xs font-medium">{c.label}</p>
-                    <p className="num text-[11px] text-muted-foreground">{c.detail}</p>
+                    <p className="text-xs font-medium">{tx(c.label)}</p>
+                    <p className="num text-[11px] text-muted-foreground">{tx(c.detail)}</p>
                   </div>
                 </li>
               ))}

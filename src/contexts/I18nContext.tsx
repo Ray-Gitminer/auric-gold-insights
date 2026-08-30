@@ -10,6 +10,7 @@ import {
 
 import { en, type TranslationKey } from "@/locales/en";
 import { th } from "@/locales/th";
+import { fixturesTh } from "@/locales/fixtures-th";
 
 export type Language = "th" | "en";
 
@@ -23,6 +24,8 @@ type I18nValue = {
   lang: Language;
   setLang: (lang: Language) => void;
   t: (key: TranslationKey, vars?: Vars) => string;
+  /** Translate demo fixture content (English source string) for the active language. */
+  tx: (text: string) => string;
 };
 
 const I18nContext = createContext<I18nValue | null>(null);
@@ -62,6 +65,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       lang,
       setLang,
       t: (key, vars) => interpolate(dict[key] ?? en[key] ?? key, vars),
+      tx: (text) => (lang === "th" ? (fixturesTh[text] ?? text) : text),
     };
   }, [lang, setLang]);
 

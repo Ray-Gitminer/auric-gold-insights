@@ -129,7 +129,7 @@ function Wordmark({ collapsed = false }: { collapsed?: boolean }) {
 }
 
 function HealthPanel() {
-  const { t } = useI18n();
+  const { t, tx } = useI18n();
   return (
     <div className="mx-3 mb-4 rounded-md border border-border bg-card/60 p-3">
       <div className="flex items-center gap-2">
@@ -139,7 +139,9 @@ function HealthPanel() {
       <ul className="mt-2 space-y-1.5">
         {systemHealth.map((s) => (
           <li key={s.label} className="flex items-center justify-between gap-2 text-[11px]">
-            <span className="truncate text-muted-foreground">{s.label}</span>
+            <span className="truncate text-muted-foreground">
+              {tx(s.label)} · {tx(s.detail)}
+            </span>
             <span
               className={cn("size-1.5 shrink-0 rounded-full", s.status === "ok" ? "bg-positive" : "bg-primary")}
               aria-label={s.status === "ok" ? t("shell.operational") : t("shell.attention")}
@@ -247,7 +249,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen w-full max-w-full overflow-x-hidden bg-background">
       <aside
         className={cn(
           "relative hidden shrink-0 border-r border-border bg-sidebar lg:block",
@@ -284,8 +286,11 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Sheet>
           }
         />
-        <main className="min-w-0 flex-1 px-3 py-5 sm:px-5 lg:px-6">
-          <div className="mx-auto flex max-w-[1600px] flex-col gap-5">{children}</div>
+        <p className="border-b border-primary/30 bg-primary/8 px-3 py-1.5 text-center text-[11px] font-medium tracking-wide text-primary sm:px-5">
+          {t("shell.safety")}
+        </p>
+        <main className="w-full min-w-0 flex-1 overflow-x-hidden px-3 py-5 sm:px-5 lg:px-6">
+          <div className="mx-auto flex w-full min-w-0 max-w-[1600px] flex-col gap-5">{children}</div>
         </main>
       </div>
     </div>
