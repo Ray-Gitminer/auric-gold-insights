@@ -211,25 +211,25 @@ function Overview() {
 
           <div className="grid gap-4 lg:grid-cols-2">
             <PanelCard
-              title={`Open positions (${positions.length})`}
+              title={`${t("overview.openPositions")} (${positions.length})`}
               action={
                 <Link to="/positions-orders" className="text-xs text-info hover:underline">
-                  View all
+                  {t("common.viewAll")}
                 </Link>
               }
               bodyClassName="p-0"
             >
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[560px] text-sm">
-                  <caption className="sr-only">Open positions — demo data</caption>
+                  <caption className="sr-only">{t("overview.positionsCaption")}</caption>
                   <thead>
                     <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                      <th scope="col" className="px-4 py-2 text-left font-medium">Symbol</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">Qty</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">Avg</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">Last</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">Unrlzd</th>
-                      <th scope="col" className="px-4 py-2 text-right font-medium">P/L %</th>
+                      <th scope="col" className="px-4 py-2 text-left font-medium">{t("common.symbol")}</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.qty")}</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.avg")}</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.last")}</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.unrlzd")}</th>
+                      <th scope="col" className="px-4 py-2 text-right font-medium">{t("common.plPct")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -255,25 +255,25 @@ function Overview() {
             </PanelCard>
 
             <PanelCard
-              title={`Open orders (${orders.length})`}
+              title={`${t("overview.openOrders")} (${orders.length})`}
               action={
                 <Link to="/positions-orders" className="text-xs text-info hover:underline">
-                  View all
+                  {t("common.viewAll")}
                 </Link>
               }
               bodyClassName="p-0"
             >
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[560px] text-sm">
-                  <caption className="sr-only">Open orders — demo data</caption>
+                  <caption className="sr-only">{t("overview.ordersCaption")}</caption>
                   <thead>
                     <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                      <th scope="col" className="px-4 py-2 text-left font-medium">Symbol</th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">Side</th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">Type</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">Qty</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">Price</th>
-                      <th scope="col" className="px-4 py-2 text-right font-medium">Status</th>
+                      <th scope="col" className="px-4 py-2 text-left font-medium">{t("common.symbol")}</th>
+                      <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.side")}</th>
+                      <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.type")}</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.qty")}</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.price")}</th>
+                      <th scope="col" className="px-4 py-2 text-right font-medium">{t("common.status")}</th>
                     </tr>
                   </thead>
                   <tbody>
