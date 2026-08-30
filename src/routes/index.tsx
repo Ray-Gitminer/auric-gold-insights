@@ -200,7 +200,7 @@ function Overview() {
                       aria-hidden
                     />
                     <div className="min-w-0">
-                      <p className="truncate text-xs font-medium">{c.label}</p>
+                      <p className="text-xs leading-snug font-medium">{c.label}</p>
                       <p className="num truncate text-[11px] text-muted-foreground">{c.detail}</p>
                     </div>
                   </li>
