@@ -67,68 +67,69 @@ const setupTone: Record<string, "gold" | "positive" | "negative" | "info"> = {
 };
 
 function Overview() {
+  const { t } = useI18n();
   const [timeframe, setTimeframe] = useState<Timeframe>("1D");
 
   return (
     <>
       <PageHeader
-        title="Overview"
-        description="Paper-trading account snapshot, gold market workspace and advisory intelligence. All figures are synthetic fixtures."
+        title={t("overview.title")}
+        description={t("overview.desc")}
         actions={
           <>
-            <StatusBadge tone="positive">Feed live · demo</StatusBadge>
-            <StatusBadge tone="neutral">Asia/Bangkok</StatusBadge>
+            <StatusBadge tone="positive">{t("overview.feedLive")}</StatusBadge>
+            <StatusBadge tone="neutral">{t("common.timezone")}</StatusBadge>
           </>
         }
       />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <KpiCard
-          label="Net liquidation"
+          label={t("kpi.netLiquidation")}
           value={money(account.netLiquidation)}
           delta={pct(1.25)}
           deltaTone="positive"
-          freshness="vs yesterday"
+          freshness={t("kpi.vsYesterday")}
           icon={<CircleDollarSign className="size-3.5" />}
         />
         <KpiCard
-          label="Available cash"
+          label={t("kpi.availableCash")}
           value={money(account.availableCash)}
           delta={pct(0.68)}
           deltaTone="positive"
-          freshness="settled"
+          freshness={t("kpi.settled")}
           icon={<Wallet className="size-3.5" />}
         />
         <KpiCard
-          label="Today P/L"
+          label={t("kpi.todayPnl")}
           value={signedMoney(account.todayPnl)}
           delta={pct(account.todayPnlPct)}
           deltaTone="positive"
-          freshness={`as of ${account.lastSync}`}
+          freshness={t("kpi.asOf", { time: account.lastSync })}
           icon={<TrendingUp className="size-3.5" />}
         />
         <KpiCard
-          label="Unrealised P/L"
+          label={t("kpi.unrealisedPnl")}
           value={signedMoney(account.unrealisedPnl)}
           delta={pct(account.unrealisedPnlPct)}
           deltaTone="positive"
-          freshness="4 open positions"
+          freshness={t("kpi.openPositions", { count: 4 })}
           icon={<Gauge className="size-3.5" />}
         />
         <KpiCard
-          label="Margin used"
+          label={t("kpi.marginUsed")}
           value={money(account.marginUsed)}
-          delta={`${account.marginUsedPct}% of NLV`}
+          delta={t("kpi.ofNlv", { pct: account.marginUsedPct })}
           deltaTone="neutral"
-          freshness="within limits"
+          freshness={t("kpi.withinLimits")}
           icon={<Landmark className="size-3.5" />}
         />
         <KpiCard
-          label="Drawdown (MTD)"
+          label={t("kpi.drawdown")}
           value={pct(account.drawdownPct)}
           delta={signedMoney(account.drawdownValue)}
           deltaTone="negative"
-          freshness="limit -1.00%"
+          freshness={t("kpi.limit", { value: "-1.00%" })}
           icon={<ShieldAlert className="size-3.5" />}
         />
       </div>
