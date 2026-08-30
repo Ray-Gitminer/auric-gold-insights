@@ -25,7 +25,7 @@ export const Route = createFileRoute("/journal")({
 });
 
 function Journal() {
-  const { t } = useI18n();
+  const { t, tx } = useI18n();
 
   const CHECKLIST = [
     t("journal.check1"),
@@ -55,8 +55,8 @@ function Journal() {
           {journal.map((j) => (
             <PanelCard
               key={j.id}
-              title={j.title}
-              subtitle={`${j.date} ${j.time} · ${j.setup}`}
+              title={tx(j.title)}
+              subtitle={`${j.date} ${j.time} · ${tx(j.setup)}`}
               action={
                 <StatusBadge tone={j.disciplineScore >= 8 ? "positive" : j.disciplineScore >= 6 ? "gold" : "negative"}>
                   {t("journal.discipline", { score: j.disciplineScore })}
@@ -71,18 +71,18 @@ function Journal() {
                 <dl className="min-w-0 space-y-2 text-xs">
                   <div>
                     <dt className="font-medium">{t("journal.thesis")}</dt>
-                    <dd className="text-muted-foreground">{j.thesis}</dd>
+                    <dd className="text-muted-foreground">{tx(j.thesis)}</dd>
                   </div>
                   <div>
                     <dt className="font-medium">{t("journal.review")}</dt>
-                    <dd className="text-muted-foreground">{j.review}</dd>
+                    <dd className="text-muted-foreground">{tx(j.review)}</dd>
                   </div>
                   <div className="flex flex-wrap gap-2 pt-1">
-                    <StatusBadge tone="info">{j.emotion}</StatusBadge>
+                    <StatusBadge tone="info">{tx(j.emotion)}</StatusBadge>
                     {j.errors.length ? (
                       j.errors.map((e) => (
                         <StatusBadge key={e} tone="negative">
-                          {e}
+                          {tx(e)}
                         </StatusBadge>
                       ))
                     ) : (

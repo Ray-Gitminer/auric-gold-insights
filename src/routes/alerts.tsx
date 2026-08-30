@@ -26,7 +26,7 @@ export const Route = createFileRoute("/alerts")({
 
 function Alerts() {
   const [rules, setRules] = useState(alertRules);
-  const { t } = useI18n();
+  const { t, tx } = useI18n();
 
   return (
     <>
@@ -57,7 +57,7 @@ function Alerts() {
                       a.severity === "info" && "text-info",
                     )}
                   >
-                    {a.message}
+                    {tx(a.message)}
                   </span>
                 </div>
                 <span className="num shrink-0 text-[11px] text-muted-foreground">
@@ -73,8 +73,8 @@ function Alerts() {
             {systemHealth.map((s) => (
               <li key={s.label} className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate text-xs font-medium">{s.label}</p>
-                  <p className="truncate text-[11px] text-muted-foreground">{s.detail}</p>
+                  <p className="text-xs font-medium">{tx(s.label)}</p>
+                  <p className="text-[11px] text-muted-foreground">{tx(s.detail)}</p>
                 </div>
                 <span
                   className={cn("mt-1 size-1.5 shrink-0 rounded-full", s.status === "ok" ? "bg-positive" : "bg-primary")}
@@ -91,11 +91,11 @@ function Alerts() {
           {rules.map((r) => (
             <li key={r.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3">
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{r.name}</p>
-                <p className="num truncate text-[11px] text-muted-foreground">{r.condition}</p>
+                <p className="text-sm font-medium">{tx(r.name)}</p>
+                <p className="num text-[11px] text-muted-foreground">{tx(r.condition)}</p>
               </div>
               <div className="flex shrink-0 items-center gap-3">
-                <span className="hidden text-[11px] text-muted-foreground sm:inline">{r.channel}</span>
+                <span className="hidden text-[11px] text-muted-foreground sm:inline">{tx(r.channel)}</span>
                 <Switch
                   checked={r.enabled}
                   aria-label={t("alerts.enabledAria", { name: r.name })}

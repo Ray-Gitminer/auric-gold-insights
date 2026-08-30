@@ -68,7 +68,7 @@ const setupTone: Record<string, "gold" | "positive" | "negative" | "info"> = {
 };
 
 function Overview() {
-  const { t } = useI18n();
+  const { t, tx } = useI18n();
   const [timeframe, setTimeframe] = useState<Timeframe>("1D");
 
   return (
@@ -180,7 +180,7 @@ function Overview() {
             <div className="border-t border-border p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="text-xs font-semibold tracking-wide uppercase">
-                  {t("overview.strategyConditions")} · {strategy.name}
+                  {t("overview.strategyConditions")} · {tx(strategy.name)}
                 </h3>
                 <Link to="/chart-strategy" className="text-xs text-info hover:underline">
                   {t("overview.openChartStrategy")}
@@ -200,8 +200,8 @@ function Overview() {
                       aria-hidden
                     />
                     <div className="min-w-0">
-                      <p className="text-xs leading-snug font-medium">{c.label}</p>
-                      <p className="num truncate text-[11px] text-muted-foreground">{c.detail}</p>
+                      <p className="text-xs leading-snug font-medium">{tx(c.label)}</p>
+                      <p className="num text-[11px] leading-snug text-muted-foreground">{tx(c.detail)}</p>
                     </div>
                   </li>
                 ))}
@@ -365,10 +365,10 @@ function Overview() {
                       <BookOpen className="size-4" aria-hidden />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{j.title}</p>
-                      <p className="truncate text-xs text-muted-foreground">{j.thesis}</p>
+                      <p className="truncate text-sm font-medium">{tx(j.title)}</p>
+                      <p className="truncate text-xs text-muted-foreground">{tx(j.thesis)}</p>
                       <p className="num mt-1 text-[11px] text-muted-foreground">
-                        {j.setup} · {j.emotion} · {t("overview.discipline")} {j.disciplineScore}/10
+                        {tx(j.setup)} · {tx(j.emotion)} · {t("overview.discipline")} {j.disciplineScore}/10
                       </p>
                     </div>
                     <span className="num shrink-0 text-[11px] text-muted-foreground">
@@ -409,7 +409,7 @@ function Overview() {
                         a.severity === "info" && "text-info",
                       )}
                     >
-                      {a.message}
+                      {tx(a.message)}
                     </span>
                   </div>
                   <span className="num shrink-0 text-[11px] text-muted-foreground">
@@ -431,7 +431,7 @@ function Overview() {
                 {impact.score}
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-primary">{impact.band}</p>
+                <p className="text-sm font-semibold text-primary">{tx(impact.band)}</p>
                 <p className="num text-xs text-muted-foreground">
                   {t("kpi.vsYesterday")} {impact.vsYesterday > 0 ? "+" : ""}
                   {impact.vsYesterday}
@@ -441,7 +441,7 @@ function Overview() {
             <ul className="mt-4 space-y-1.5">
               {impact.drivers.map((d) => (
                 <li key={d.label} className="flex items-center justify-between gap-2 text-xs">
-                  <span className="truncate text-muted-foreground">{d.label}</span>
+                  <span className="min-w-0 text-muted-foreground">{tx(d.label)}</span>
                   <span className={cn("num shrink-0", toneFor(d.weight))}>
                     {d.weight > 0 ? "+" : ""}
                     {d.weight}
@@ -455,27 +455,27 @@ function Overview() {
             <AdvisoryTag />
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <StatusBadge tone={bias.direction === "Bullish" ? "positive" : bias.direction === "Bearish" ? "negative" : "neutral"}>
-                {bias.direction}
+                {tx(bias.direction)}
               </StatusBadge>
               <span className="text-xs text-muted-foreground">
-                {t("common.confidence")} <span className="text-foreground">{bias.confidence}</span>
+                {t("common.confidence")} <span className="text-foreground">{tx(bias.confidence)}</span>
               </span>
               <span className="text-xs text-muted-foreground">
-                {t("common.horizon")} <span className="text-foreground">{bias.horizon}</span>
+                {t("common.horizon")} <span className="text-foreground">{tx(bias.horizon)}</span>
               </span>
             </div>
             <dl className="mt-3 space-y-2 text-xs">
               <div>
                 <dt className="font-medium text-foreground">{t("overview.rationale")}</dt>
-                <dd className="text-muted-foreground">{bias.rationale}</dd>
+                <dd className="text-muted-foreground">{tx(bias.rationale)}</dd>
               </div>
               <div>
                 <dt className="font-medium text-foreground">{t("overview.counterEvidence")}</dt>
-                <dd className="text-muted-foreground">{bias.counterEvidence}</dd>
+                <dd className="text-muted-foreground">{tx(bias.counterEvidence)}</dd>
               </div>
               <div>
                 <dt className="font-medium text-foreground">{t("overview.invalidation")}</dt>
-                <dd className="text-negative">{bias.invalidation}</dd>
+                <dd className="text-negative">{tx(bias.invalidation)}</dd>
               </div>
             </dl>
           </PanelCard>
@@ -520,7 +520,7 @@ function Overview() {
               </div>
               <div className="flex items-center justify-between gap-2">
                 <dt className="text-muted-foreground">{t("risk.status")}</dt>
-                <dd className="text-positive">{risk.status}</dd>
+                <dd className="text-positive">{tx(risk.status)}</dd>
               </div>
             </dl>
           </PanelCard>
