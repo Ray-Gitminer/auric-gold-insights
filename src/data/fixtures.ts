@@ -136,7 +136,7 @@ export interface Candle {
   l: number;
   c: number;
   v: number;
-  event?: string;
+  event?: string | undefined;
 }
 
 /** Deterministic pseudo-random walk so SSR and client render identically. */
