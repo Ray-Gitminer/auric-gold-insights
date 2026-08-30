@@ -138,19 +138,19 @@ function Overview() {
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
         {/* Market workspace */}
         <div className="flex flex-col gap-4">
-          <section className="rounded-md border border-border bg-card">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 border-b border-border px-4 py-3 sm:flex sm:items-center sm:justify-between">
+          <section className="min-w-0 max-w-full overflow-hidden rounded-md border border-border bg-card">
+            <div className="flex min-w-0 flex-col gap-3 border-b border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
                 <div className="flex min-w-0 flex-wrap items-center gap-2">
-                  <h2 className="truncate text-sm font-semibold">{instrument.label}</h2>
+                  <h2 className="text-sm font-semibold break-words">{instrument.label}</h2>
                   <DemoDataTag />
                 </div>
                 <p className="num mt-1 text-xs text-muted-foreground">
                   {instrument.exchange} · {timeframe}
                 </p>
               </div>
-              <div className="flex shrink-0 flex-wrap items-center gap-4">
-                <div className="text-right">
+              <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 sm:shrink-0">
+                <div className="text-left sm:text-right">
                   <p className="num text-lg font-semibold">{num(instrument.last, 1)}</p>
                   <p className={cn("num text-xs", toneFor(instrument.change))}>
                     {instrument.change > 0 ? "+" : ""}
