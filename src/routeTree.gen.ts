@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlertsRouteImport } from './routes/alerts'
+import { Route as AuditLogRouteImport } from './routes/audit-log'
 import { Route as ChartStrategyRouteImport } from './routes/chart-strategy'
 import { Route as JournalRouteImport } from './routes/journal'
 import { Route as NewsRouteImport } from './routes/news'
@@ -26,6 +27,11 @@ const IndexRoute = IndexRouteImport.update({
 const AlertsRoute = AlertsRouteImport.update({
   id: '/alerts',
   path: '/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuditLogRoute = AuditLogRouteImport.update({
+  id: '/audit-log',
+  path: '/audit-log',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChartStrategyRoute = ChartStrategyRouteImport.update({
@@ -62,6 +68,7 @@ const TradeHistoryRoute = TradeHistoryRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
+  '/audit-log': typeof AuditLogRoute
   '/chart-strategy': typeof ChartStrategyRoute
   '/journal': typeof JournalRoute
   '/news': typeof NewsRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
+  '/audit-log': typeof AuditLogRoute
   '/chart-strategy': typeof ChartStrategyRoute
   '/journal': typeof JournalRoute
   '/news': typeof NewsRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
+  '/audit-log': typeof AuditLogRoute
   '/chart-strategy': typeof ChartStrategyRoute
   '/journal': typeof JournalRoute
   '/news': typeof NewsRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/alerts'
+    | '/audit-log'
     | '/chart-strategy'
     | '/journal'
     | '/news'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/alerts'
+    | '/audit-log'
     | '/chart-strategy'
     | '/journal'
     | '/news'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/alerts'
+    | '/audit-log'
     | '/chart-strategy'
     | '/journal'
     | '/news'
@@ -126,6 +138,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlertsRoute: typeof AlertsRoute
+  AuditLogRoute: typeof AuditLogRoute
   ChartStrategyRoute: typeof ChartStrategyRoute
   JournalRoute: typeof JournalRoute
   NewsRoute: typeof NewsRoute
@@ -148,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/alerts'
       fullPath: '/alerts'
       preLoaderRoute: typeof AlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/audit-log': {
+      id: '/audit-log'
+      path: '/audit-log'
+      fullPath: '/audit-log'
+      preLoaderRoute: typeof AuditLogRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chart-strategy': {
@@ -198,6 +218,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlertsRoute: AlertsRoute,
+  AuditLogRoute: AuditLogRoute,
   ChartStrategyRoute: ChartStrategyRoute,
   JournalRoute: JournalRoute,
   NewsRoute: NewsRoute,
