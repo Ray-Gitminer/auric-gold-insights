@@ -548,7 +548,7 @@ export const auditLog: AuditRecord[] = [
 
 export const systemHealth = [
   { label: "Data Feed", status: "ok" as const, detail: "Snapshot age 12s" },
-  { label: "IBKR Connection", status: "ok" as const, detail: "Paper gateway reachable" },
+  { label: "IBKR Connector", status: "ok" as const, detail: "Simulation mode" },
   { label: "News Engine", status: "ok" as const, detail: "Last run 08:30" },
   { label: "AI Analysis", status: "ok" as const, detail: "Advisory only" },
   { label: "Risk Engine", status: "warn" as const, detail: "Drawdown near limit" },
