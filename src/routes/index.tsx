@@ -299,8 +299,8 @@ function Overview() {
 
           <div className="grid gap-4 lg:grid-cols-2">
             <PanelCard
-              title="US economic events"
-              subtitle="Investing.com Official Economic Calendar Widget — placeholder"
+              title={t("overview.events")}
+              subtitle={t("overview.eventsSubtitle")}
               action={
                 <a
                   href="https://www.investing.com/economic-calendar/"
@@ -308,21 +308,21 @@ function Overview() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs text-info hover:underline"
                 >
-                  Open calendar <ExternalLink className="size-3" aria-hidden />
+                  {t("overview.openCalendar")} <ExternalLink className="size-3" aria-hidden />
                 </a>
               }
               bodyClassName="p-0"
             >
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[520px] text-sm">
-                  <caption className="sr-only">US economic events — widget placeholder</caption>
+                  <caption className="sr-only">{t("overview.eventsCaption")}</caption>
                   <thead>
                     <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                      <th scope="col" className="px-4 py-2 text-left font-medium">Time</th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">Event</th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">Impact</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">Actual</th>
-                      <th scope="col" className="px-4 py-2 text-right font-medium">Forecast</th>
+                      <th scope="col" className="px-4 py-2 text-left font-medium">{t("common.time")}</th>
+                      <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.event")}</th>
+                      <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.impact")}</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.actual")}</th>
+                      <th scope="col" className="px-4 py-2 text-right font-medium">{t("common.forecast")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -331,7 +331,7 @@ function Overview() {
                         <td className="num px-4 py-2">{e.time}</td>
                         <td className="px-2 py-2">{e.event}</td>
                         <td className="px-2 py-2">
-                          <span className="flex gap-0.5" aria-label={`${e.impact} impact`}>
+                          <span className="flex gap-0.5" aria-label={t("overview.impactAria", { impact: e.impact })}>
                             {Array.from({ length: e.impact === "High" ? 3 : e.impact === "Medium" ? 2 : 1 }).map((_, i) => (
                               <span key={i} className="size-1.5 rounded-full bg-negative" aria-hidden />
                             ))}
@@ -345,17 +345,15 @@ function Overview() {
                 </table>
               </div>
               <p className="border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
-                Widget placeholder configured for United States · High/Medium impact · Asia/Bangkok ·
-                Actual/Forecast/Previous · date picker. Data will be rendered by the official
-                Investing.com widget; nothing is scraped or copied. Attribution: Investing.com.
+                {t("overview.eventsNote")}
               </p>
             </PanelCard>
 
             <PanelCard
-              title="Journal (latest)"
+              title={t("overview.journalLatest")}
               action={
                 <Link to="/journal" className="text-xs text-info hover:underline">
-                  Full journal
+                  {t("overview.fullJournal")}
                 </Link>
               }
               bodyClassName="p-0"
@@ -370,7 +368,7 @@ function Overview() {
                       <p className="truncate text-sm font-medium">{j.title}</p>
                       <p className="truncate text-xs text-muted-foreground">{j.thesis}</p>
                       <p className="num mt-1 text-[11px] text-muted-foreground">
-                        {j.setup} · {j.emotion} · discipline {j.disciplineScore}/10
+                        {j.setup} · {j.emotion} · {t("overview.discipline")} {j.disciplineScore}/10
                       </p>
                     </div>
                     <span className="num shrink-0 text-[11px] text-muted-foreground">
@@ -383,10 +381,10 @@ function Overview() {
           </div>
 
           <PanelCard
-            title="Alerts & system health"
+            title={t("overview.alertsHealth")}
             action={
               <Link to="/alerts" className="inline-flex items-center gap-1 text-xs text-info hover:underline">
-                View all alerts <ArrowRight className="size-3" aria-hidden />
+                {t("overview.viewAllAlerts")} <ArrowRight className="size-3" aria-hidden />
               </Link>
             }
             bodyClassName="p-0"

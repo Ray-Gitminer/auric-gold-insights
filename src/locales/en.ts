@@ -331,6 +331,13 @@ export const en = {
   "settings.notifyStrategy": "Strategy state changes",
   "settings.notifyNews": "Daily news digest",
   "settings.notifyStale": "Stale data warnings",
+
+  // ---------- portfolio/positions/trade-history additions ----------
+  "po.sl": "SL",
+  "po.tp": "TP",
+  "po.lastPrice": "Last price",
+  "po.unrealisedPl": "Unrealised P/L",
+  "th.r": "R",
 } as const;
 
 export type TranslationKey = keyof typeof en;

@@ -333,4 +333,10 @@ export const th: Dictionary = {
   "settings.notifyStrategy": "การเปลี่ยนสถานะกลยุทธ์",
   "settings.notifyNews": "สรุปข่าวรายวัน",
   "settings.notifyStale": "เตือนเมื่อข้อมูลไม่เป็นปัจจุบัน",
+  // ---------- portfolio/positions/trade-history additions ----------
+  "po.sl": "SL",
+  "po.tp": "TP",
+  "po.lastPrice": "ราคาล่าสุด",
+  "po.unrealisedPl": "กำไร/ขาดทุนที่ยังไม่รับรู้",
+  "th.r": "R",
 };
