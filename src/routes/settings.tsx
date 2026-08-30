@@ -47,7 +47,7 @@ function Settings() {
           <dl className="space-y-2 text-sm">
             <div className="flex items-center justify-between">
               <dt className="text-muted-foreground">Account ID</dt>
-              <dd className="num">{account.id}</dd>
+              <dd className="num">{account.accountId}</dd>
             </div>
             <div className="flex items-center justify-between">
               <dt className="text-muted-foreground">Mode</dt>
