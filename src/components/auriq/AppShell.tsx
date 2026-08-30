@@ -44,7 +44,7 @@ const NAV = [
   { to: "/settings", label: "Settings", icon: SettingsIcon },
 ] as const;
 
-function NavList({ onNavigate, collapsed = false }: { onNavigate?: () => void; collapsed?: boolean }) {
+function NavList({ onNavigate, collapsed = false }: { onNavigate?: (() => void) | undefined; collapsed?: boolean }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
     <nav className="flex flex-col gap-0.5 px-2" aria-label="Main">
@@ -112,7 +112,7 @@ function HealthPanel() {
   );
 }
 
-function SidebarInner({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: () => void }) {
+function SidebarInner({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: (() => void) | undefined }) {
   return (
     <div className="flex h-full flex-col">
       <Wordmark collapsed={collapsed} />
