@@ -1,24 +1,543 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  ArrowRight,
+  Bell,
+  BookOpen,
+  CircleDollarSign,
+  ExternalLink,
+  Gauge,
+  Info,
+  Landmark,
+  ShieldAlert,
+  TrendingUp,
+  Wallet,
+} from "lucide-react";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+import {
+  account,
+  alerts,
+  bias,
+  economicEvents,
+  impact,
+  instrument,
+  journal,
+  orders,
+  positions,
+  risk,
+  strategy,
+} from "@/data/fixtures";
+import { money, num, pct, signedMoney, toneFor } from "@/lib/format";
+import { cn } from "@/lib/utils";
+import { GoldChart, type Timeframe } from "@/components/auriq/GoldChart";
+import {
+  AdvisoryTag,
+  DemoDataTag,
+  KpiCard,
+  PageHeader,
+  PanelCard,
+  StaleState,
+  StatusBadge,
+} from "@/components/auriq/primitives";
+
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "Overview · AURIQ Gold Trading Intelligence" },
+      {
+        name: "description",
+        content:
+          "Paper-trading overview: account KPIs, gold market workspace, AI advisory rail, positions, orders and risk monitoring.",
+      },
+      { property: "og:title", content: "Overview · AURIQ Gold Trading Intelligence" },
+      {
+        property: "og:description",
+        content: "Account KPIs, gold chart workspace, AI advisory rail and risk monitor — demo data.",
+      },
+    ],
+  }),
+  component: Overview,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+const setupTone: Record<string, "gold" | "positive" | "negative" | "info"> = {
+  WAITING: "gold",
+  VALID: "positive",
+  INVALID: "negative",
+  TRIGGERED: "info",
+};
+
+function Overview() {
+  const [timeframe, setTimeframe] = useState<Timeframe>("1D");
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
+    <>
+      <PageHeader
+        title="Overview"
+        description="Paper-trading account snapshot, gold market workspace and advisory intelligence. All figures are synthetic fixtures."
+        actions={
+          <>
+            <StatusBadge tone="positive">Feed live · demo</StatusBadge>
+            <StatusBadge tone="neutral">Asia/Bangkok</StatusBadge>
+          </>
+        }
       />
-    </div>
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+        <KpiCard
+          label="Net liquidation"
+          value={money(account.netLiquidation)}
+          delta={pct(1.25)}
+          deltaTone="positive"
+          freshness="vs yesterday"
+          icon={<CircleDollarSign className="size-3.5" />}
+        />
+        <KpiCard
+          label="Available cash"
+          value={money(account.availableCash)}
+          delta={pct(0.68)}
+          deltaTone="positive"
+          freshness="settled"
+          icon={<Wallet className="size-3.5" />}
+        />
+        <KpiCard
+          label="Today P/L"
+          value={signedMoney(account.todayPnl)}
+          delta={pct(account.todayPnlPct)}
+          deltaTone="positive"
+          freshness={`as of ${account.lastSync}`}
+          icon={<TrendingUp className="size-3.5" />}
+        />
+        <KpiCard
+          label="Unrealised P/L"
+          value={signedMoney(account.unrealisedPnl)}
+          delta={pct(account.unrealisedPnlPct)}
+          deltaTone="positive"
+          freshness="4 open positions"
+          icon={<Gauge className="size-3.5" />}
+        />
+        <KpiCard
+          label="Margin used"
+          value={money(account.marginUsed)}
+          delta={`${account.marginUsedPct}% of NLV`}
+          deltaTone="neutral"
+          freshness="within limits"
+          icon={<Landmark className="size-3.5" />}
+        />
+        <KpiCard
+          label="Drawdown (MTD)"
+          value={pct(account.drawdownPct)}
+          delta={signedMoney(account.drawdownValue)}
+          deltaTone="negative"
+          freshness="limit -1.00%"
+          icon={<ShieldAlert className="size-3.5" />}
+        />
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+        {/* Market workspace */}
+        <div className="flex flex-col gap-4">
+          <section className="rounded-md border border-border bg-card">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 border-b border-border px-4 py-3 sm:flex sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
+                  <h2 className="truncate text-sm font-semibold">{instrument.label}</h2>
+                  <DemoDataTag />
+                </div>
+                <p className="num mt-1 text-xs text-muted-foreground">
+                  {instrument.exchange} · {timeframe}
+                </p>
+              </div>
+              <div className="flex shrink-0 flex-wrap items-center gap-4">
+                <div className="text-right">
+                  <p className="num text-lg font-semibold">{num(instrument.last, 1)}</p>
+                  <p className={cn("num text-xs", toneFor(instrument.change))}>
+                    {instrument.change > 0 ? "+" : ""}
+                    {num(instrument.change, 1)} ({pct(instrument.changePct)})
+                  </p>
+                </div>
+                <dl className="num hidden gap-x-4 text-xs text-muted-foreground sm:grid sm:grid-cols-3">
+                  <div>
+                    <dt className="text-[10px] uppercase">High</dt>
+                    <dd className="text-foreground">{num(instrument.high, 1)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[10px] uppercase">Low</dt>
+                    <dd className="text-foreground">{num(instrument.low, 1)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[10px] uppercase">Vol</dt>
+                    <dd className="text-foreground">{instrument.volume}</dd>
+                  </div>
+                </dl>
+                <StatusBadge tone={setupTone[strategy.state] ?? "neutral"}>
+                  Setup: {strategy.state}
+                </StatusBadge>
+              </div>
+            </div>
+            <GoldChart timeframe={timeframe} onTimeframeChange={setTimeframe} />
+            <div className="border-t border-border p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-xs font-semibold tracking-wide uppercase">
+                  Strategy conditions · {strategy.name}
+                </h3>
+                <Link to="/chart-strategy" className="text-xs text-info hover:underline">
+                  Open Chart &amp; Strategy
+                </Link>
+              </div>
+              <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {strategy.conditions.map((c) => (
+                  <li
+                    key={c.label}
+                    className="flex items-start gap-2 rounded-sm border border-border bg-surface/60 px-3 py-2"
+                  >
+                    <span
+                      className={cn(
+                        "mt-1 size-1.5 shrink-0 rounded-full",
+                        c.pass ? "bg-positive" : "bg-negative",
+                      )}
+                      aria-hidden
+                    />
+                    <div className="min-w-0">
+                      <p className="truncate text-xs font-medium">{c.label}</p>
+                      <p className="num truncate text-[11px] text-muted-foreground">{c.detail}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <PanelCard
+              title={`Open positions (${positions.length})`}
+              action={
+                <Link to="/positions-orders" className="text-xs text-info hover:underline">
+                  View all
+                </Link>
+              }
+              bodyClassName="p-0"
+            >
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[560px] text-sm">
+                  <caption className="sr-only">Open positions — demo data</caption>
+                  <thead>
+                    <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
+                      <th scope="col" className="px-4 py-2 text-left font-medium">Symbol</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">Qty</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">Avg</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">Last</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">Unrlzd</th>
+                      <th scope="col" className="px-4 py-2 text-right font-medium">P/L %</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {positions.map((p) => (
+                      <tr key={p.id} className="border-b border-border/60 last:border-0">
+                        <th scope="row" className="num px-4 py-2 text-left font-medium">
+                          {p.symbol}
+                        </th>
+                        <td className="num px-2 py-2 text-right">{p.qty}</td>
+                        <td className="num px-2 py-2 text-right">{num(p.avgPrice, 3)}</td>
+                        <td className="num px-2 py-2 text-right">{num(p.lastPrice, 3)}</td>
+                        <td className={cn("num px-2 py-2 text-right", toneFor(p.unrealisedPnl))}>
+                          {signedMoney(p.unrealisedPnl, 0)}
+                        </td>
+                        <td className={cn("num px-4 py-2 text-right", toneFor(p.pnlPct))}>
+                          {pct(p.pnlPct)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </PanelCard>
+
+            <PanelCard
+              title={`Open orders (${orders.length})`}
+              action={
+                <Link to="/positions-orders" className="text-xs text-info hover:underline">
+                  View all
+                </Link>
+              }
+              bodyClassName="p-0"
+            >
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[560px] text-sm">
+                  <caption className="sr-only">Open orders — demo data</caption>
+                  <thead>
+                    <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
+                      <th scope="col" className="px-4 py-2 text-left font-medium">Symbol</th>
+                      <th scope="col" className="px-2 py-2 text-left font-medium">Side</th>
+                      <th scope="col" className="px-2 py-2 text-left font-medium">Type</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">Qty</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">Price</th>
+                      <th scope="col" className="px-4 py-2 text-right font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.map((o) => (
+                      <tr key={o.id} className="border-b border-border/60 last:border-0">
+                        <th scope="row" className="num px-4 py-2 text-left font-medium">
+                          {o.symbol}
+                        </th>
+                        <td className={cn("px-2 py-2 text-xs font-semibold", o.side === "BUY" ? "text-positive" : "text-negative")}>
+                          {o.side}
+                        </td>
+                        <td className="px-2 py-2 text-xs text-info">{o.type}</td>
+                        <td className="num px-2 py-2 text-right">{o.qty}</td>
+                        <td className="num px-2 py-2 text-right">{num(o.price, 2)}</td>
+                        <td className="px-4 py-2 text-right text-xs text-info">{o.status}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </PanelCard>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <PanelCard
+              title="US economic events"
+              subtitle="Investing.com Official Economic Calendar Widget — placeholder"
+              action={
+                <a
+                  href="https://www.investing.com/economic-calendar/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-info hover:underline"
+                >
+                  Open calendar <ExternalLink className="size-3" aria-hidden />
+                </a>
+              }
+              bodyClassName="p-0"
+            >
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[520px] text-sm">
+                  <caption className="sr-only">US economic events — widget placeholder</caption>
+                  <thead>
+                    <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
+                      <th scope="col" className="px-4 py-2 text-left font-medium">Time</th>
+                      <th scope="col" className="px-2 py-2 text-left font-medium">Event</th>
+                      <th scope="col" className="px-2 py-2 text-left font-medium">Impact</th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">Actual</th>
+                      <th scope="col" className="px-4 py-2 text-right font-medium">Forecast</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {economicEvents.map((e) => (
+                      <tr key={`${e.time}-${e.event}`} className="border-b border-border/60 last:border-0">
+                        <td className="num px-4 py-2">{e.time}</td>
+                        <td className="px-2 py-2">{e.event}</td>
+                        <td className="px-2 py-2">
+                          <span className="flex gap-0.5" aria-label={`${e.impact} impact`}>
+                            {Array.from({ length: e.impact === "High" ? 3 : e.impact === "Medium" ? 2 : 1 }).map((_, i) => (
+                              <span key={i} className="size-1.5 rounded-full bg-negative" aria-hidden />
+                            ))}
+                          </span>
+                        </td>
+                        <td className="num px-2 py-2 text-right">{e.actual}</td>
+                        <td className="num px-4 py-2 text-right">{e.forecast}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
+                Widget placeholder configured for United States · High/Medium impact · Asia/Bangkok ·
+                Actual/Forecast/Previous · date picker. Data will be rendered by the official
+                Investing.com widget; nothing is scraped or copied. Attribution: Investing.com.
+              </p>
+            </PanelCard>
+
+            <PanelCard
+              title="Journal (latest)"
+              action={
+                <Link to="/journal" className="text-xs text-info hover:underline">
+                  Full journal
+                </Link>
+              }
+              bodyClassName="p-0"
+            >
+              <ul className="divide-y divide-border">
+                {journal.slice(0, 3).map((j) => (
+                  <li key={j.id} className="flex gap-3 px-4 py-3">
+                    <div className="grid size-10 shrink-0 place-items-center rounded-sm border border-border bg-surface text-muted-foreground">
+                      <BookOpen className="size-4" aria-hidden />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{j.title}</p>
+                      <p className="truncate text-xs text-muted-foreground">{j.thesis}</p>
+                      <p className="num mt-1 text-[11px] text-muted-foreground">
+                        {j.setup} · {j.emotion} · discipline {j.disciplineScore}/10
+                      </p>
+                    </div>
+                    <span className="num shrink-0 text-[11px] text-muted-foreground">
+                      {j.date} {j.time}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </PanelCard>
+          </div>
+
+          <PanelCard
+            title="Alerts & system health"
+            action={
+              <Link to="/alerts" className="inline-flex items-center gap-1 text-xs text-info hover:underline">
+                View all alerts <ArrowRight className="size-3" aria-hidden />
+              </Link>
+            }
+            bodyClassName="p-0"
+          >
+            <ul className="divide-y divide-border">
+              {alerts.map((a) => (
+                <li key={a.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-2.5">
+                  <div className="flex min-w-0 items-center gap-2">
+                    {a.severity === "info" ? (
+                      <Info className="size-3.5 shrink-0 text-info" aria-hidden />
+                    ) : (
+                      <Bell
+                        className={cn("size-3.5 shrink-0", a.severity === "risk" ? "text-negative" : "text-primary")}
+                        aria-hidden
+                      />
+                    )}
+                    <span
+                      className={cn(
+                        "truncate text-sm",
+                        a.severity === "risk" && "text-negative",
+                        a.severity === "warning" && "text-primary",
+                        a.severity === "info" && "text-info",
+                      )}
+                    >
+                      {a.message}
+                    </span>
+                  </div>
+                  <span className="num shrink-0 text-[11px] text-muted-foreground">
+                    {a.time} · {a.date}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </PanelCard>
+        </div>
+
+        {/* Intelligence rail */}
+        <aside className="flex flex-col gap-4" aria-label="Intelligence rail">
+          <PanelCard title="Gold Impact Score" subtitle="-100 to +100">
+            <AdvisoryTag />
+            <div className="mt-3 flex items-center gap-4">
+              <div className="num grid size-20 shrink-0 place-items-center rounded-full border-4 border-primary/70 text-xl font-semibold text-primary">
+                {impact.score > 0 ? "+" : ""}
+                {impact.score}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-primary">{impact.band}</p>
+                <p className="num text-xs text-muted-foreground">
+                  vs yesterday {impact.vsYesterday > 0 ? "+" : ""}
+                  {impact.vsYesterday}
+                </p>
+              </div>
+            </div>
+            <ul className="mt-4 space-y-1.5">
+              {impact.drivers.map((d) => (
+                <li key={d.label} className="flex items-center justify-between gap-2 text-xs">
+                  <span className="truncate text-muted-foreground">{d.label}</span>
+                  <span className={cn("num shrink-0", toneFor(d.weight))}>
+                    {d.weight > 0 ? "+" : ""}
+                    {d.weight}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </PanelCard>
+
+          <PanelCard title="Market bias" subtitle="1D horizon view">
+            <AdvisoryTag />
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <StatusBadge tone={bias.direction === "Bullish" ? "positive" : bias.direction === "Bearish" ? "negative" : "neutral"}>
+                {bias.direction}
+              </StatusBadge>
+              <span className="text-xs text-muted-foreground">
+                Confidence <span className="text-foreground">{bias.confidence}</span>
+              </span>
+              <span className="text-xs text-muted-foreground">
+                Horizon <span className="text-foreground">{bias.horizon}</span>
+              </span>
+            </div>
+            <dl className="mt-3 space-y-2 text-xs">
+              <div>
+                <dt className="font-medium text-foreground">Rationale</dt>
+                <dd className="text-muted-foreground">{bias.rationale}</dd>
+              </div>
+              <div>
+                <dt className="font-medium text-foreground">Counter-evidence</dt>
+                <dd className="text-muted-foreground">{bias.counterEvidence}</dd>
+              </div>
+              <div>
+                <dt className="font-medium text-foreground">Invalidation</dt>
+                <dd className="text-negative">{bias.invalidation}</dd>
+              </div>
+            </dl>
+          </PanelCard>
+
+          <PanelCard title="Risk monitor">
+            <dl className="space-y-2.5 text-xs">
+              <div className="flex items-center justify-between gap-2">
+                <dt className="text-muted-foreground">Exposure</dt>
+                <dd className="num">
+                  {money(risk.exposure, 0)} <span className="text-muted-foreground">({risk.exposurePct}%)</span>
+                </dd>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <dt className="text-muted-foreground">Margin headroom</dt>
+                <dd className="num">{money(risk.marginHeadroom, 0)}</dd>
+              </div>
+              <div>
+                <div className="flex items-center justify-between gap-2">
+                  <dt className="text-muted-foreground">Daily loss used</dt>
+                  <dd className="num">
+                    {money(risk.dailyLossUsed, 0)} / {money(risk.dailyLossLimit, 0)}
+                  </dd>
+                </div>
+                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-accent">
+                  <div
+                    className="h-full rounded-full bg-primary"
+                    style={{ width: `${(risk.dailyLossUsed / risk.dailyLossLimit) * 100}%` }}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <dt className="text-muted-foreground">VaR (1D, 95%)</dt>
+                <dd className="num">{money(risk.var1d, 0)}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <dt className="text-muted-foreground">Max position risk</dt>
+                <dd className="num">{risk.maxPositionRisk}%</dd>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <dt className="text-muted-foreground">Connection freshness</dt>
+                <dd className="num text-positive">{risk.connectionAgeSeconds}s ago</dd>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <dt className="text-muted-foreground">Risk status</dt>
+                <dd className="text-positive">{risk.status}</dd>
+              </div>
+            </dl>
+          </PanelCard>
+
+          <div className="rounded-md border border-primary/40 bg-primary/8 p-3">
+            <p className="text-xs font-semibold tracking-[0.1em] text-primary uppercase">
+              AI advisory only
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              AURIQ analyses and explains. It never submits orders, and the browser never talks to a
+              broker directly.
+            </p>
+          </div>
+
+          <StaleState age="12s ago (demo)" />
+        </aside>
+      </div>
+    </>
   );
 }
