@@ -129,7 +129,7 @@ function Wordmark({ collapsed = false }: { collapsed?: boolean }) {
 }
 
 function HealthPanel() {
-  const { t } = useI18n();
+  const { t, tx } = useI18n();
   return (
     <div className="mx-3 mb-4 rounded-md border border-border bg-card/60 p-3">
       <div className="flex items-center gap-2">
@@ -139,7 +139,9 @@ function HealthPanel() {
       <ul className="mt-2 space-y-1.5">
         {systemHealth.map((s) => (
           <li key={s.label} className="flex items-center justify-between gap-2 text-[11px]">
-            <span className="truncate text-muted-foreground">{s.label}</span>
+            <span className="truncate text-muted-foreground">
+              {tx(s.label)} · {tx(s.detail)}
+            </span>
             <span
               className={cn("size-1.5 shrink-0 rounded-full", s.status === "ok" ? "bg-positive" : "bg-primary")}
               aria-label={s.status === "ok" ? t("shell.operational") : t("shell.attention")}
