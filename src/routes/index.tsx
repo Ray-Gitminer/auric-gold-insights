@@ -298,56 +298,7 @@ function Overview() {
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <PanelCard
-              title={t("overview.events")}
-              subtitle={t("overview.eventsSubtitle")}
-              action={
-                <a
-                  href="https://www.investing.com/economic-calendar/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-info hover:underline"
-                >
-                  {t("overview.openCalendar")} <ExternalLink className="size-3" aria-hidden />
-                </a>
-              }
-              bodyClassName="p-0"
-            >
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[520px] text-sm">
-                  <caption className="sr-only">{t("overview.eventsCaption")}</caption>
-                  <thead>
-                    <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                      <th scope="col" className="px-4 py-2 text-left font-medium">{t("common.time")}</th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.event")}</th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.impact")}</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.actual")}</th>
-                      <th scope="col" className="px-4 py-2 text-right font-medium">{t("common.forecast")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {economicEvents.map((e) => (
-                      <tr key={`${e.time}-${e.event}`} className="border-b border-border/60 last:border-0">
-                        <td className="num px-4 py-2">{e.time}</td>
-                        <td className="px-2 py-2">{e.event}</td>
-                        <td className="px-2 py-2">
-                          <span className="flex gap-0.5" aria-label={t("overview.impactAria", { impact: e.impact })}>
-                            {Array.from({ length: e.impact === "High" ? 3 : e.impact === "Medium" ? 2 : 1 }).map((_, i) => (
-                              <span key={i} className="size-1.5 rounded-full bg-negative" aria-hidden />
-                            ))}
-                          </span>
-                        </td>
-                        <td className="num px-2 py-2 text-right">{e.actual}</td>
-                        <td className="num px-4 py-2 text-right">{e.forecast}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <p className="border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
-                {t("overview.eventsNote")}
-              </p>
-            </PanelCard>
+            <EconomicCalendarPanel />
 
             <PanelCard
               title={t("overview.journalLatest")}
