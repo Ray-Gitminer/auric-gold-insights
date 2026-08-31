@@ -17,7 +17,6 @@ import {
   account,
   alerts,
   bias,
-  impact,
   instrument,
   journal,
   orders,
@@ -30,6 +29,7 @@ import { cn } from "@/lib/utils";
 import { GoldChart, type Timeframe } from "@/components/auriq/GoldChart";
 import { useI18n } from "@/contexts/I18nContext";
 import { useEconomicCalendar } from "@/hooks/use-economic-calendar";
+import { useNewsIntelligence } from "@/hooks/use-news-intelligence";
 import {
   ActualBadge,
   ForecastBadge,
@@ -74,6 +74,8 @@ const setupTone: Record<string, "gold" | "positive" | "negative" | "info"> = {
 
 function Overview() {
   const { t, tx } = useI18n();
+  const { impact: goldImpact, isLoading: newsLoading } = useNewsIntelligence();
+
   const [timeframe, setTimeframe] = useState<Timeframe>("1D");
 
   return (
@@ -383,29 +385,37 @@ function Overview() {
             <AdvisoryTag />
             <div className="mt-3 flex items-center gap-4">
               <div className="num grid size-20 shrink-0 place-items-center rounded-full border-4 border-primary/70 text-xl font-semibold text-primary">
-                {impact.score > 0 ? "+" : ""}
-                {impact.score}
+                {goldImpact.score > 0 ? "+" : ""}
+                {goldImpact.score}
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-primary">{tx(impact.band)}</p>
+                <p className="text-sm font-semibold text-primary">{tx(goldImpact.band)}</p>
                 <p className="num text-xs text-muted-foreground">
-                  {t("kpi.vsYesterday")} {impact.vsYesterday > 0 ? "+" : ""}
-                  {impact.vsYesterday}
+                  {goldImpact.newsCount} {t("news.title")} · {goldImpact.eventCount} {t("ec.title")}
                 </p>
               </div>
             </div>
             <ul className="mt-4 space-y-1.5">
-              {impact.drivers.map((d) => (
+              {goldImpact.drivers.map((d) => (
                 <li key={d.label} className="flex items-center justify-between gap-2 text-xs">
-                  <span className="min-w-0 text-muted-foreground">{tx(d.label)}</span>
+                  <span className="min-w-0 truncate text-muted-foreground" title={d.label}>
+                    {d.kind === "calendar" ? "📅 " : ""}
+                    {d.label}
+                  </span>
                   <span className={cn("num shrink-0", toneFor(d.weight))}>
                     {d.weight > 0 ? "+" : ""}
                     {d.weight}
                   </span>
                 </li>
               ))}
+              {goldImpact.drivers.length === 0 && (
+                <li className="text-xs text-muted-foreground">
+                  {newsLoading ? t("common.loading") : t("news.empty")}
+                </li>
+              )}
             </ul>
           </PanelCard>
+
 
           <PanelCard title={t("overview.marketBias")} subtitle={t("overview.biasSubtitle")}>
             <AdvisoryTag />

@@ -245,6 +245,15 @@ export const en = {
   "news.source": "Source",
   "news.relevance": "Gold relevance",
   "news.citations": "Citations",
+  "news.modeAi": "AI analysis",
+  "news.modeHeuristic": "Keyword screen",
+  "news.fetchedAt": "Fetched",
+  "news.refresh": "Refresh",
+  "news.error": "Live headlines could not be fetched. Try again shortly.",
+  "news.empty": "No gold-relevant headlines in the current window.",
+  "news.linkedEvent": "Linked release",
+  "news.impactFromNews": "News-driven",
+  "news.impactFromCalendar": "Release surprise",
   "news.footer":
     "AURIQ links to original sources and never republishes licensed content. Analysis is generated server-side and is advisory only — it can never place an order.",
 
