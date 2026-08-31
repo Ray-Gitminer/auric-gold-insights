@@ -557,23 +557,26 @@ function EconomicCalendarPage() {
           </button>
         </PanelCard>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {days.map(([day, items]) => (
-            <PanelCard
-              key={day}
-              title={dayLabel(`${day}T00:00:00Z`, lang)}
-              bodyClassName="space-y-3"
-            >
-              {items.length ? (
-                items.map((item) => <EventCard key={item.release.releaseId} item={item} />)
-              ) : (
-                <p className="rounded-md border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
-                  {t("ec.noEventsDay")}
-                </p>
-              )}
-            </PanelCard>
-          ))}
-        </div>
+        <>
+          <CalendarTable days={days} lang={lang} />
+          <div className="grid gap-4 md:hidden">
+            {days.map(([day, items]) => (
+              <PanelCard
+                key={day}
+                title={dayLabel(`${day}T00:00:00Z`, lang)}
+                bodyClassName="space-y-3"
+              >
+                {items.length ? (
+                  items.map((item) => <EventCard key={item.release.releaseId} item={item} />)
+                ) : (
+                  <p className="rounded-md border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
+                    {t("ec.noEventsDay")}
+                  </p>
+                )}
+              </PanelCard>
+            ))}
+          </div>
+        </>
       )}
 
       <PanelCard title={t("ec.sources")}>
