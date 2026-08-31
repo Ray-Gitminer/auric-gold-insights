@@ -433,6 +433,8 @@ export const th: Dictionary = {
   "ec.later": "ถัดไป",
   "ec.caption": "การประกาศตัวเลขเศรษฐกิจสหรัฐฯ พร้อมที่มาของค่าคาดการณ์",
   "ec.noConsensus": "ไม่พบแหล่งข่าวการเงินที่ระบุชื่อได้ — แสดงค่าจากโมเดลแทน",
+  "ec.tz": "ICT",
+  "ec.noConsensusYet": "ยังไม่มี Consensus",
   "ec.colDate": "วันที่",
   "ec.colTime": "เวลา",
   "ec.colCurrency": "สกุลเงิน",

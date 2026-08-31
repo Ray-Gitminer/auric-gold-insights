@@ -100,8 +100,10 @@ export const fetchFredReleases = createServerFn({ method: "GET" }).handler(
         if (!res.ok) throw new Error(`FRED responded ${res.status}`);
         const json = (await res.json()) as { observations?: { date: string; value: string }[] };
         const points: HistoricalPoint[] = [];
+        // DOL claims series are reported as persons; the calendar shows thousands.
+        const divisor = spec.seriesId === "ICSA" || spec.seriesId === "CCSA" ? 1000 : 1;
         for (const o of json.observations ?? []) {
-          const value = Number(o.value);
+          const value = Number(o.value) / divisor;
           if (Number.isFinite(value)) points.push({ periodIso: `${o.date}T00:00:00.000Z`, value });
         }
         if (points.length < 3) continue;

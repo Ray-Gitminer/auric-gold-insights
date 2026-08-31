@@ -436,6 +436,8 @@ export const en = {
   "ec.later": "Later",
   "ec.caption": "US economic releases with forecast provenance",
   "ec.noConsensus": "No named publication found — showing model output.",
+  "ec.tz": "ICT",
+  "ec.noConsensusYet": "No consensus yet",
   "ec.colDate": "Date",
   "ec.colTime": "Time",
   "ec.colCurrency": "Currency",

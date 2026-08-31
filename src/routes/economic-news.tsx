@@ -120,7 +120,15 @@ function EconomicNews() {
                 <span className="min-w-0 truncate font-medium">{s.event}</span>
               </div>
               <span className="num text-muted-foreground">
-                {new Date(s.nextReleaseUtc).toUTCString().slice(5, 22)} UTC
+                {new Intl.DateTimeFormat("en-GB", {
+                  timeZone: "Asia/Bangkok",
+                  day: "2-digit",
+                  month: "short",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                }).format(new Date(s.nextReleaseUtc))}{" "}
+                ICT
               </span>
               <StatusBadge tone={s.status === "dispatched" ? "positive" : "neutral"}>
                 {s.status === "dispatched"
