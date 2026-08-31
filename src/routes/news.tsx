@@ -33,7 +33,7 @@ function formatPublished(iso: string): string {
 }
 
 function News() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const {
     items,
     calendarEvents,
@@ -116,7 +116,7 @@ function News() {
           return (
             <PanelCard
               key={n.id}
-              title={n.headline}
+              title={(lang === "th" && n.headlineTh) || n.headline}
               subtitle={`${n.source} · ${formatPublished(n.publishedIso)}`}
               action={
                 <a
@@ -166,7 +166,15 @@ function News() {
                 </div>
               </div>
 
-              {n.rationale && <p className="mt-3 text-xs text-muted-foreground">{n.rationale}</p>}
+              {lang === "th" && n.headlineTh && (
+                <p className="mt-2 text-[11px] text-muted-foreground/80">{n.headline}</p>
+              )}
+
+              {(lang === "th" && n.rationaleTh) || n.rationale ? (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {(lang === "th" && n.rationaleTh) || n.rationale}
+                </p>
+              ) : null}
 
               {linked && (
                 <Link
