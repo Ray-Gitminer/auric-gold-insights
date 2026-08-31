@@ -144,7 +144,11 @@ function EconomicNews() {
       </PanelCard>
 
       <div className="flex flex-col gap-3 rounded-md border border-border bg-card p-3">
-        <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t("enews.filterCategory")}>
+        <div
+          className="flex flex-wrap items-center gap-2"
+          role="group"
+          aria-label={t("enews.filterCategory")}
+        >
           <span className="text-xs text-muted-foreground">{t("enews.filterCategory")}</span>
           {(["All", ...CATEGORIES] as const).map((c) => (
             <button
@@ -163,7 +167,11 @@ function EconomicNews() {
             </button>
           ))}
         </div>
-        <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t("ec.filterImpact")}>
+        <div
+          className="flex flex-wrap items-center gap-2"
+          role="group"
+          aria-label={t("ec.filterImpact")}
+        >
           <span className="text-xs text-muted-foreground">{t("ec.filterImpact")}</span>
           {(["All", ...IMPACTS] as const).map((i) => (
             <button

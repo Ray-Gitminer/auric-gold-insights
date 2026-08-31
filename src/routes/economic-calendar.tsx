@@ -250,7 +250,13 @@ function ImpactSquare({ impact }: { impact: CalendarEvent["release"]["impact"] }
   );
 }
 
-function CalendarTable({ days, lang }: { days: readonly (readonly [string, CalendarEvent[]])[]; lang: string }) {
+function CalendarTable({
+  days,
+  lang,
+}: {
+  days: readonly (readonly [string, CalendarEvent[]])[];
+  lang: string;
+}) {
   const { t } = useI18n();
   const [openRow, setOpenRow] = useState<string | null>(null);
 
