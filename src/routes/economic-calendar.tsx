@@ -4,6 +4,7 @@ import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, RefreshCw } from 
 
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/contexts/I18nContext";
+import { eventLabel } from "@/locales/economic-events-th";
 import { useEconomicCalendar } from "@/hooks/use-economic-calendar";
 import { IMPACT_RULES } from "@/lib/economic-calendar/impact-engine";
 import type { CalendarEvent, ImpactAssessment } from "@/lib/economic-calendar/types";
@@ -93,14 +94,14 @@ function biasTone(bias: ImpactAssessment["goldBias"]) {
 }
 
 function EventCard({ item }: { item: CalendarEvent }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [open, setOpen] = useState(false);
   const { release, forecast, estimate, assessment } = item;
 
   const rule = IMPACT_RULES[release.event];
   const rationale = assessment
     ? t("ec.rationaleText", {
-        event: release.event,
+        event: eventLabel(release.event, lang),
         dir:
           assessment.surpriseDir === "beat"
             ? t("ec.beat")
@@ -126,7 +127,9 @@ function EventCard({ item }: { item: CalendarEvent }) {
           {bkkTime(release.nextReleaseUtc)} {t("ec.tz")}
         </span>
         <ImpactDots impact={release.impact} />
-        <h3 className="min-w-0 flex-1 text-sm leading-snug font-semibold">{release.event}</h3>
+        <h3 className="min-w-0 flex-1 text-sm leading-snug font-semibold">
+          {eventLabel(release.event, lang)}
+        </h3>
       </header>
 
       <dl className="grid gap-2 text-xs">
@@ -326,7 +329,7 @@ function CalendarTable({ days, lang }: { days: readonly (readonly [string, Calen
                     <td className="px-3 py-2">
                       <ImpactSquare impact={release.impact} />
                     </td>
-                    <td className="min-w-0 px-3 py-2">{release.event}</td>
+                    <td className="min-w-0 px-3 py-2">{eventLabel(release.event, lang)}</td>
                     <td
                       className={cn(
                         "num px-3 py-2 text-right",
