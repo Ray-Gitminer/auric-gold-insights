@@ -446,6 +446,75 @@ export const en = {
   "ec.colDetail": "Detail",
   "ec.viewTable": "Table",
   "ec.viewCards": "Cards",
+
+  // ---------- image export ----------
+  "export.png": "Export PNG",
+  "export.failed": "Export failed",
+  "export.calendar": "Export calendar",
+  "export.analysis": "Export analysis",
+  "export.news": "Export news",
+  "export.page": "Export page",
+
+  // ---------- calendar columns ----------
+  "ec.marketForecast": "Market Forecast",
+  "ec.auriqEstimateCol": "AURIQ Estimate",
+  "ec.colSource": "Source / updated",
+  "ec.estimateNote": "Model output — shown separately, never used as consensus.",
+
+  // ---------- economic news workspace ----------
+  "enews.tab.calendar": "Economic calendar",
+  "enews.tab.weekly": "Weekly analysis",
+  "enews.tab.other": "Other economic news",
+  "enews.tab.history": "Analysis history",
+  "enews.newsSection": "Headlines from named sources",
+  "enews.newsSectionSub":
+    "Google News Gold, Google News Fed & Dollar and Federal Reserve. Articles are never counted as calendar events.",
+  "enews.calendarSection": "US releases — Monday to Friday, all impact levels",
+
+  // ---------- selection ----------
+  "sel.title": "Select releases to analyse",
+  "sel.selectAll": "Select all",
+  "sel.clear": "Clear",
+  "sel.highOnly": "High impact only",
+  "sel.highMedium": "High + Medium",
+  "sel.byDate": "Select this date",
+  "sel.thisWeek": "Select current week",
+  "sel.selected": "{count} selected",
+  "sel.rowAria": "Select {event}",
+
+  // ---------- analysis ----------
+  "an.submit": "Send for analysis",
+  "an.confirmTitle": "Confirm analysis request",
+  "an.confirmDesc":
+    "The releases below will be sent to the AURIQ analysis model. No order is created.",
+  "an.confirmSubmit": "Confirm and analyse",
+  "an.cancel": "Cancel",
+  "an.none": "Select at least one release before sending for analysis.",
+  "an.running": "Analysing selected releases…",
+  "an.failed": "Analysis failed. The model or the AI gateway is unavailable — no result is stored.",
+  "an.resultTitle": "Analysis result",
+  "an.summary": "Connected read of the selected window",
+  "an.usd": "USD outlook",
+  "an.gold": "XAU/USD outlook",
+  "an.fvp": "Market Forecast vs Previous",
+  "an.evf": "AURIQ Estimate vs Market Forecast",
+  "an.scenarios": "Scenarios",
+  "an.above": "Actual above forecast",
+  "an.inline": "Actual in line",
+  "an.below": "Actual below forecast",
+  "an.avoid": "Windows to avoid trading",
+  "an.confidence": "Confidence",
+  "an.sources": "References",
+  "an.model": "Model",
+  "an.generated": "Generated",
+  "an.empty": "No analysis yet. Select releases in the calendar tab and send them for analysis.",
+  "an.historyTitle": "Analysis history",
+  "an.historyEmpty": "No analysis has been requested from this browser yet.",
+  "an.status": "Status",
+  "an.requestedAt": "Requested",
+  "an.completedAt": "Completed",
+  "an.eventsCount": "{count} releases",
+  "an.auditNote": "Every request is written to the audit log. No trading order is ever generated.",
 } as const;
 
 export type TranslationKey = keyof typeof en;

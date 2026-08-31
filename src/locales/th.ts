@@ -443,4 +443,73 @@ export const th: Dictionary = {
   "ec.colDetail": "รายละเอียด",
   "ec.viewTable": "ตาราง",
   "ec.viewCards": "การ์ด",
+
+  // ---------- image export ----------
+  "export.png": "ส่งออกภาพ PNG",
+  "export.failed": "ส่งออกไม่สำเร็จ",
+  "export.calendar": "ส่งออกปฏิทิน",
+  "export.analysis": "ส่งออกผลวิเคราะห์",
+  "export.news": "ส่งออกข่าว",
+  "export.page": "ส่งออกทั้งหน้า",
+
+  // ---------- calendar columns ----------
+  "ec.marketForecast": "Market Forecast",
+  "ec.auriqEstimateCol": "AURIQ Estimate",
+  "ec.colSource": "แหล่งข้อมูล / อัปเดต",
+  "ec.estimateNote": "ค่าจากโมเดล AURIQ แสดงแยกช่อง ไม่ใช้แทน Market Consensus",
+
+  // ---------- economic news workspace ----------
+  "enews.tab.calendar": "ปฏิทินเศรษฐกิจ",
+  "enews.tab.weekly": "วิเคราะห์ประจำสัปดาห์",
+  "enews.tab.other": "ข่าวเศรษฐกิจอื่น",
+  "enews.tab.history": "ประวัติการวิเคราะห์",
+  "enews.newsSection": "ข่าวจากแหล่งที่ระบุชื่อ",
+  "enews.newsSectionSub":
+    "Google News Gold, Google News Fed & Dollar และ Federal Reserve — ข่าวบทความไม่ถูกนับเป็นรายการในปฏิทินเศรษฐกิจ",
+  "enews.calendarSection": "ประกาศเศรษฐกิจสหรัฐฯ จันทร์–ศุกร์ ครบทุกระดับผลกระทบ",
+
+  // ---------- selection ----------
+  "sel.title": "เลือกรายการข่าวเพื่อส่งวิเคราะห์",
+  "sel.selectAll": "เลือกทั้งหมด",
+  "sel.clear": "ล้างการเลือก",
+  "sel.highOnly": "เฉพาะ High Impact",
+  "sel.highMedium": "High + Medium",
+  "sel.byDate": "เลือกตามวันที่นี้",
+  "sel.thisWeek": "เลือกสัปดาห์ปัจจุบัน",
+  "sel.selected": "เลือกแล้ว {count} รายการ",
+  "sel.rowAria": "เลือก {event}",
+
+  // ---------- analysis ----------
+  "an.submit": "ส่งวิเคราะห์ข่าว",
+  "an.confirmTitle": "ยืนยันการส่งวิเคราะห์",
+  "an.confirmDesc":
+    "รายการด้านล่างจะถูกส่งให้โมเดลวิเคราะห์ของ AURIQ ระบบไม่สร้างคำสั่งซื้อขายใด ๆ",
+  "an.confirmSubmit": "ยืนยันและวิเคราะห์",
+  "an.cancel": "ยกเลิก",
+  "an.none": "กรุณาเลือกอย่างน้อย 1 รายการก่อนส่งวิเคราะห์",
+  "an.running": "กำลังวิเคราะห์รายการที่เลือก…",
+  "an.failed": "วิเคราะห์ไม่สำเร็จ — โมเดลหรือ AI gateway ไม่พร้อมใช้งาน ระบบไม่บันทึกผลลัพธ์",
+  "an.resultTitle": "ผลการวิเคราะห์",
+  "an.summary": "สรุปความเชื่อมโยงของข่าวในช่วงที่เลือก",
+  "an.usd": "แนวโน้ม USD",
+  "an.gold": "แนวโน้ม XAU/USD",
+  "an.fvp": "เปรียบเทียบ Market Forecast กับ Previous",
+  "an.evf": "เปรียบเทียบ AURIQ Estimate กับ Market Forecast",
+  "an.scenarios": "สถานการณ์ที่เป็นไปได้",
+  "an.above": "Actual สูงกว่าคาด",
+  "an.inline": "Actual ตามคาด",
+  "an.below": "Actual ต่ำกว่าคาด",
+  "an.avoid": "ช่วงเวลาที่ควรหลีกเลี่ยงการเทรด",
+  "an.confidence": "ระดับความมั่นใจ",
+  "an.sources": "แหล่งอ้างอิง",
+  "an.model": "โมเดล",
+  "an.generated": "สร้างเมื่อ",
+  "an.empty": "ยังไม่มีผลวิเคราะห์ — เลือกรายการในแท็บปฏิทินเศรษฐกิจแล้วกดส่งวิเคราะห์",
+  "an.historyTitle": "ประวัติการวิเคราะห์",
+  "an.historyEmpty": "ยังไม่มีการส่งวิเคราะห์จากเบราว์เซอร์นี้",
+  "an.status": "สถานะ",
+  "an.requestedAt": "ส่งเมื่อ",
+  "an.completedAt": "เสร็จเมื่อ",
+  "an.eventsCount": "{count} รายการ",
+  "an.auditNote": "ทุกการส่งวิเคราะห์จะถูกบันทึกลง Audit Log และระบบไม่สร้างคำสั่งซื้อขาย",
 };

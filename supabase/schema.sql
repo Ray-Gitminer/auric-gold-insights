@@ -248,3 +248,41 @@ create policy auriq_audit_logs_select_own on public.auriq_audit_logs for select 
 
 -- Realtime is opt-in. Do not alter the locked realtime schema.
 alter publication supabase_realtime add table public.portfolio_snapshots, public.ibkr_positions, public.ibkr_orders, public.alerts;
+
+-- ---------------------------------------------------------------------------
+-- News analysis runs — one row per "ส่งวิเคราะห์ข่าว" request.
+-- Mirrors src/lib/news/analysis-types.ts (AnalysisRunRecord). Not yet wired to
+-- Lovable Cloud: the app currently persists runs in the browser.
+-- ---------------------------------------------------------------------------
+create table if not exists public.news_analysis_runs (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade,
+  selected_event_ids text[] not null default '{}',
+  event_snapshot jsonb not null,
+  analysis_result jsonb,
+  model_name text not null,
+  sources text[] not null default '{}',
+  requested_at timestamptz not null default now(),
+  completed_at timestamptz,
+  status text not null default 'pending' check (status in ('pending','completed','failed'))
+);
+
+grant select, insert, update, delete on public.news_analysis_runs to authenticated;
+grant all on public.news_analysis_runs to service_role;
+
+alter table public.news_analysis_runs enable row level security;
+
+create policy "Users read their own analysis runs"
+  on public.news_analysis_runs for select
+  to authenticated using (auth.uid() = user_id);
+
+create policy "Users create their own analysis runs"
+  on public.news_analysis_runs for insert
+  to authenticated with check (auth.uid() = user_id);
+
+create policy "Users update their own analysis runs"
+  on public.news_analysis_runs for update
+  to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create index if not exists news_analysis_runs_user_requested_idx
+  on public.news_analysis_runs (user_id, requested_at desc);

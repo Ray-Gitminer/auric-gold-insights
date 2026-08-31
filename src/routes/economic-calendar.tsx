@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 
@@ -9,6 +9,7 @@ import { useEconomicCalendar } from "@/hooks/use-economic-calendar";
 import { IMPACT_RULES } from "@/lib/economic-calendar/impact-engine";
 import type { CalendarEvent, ImpactAssessment } from "@/lib/economic-calendar/types";
 import { AdvisoryTag, PageHeader, PanelCard, StatusBadge } from "@/components/auriq/primitives";
+import { ExportImageButton } from "@/components/auriq/ExportImageButton";
 import {
   ActualBadge,
   ForecastBadge,
@@ -138,7 +139,7 @@ function EventCard({ item }: { item: CalendarEvent }) {
           <dd className="num text-right">{release.agency}</dd>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <dt className="text-muted-foreground">{t("ec.forecast")}</dt>
+          <dt className="text-muted-foreground">{t("ec.marketForecast")}</dt>
           <dd className="flex flex-wrap items-center justify-end gap-1.5">
             {forecast.label === "Market Consensus" ? (
               <>
@@ -172,8 +173,18 @@ function EventCard({ item }: { item: CalendarEvent }) {
           </dd>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2">
+          <dt className="text-muted-foreground">{t("ec.auriqEstimateCol")}</dt>
+          <dd className="num text-muted-foreground">{estimate ? estimate.value : "—"}</dd>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <dt className="text-muted-foreground">{t("ec.previous")}</dt>
           <dd className="num">{release.previous}</dd>
+        </div>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <dt className="text-muted-foreground">{t("ec.colSource")}</dt>
+          <dd className="num min-w-0 text-right text-[11px] break-words text-muted-foreground">
+            {release.actualSource}
+          </dd>
         </div>
       </dl>
 
@@ -262,7 +273,7 @@ function CalendarTable({
 
   return (
     <div className="hidden min-w-0 overflow-x-auto rounded-md border border-border bg-card md:block">
-      <table className="w-full min-w-[820px] border-collapse text-sm">
+      <table className="w-full min-w-[1060px] border-collapse text-sm">
         <caption className="sr-only">{t("ec.caption")}</caption>
         <thead>
           <tr className="border-b border-border bg-surface text-left text-xs text-muted-foreground">
@@ -285,10 +296,16 @@ function CalendarTable({
               {t("ec.actual")}
             </th>
             <th scope="col" className="px-3 py-2 text-right font-medium">
-              {t("ec.forecast")}
+              {t("ec.marketForecast")}
+            </th>
+            <th scope="col" className="px-3 py-2 text-right font-medium">
+              {t("ec.auriqEstimateCol")}
             </th>
             <th scope="col" className="px-3 py-2 text-right font-medium">
               {t("ec.previous")}
+            </th>
+            <th scope="col" className="px-3 py-2 font-medium">
+              {t("ec.colSource")}
             </th>
             <th scope="col" className="w-24 px-3 py-2 text-right font-medium">
               {t("ec.colDetail")}
@@ -306,7 +323,7 @@ function CalendarTable({
                   >
                     {dayLabel(`${day}T00:00:00Z`, lang).replace(" ", "\n")}
                   </th>
-                  <td colSpan={8} className="px-3 py-3 text-xs text-muted-foreground">
+                  <td colSpan={10} className="px-3 py-3 text-xs text-muted-foreground">
                     {t("ec.noEventsDay")}
                   </td>
                 </tr>
@@ -362,8 +379,15 @@ function CalendarTable({
                       </span>
                     </td>
                     <td className="num px-3 py-2 text-right text-muted-foreground">
+                      {estimate ? estimate.value : "—"}
+                    </td>
+                    <td className="num px-3 py-2 text-right text-muted-foreground">
                       {release.previous}
                     </td>
+                    <td className="px-3 py-2 text-[11px] break-words text-muted-foreground">
+                      {release.actualSource}
+                    </td>
+
                     <td className="px-3 py-2 text-right">
                       <button
                         type="button"
@@ -381,7 +405,7 @@ function CalendarTable({
                   </tr>
                   {open ? (
                     <tr className="border-b border-border/60 bg-surface/60">
-                      <td colSpan={index === 0 ? 8 : 9} className="px-3 py-3">
+                      <td colSpan={index === 0 ? 10 : 11} className="px-3 py-3">
                         <div className="space-y-1.5 text-xs">
                           {assessment ? (
                             <>
@@ -433,6 +457,7 @@ function CalendarTable({
 function EconomicCalendarPage() {
   const { t, lang } = useI18n();
   const { events, isLoading, isError, refetch, statuses } = useEconomicCalendar();
+  const exportRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<ImpactFilter>("All");
   const [range, setRange] = useState<CalendarRange>("week");
   const [selectedDate, setSelectedDate] = useState(() => dayKey(new Date().toISOString()));
@@ -475,6 +500,11 @@ function EconomicCalendarPage() {
         actions={
           <>
             <AdvisoryTag />
+            <ExportImageButton
+              targetRef={exportRef}
+              filePrefix="auriq-economic-calendar"
+              label={t("export.calendar")}
+            />
             <button
               type="button"
               onClick={refetch}
@@ -599,8 +629,9 @@ function EconomicCalendarPage() {
           </button>
         </PanelCard>
       ) : (
-        <>
+        <div ref={exportRef} className="space-y-4">
           <CalendarTable days={days} lang={lang} />
+          <p className="text-[11px] text-muted-foreground">{t("ec.estimateNote")}</p>
           <div className="grid gap-4 md:hidden">
             {days.map(([day, items]) => (
               <PanelCard
@@ -618,7 +649,7 @@ function EconomicCalendarPage() {
               </PanelCard>
             ))}
           </div>
-        </>
+        </div>
       )}
 
       <PanelCard title={t("ec.sources")}>
