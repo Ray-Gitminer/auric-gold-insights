@@ -22,6 +22,15 @@ export interface OfficialRelease extends EconomicEvent {
   unit: string;
   actualValue: number | null;
   previousValue: number | null;
+  /** Reference period (ISO date) of the value shown in the Previous column. */
+  previousPeriodIso?: string | null;
+  /** Reference period (ISO date) of the value shown in the Actual column. */
+  actualPeriodIso?: string | null;
+  /** When the schedule/actual layer was fetched. */
+  fetchedAt?: string;
+  /** Human-readable provider label from the schedule layer. */
+  provider?: string;
+  sourceUrl?: string;
   /** Last ~24 months of actuals, oldest → newest. */
   history: HistoricalPoint[];
 }

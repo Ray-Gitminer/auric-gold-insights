@@ -515,6 +515,13 @@ export const en = {
   "an.completedAt": "Completed",
   "an.eventsCount": "{count} releases",
   "an.auditNote": "Every request is written to the audit log. No trading order is ever generated.",
+  "ec.noData": "No data",
+  "ec.tipActual": "The figure published for the current period. Shown only after the release time.",
+  "ec.tipForecast": "Analyst/market consensus with a named source. Never a model output.",
+  "ec.tipPrevious": "The actual figure published for the prior reference period.",
+  "ec.tipEstimate": "AURIQ statistical model output — not a market consensus.",
+  "ec.refPeriod": "Reference period",
+  "ec.lastUpdated": "Last updated",
 } as const;
 
 export type TranslationKey = keyof typeof en;

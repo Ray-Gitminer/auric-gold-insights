@@ -74,7 +74,13 @@ export const FRED_RELEASE_MAP: FredReleaseSpec[] = [
     provider: "Bureau of Labor Statistics — JOLTS",
     sourceUrl: "https://www.bls.gov/schedule/news_release/jolts.htm",
     events: [
-      { event: "JOLTS Job Openings", impact: "Medium", agency: "BLS", timeEt: "10:00", maxLagDays: 100 },
+      {
+        event: "JOLTS Job Openings",
+        impact: "Medium",
+        agency: "BLS",
+        timeEt: "10:00",
+        maxLagDays: 100,
+      },
     ],
   },
   {
@@ -82,8 +88,20 @@ export const FRED_RELEASE_MAP: FredReleaseSpec[] = [
     provider: "US Department of Labor — Unemployment Insurance Weekly Claims",
     sourceUrl: "https://www.dol.gov/ui/data.pdf",
     events: [
-      { event: "Initial Jobless Claims", impact: "Medium", agency: "DOL", timeEt: "08:30", maxLagDays: 14 },
-      { event: "Continuing Jobless Claims", impact: "Low", agency: "DOL", timeEt: "08:30", maxLagDays: 21 },
+      {
+        event: "Initial Jobless Claims",
+        impact: "Medium",
+        agency: "DOL",
+        timeEt: "08:30",
+        maxLagDays: 14,
+      },
+      {
+        event: "Continuing Jobless Claims",
+        impact: "Low",
+        agency: "DOL",
+        timeEt: "08:30",
+        maxLagDays: 21,
+      },
     ],
   },
   {
@@ -104,9 +122,7 @@ export const FRED_RELEASE_MAP: FredReleaseSpec[] = [
     releaseId: 54,
     provider: "Bureau of Economic Analysis — Personal Income and Outlays",
     sourceUrl: "https://www.bea.gov/news/schedule",
-    events: [
-      { event: "PCE m/m", impact: "High", agency: "BEA", timeEt: "08:30", maxLagDays: 75 },
-    ],
+    events: [{ event: "PCE m/m", impact: "High", agency: "BEA", timeEt: "08:30", maxLagDays: 75 }],
   },
   {
     releaseId: 53,
@@ -119,7 +135,13 @@ export const FRED_RELEASE_MAP: FredReleaseSpec[] = [
     provider: "US Census Bureau — Advance Monthly Retail Trade",
     sourceUrl: "https://www.census.gov/retail/index.html",
     events: [
-      { event: "Retail Sales m/m", impact: "High", agency: "Census", timeEt: "08:30", maxLagDays: 75 },
+      {
+        event: "Retail Sales m/m",
+        impact: "High",
+        agency: "Census",
+        timeEt: "08:30",
+        maxLagDays: 75,
+      },
     ],
   },
   {
@@ -128,7 +150,13 @@ export const FRED_RELEASE_MAP: FredReleaseSpec[] = [
     sourceUrl: "https://www.census.gov/construction/nrc/index.html",
     events: [
       { event: "Housing Starts", impact: "Low", agency: "Census", timeEt: "08:30", maxLagDays: 75 },
-      { event: "Building Permits", impact: "Low", agency: "Census", timeEt: "08:30", maxLagDays: 75 },
+      {
+        event: "Building Permits",
+        impact: "Low",
+        agency: "Census",
+        timeEt: "08:30",
+        maxLagDays: 75,
+      },
     ],
   },
   {
@@ -136,7 +164,13 @@ export const FRED_RELEASE_MAP: FredReleaseSpec[] = [
     provider: "US Census Bureau — New Residential Sales",
     sourceUrl: "https://www.census.gov/construction/nrs/index.html",
     events: [
-      { event: "New Home Sales", impact: "Medium", agency: "Census", timeEt: "10:00", maxLagDays: 75 },
+      {
+        event: "New Home Sales",
+        impact: "Medium",
+        agency: "Census",
+        timeEt: "10:00",
+        maxLagDays: 75,
+      },
     ],
   },
   {
@@ -178,7 +212,8 @@ export const FRED_RELEASE_MAP: FredReleaseSpec[] = [
 ];
 
 /** ISM releases — schedule published by ISM itself, business-day based. */
-const ISM_SOURCE = "https://www.ismworld.org/supply-management-news-and-reports/reports/ism-report-on-business/";
+const ISM_SOURCE =
+  "https://www.ismworld.org/supply-management-news-and-reports/reports/ism-report-on-business/";
 const ISM_EVENTS: { event: string; impact: ScheduledEvent["impact"]; businessDay: 1 | 3 }[] = [
   { event: "ISM Manufacturing PMI", impact: "High", businessDay: 1 },
   { event: "ISM Manufacturing Prices", impact: "Medium", businessDay: 1 },
@@ -341,6 +376,10 @@ export const fetchUsReleaseSchedule = createServerFn({ method: "GET" }).handler(
           if (!res.ok) throw new Error(`FRED responded ${res.status}`);
           const json = (await res.json()) as { release_dates?: { date: string }[] };
           const dates = (json.release_dates ?? []).map((d) => d.date);
+          // Server-only diagnostics. Never logs the API key or the raw URL.
+          console.info(
+            `[calendar] FRED release ${spec.releaseId} (${spec.provider}) → ${dates.length} dates`,
+          );
           if (!dates.length) return;
           ok += 1;
           for (const isoDate of dates) {

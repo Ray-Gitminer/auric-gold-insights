@@ -388,8 +388,8 @@ export const th: Dictionary = {
   "ec.miss": "ต่ำกว่าคาด",
   "ec.inline": "ตามคาด",
   "ec.forecast": "ค่าคาดการณ์",
-  "ec.actual": "ค่าจริง",
-  "ec.previous": "ครั้งก่อน",
+  "ec.actual": "ตัวเลขจริง",
+  "ec.previous": "ตัวเลขครั้งก่อน",
   "ec.notReleased": "ยังไม่ประกาศ",
   "ec.filterImpact": "กรองตามระดับผลกระทบ",
   "ec.all": "ทั้งหมด",
@@ -453,7 +453,7 @@ export const th: Dictionary = {
   "export.page": "ส่งออกทั้งหน้า",
 
   // ---------- calendar columns ----------
-  "ec.marketForecast": "Market Forecast",
+  "ec.marketForecast": "ตัวเลขคาดการณ์ตลาด",
   "ec.auriqEstimateCol": "AURIQ Estimate",
   "ec.colSource": "แหล่งข้อมูล / อัปเดต",
   "ec.estimateNote": "ค่าจากโมเดล AURIQ แสดงแยกช่อง ไม่ใช้แทน Market Consensus",
@@ -512,4 +512,11 @@ export const th: Dictionary = {
   "an.completedAt": "เสร็จเมื่อ",
   "an.eventsCount": "{count} รายการ",
   "an.auditNote": "ทุกการส่งวิเคราะห์จะถูกบันทึกลง Audit Log และระบบไม่สร้างคำสั่งซื้อขาย",
+  "ec.noData": "ไม่มีข้อมูล",
+  "ec.tipActual": "ตัวเลขจริงที่ประกาศในรอบปัจจุบัน แสดงหลังถึงเวลาประกาศเท่านั้น",
+  "ec.tipForecast": "ค่าคาดการณ์ของตลาด/นักวิเคราะห์ที่มีชื่อแหล่งข้อมูล ไม่ใช่ค่าจากโมเดล",
+  "ec.tipPrevious": "ตัวเลขจริงของรอบก่อนหน้า",
+  "ec.tipEstimate": "ค่าประมาณจากโมเดล AURIQ ไม่ใช่ Market Consensus",
+  "ec.refPeriod": "รอบอ้างอิง",
+  "ec.lastUpdated": "อัปเดตล่าสุด",
 };
