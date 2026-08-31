@@ -28,7 +28,14 @@ type I18nValue = {
   tx: (text: string) => string;
 };
 
-const I18nContext = createContext<I18nValue | null>(null);
+// Keep a single context instance across hot-module reloads, otherwise consumers
+// that were re-evaluated separately read a different (empty) context and throw.
+const globalScope = globalThis as typeof globalThis & {
+  __auriqI18nContext?: React.Context<I18nValue | null>;
+};
+const I18nContext =
+  globalScope.__auriqI18nContext ??
+  (globalScope.__auriqI18nContext = createContext<I18nValue | null>(null));
 
 function interpolate(template: string, vars?: Vars) {
   if (!vars) return template;
