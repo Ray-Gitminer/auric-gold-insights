@@ -11,8 +11,8 @@ export const BEA_INDICATORS: IndicatorSpec[] = [
     impact: "High",
     unit: "%",
     transform: "pct-change",
-    // NIPA table T20304 (price indexes for PCE), line 1.
-    seriesId: "T20304:1",
+    // NIPA table T20804 (monthly price indexes for PCE), line 1.
+    seriesId: "T20804:1",
     schedule: { kind: "day-of-month", day: 27, timeUtc: "12:30" },
   },
   {
