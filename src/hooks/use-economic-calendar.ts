@@ -5,6 +5,7 @@ import { fetchBlsReleases } from "@/lib/economic-calendar/bls-api";
 import { fetchBeaReleases } from "@/lib/economic-calendar/bea-api";
 import { fetchFredReleases } from "@/lib/economic-calendar/fred-api";
 import { fetchCensusReleases } from "@/lib/economic-calendar/census-api";
+import { buildScheduledReleases } from "@/lib/economic-calendar/global-schedule";
 import { computeAuriqEstimate } from "@/lib/economic-calendar/auriq-model";
 import { assessImpact } from "@/lib/economic-calendar/impact-engine";
 import { searchConsensus } from "@/lib/economic-calendar/consensus-search";
