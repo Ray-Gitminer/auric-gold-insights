@@ -34,6 +34,11 @@ export function useEconomicCalendar() {
     queryFn: loadReleases,
     staleTime: FIVE_MIN,
     retry: 1,
+    // 5 minutes on a release day, 60 minutes otherwise.
+    refetchInterval: (query) =>
+      (query.state.data?.releases ?? []).some((r) => isReleaseDay(r.nextReleaseUtc))
+        ? FIVE_MIN
+        : SIXTY_MIN,
   });
 
   const releases = useMemo(() => releasesQuery.data?.releases ?? [], [releasesQuery.data]);
