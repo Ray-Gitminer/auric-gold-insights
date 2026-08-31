@@ -13,6 +13,8 @@ export interface HistoricalPoint {
 export interface OfficialRelease extends EconomicEvent {
   releaseId: string;
   agency: Agency;
+  /** ISO-4217 code shown in the calendar's currency column. Defaults to USD. */
+  currency?: string;
   nextReleaseUtc: string; // ISO-8601
   actualSource: string; // e.g. "BLS API · fetched 2026-09-01T08:31:02Z"
   actualLabel: "Actual";
