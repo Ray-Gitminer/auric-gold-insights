@@ -4,6 +4,7 @@ import { CalendarClock, ExternalLink, Loader2, RefreshCw, Send } from "lucide-re
 
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/contexts/I18nContext";
+import { normalizeCalendarEvent } from "@/lib/economic-calendar/normalize";
 import { eventLabel } from "@/locales/economic-events-th";
 import { useNewsIntelligence } from "@/hooks/use-news-intelligence";
 import type { NewsCategory, NewsImpactLevel } from "@/lib/news/types";
@@ -121,19 +122,19 @@ function clean(value: string | null | undefined) {
 
 /** Immutable record of what the user actually saw when requesting the analysis. */
 function snapshotOf(item: CalendarEvent): EventSnapshot {
-  const { release, forecast, estimate, consensus } = item;
-  const isConsensus = forecast.label === "Market Consensus";
+  const { release } = item;
+  const n = normalizeCalendarEvent(item);
   return {
-    releaseId: release.releaseId,
-    event: release.event,
-    currency: release.currency ?? "USD",
-    impact: release.impact,
-    nextReleaseUtc: release.nextReleaseUtc,
-    marketForecast: isConsensus ? forecast.value : null,
-    marketForecastSource: isConsensus ? (consensus?.source ?? null) : null,
-    auriqEstimate: estimate?.value ?? null,
-    previous: clean(release.previous),
-    actual: clean(release.actual),
+    releaseId: n.id,
+    event: n.eventName,
+    currency: n.currency,
+    impact: n.impact,
+    nextReleaseUtc: n.releaseAt,
+    marketForecast: n.marketForecast.displayValue,
+    marketForecastSource: n.marketForecast.source,
+    auriqEstimate: n.auriqEstimate.displayValue,
+    previous: n.previous.displayValue,
+    actual: n.actual.displayValue,
     source: release.actualSource,
   };
 }

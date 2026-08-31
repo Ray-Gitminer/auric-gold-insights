@@ -9,12 +9,7 @@ export interface FeedArticle {
 }
 
 export type NewsCategory =
-  | "Monetary policy"
-  | "Inflation"
-  | "Employment"
-  | "Growth"
-  | "Geopolitics"
-  | "Gold market";
+  "Monetary policy" | "Inflation" | "Employment" | "Growth" | "Geopolitics" | "Gold market";
 
 export type NewsImpactLevel = "High" | "Medium" | "Low";
 

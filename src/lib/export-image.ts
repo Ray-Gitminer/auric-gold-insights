@@ -19,7 +19,6 @@ export async function exportNodeAsPng(node: HTMLElement, filename: string): Prom
     style: { margin: "0" },
   });
 
-
   const link = document.createElement("a");
   link.download = filename.endsWith(".png") ? filename : `${filename}.png`;
   link.href = dataUrl;

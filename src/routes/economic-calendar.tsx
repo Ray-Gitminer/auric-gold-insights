@@ -8,6 +8,7 @@ import { eventLabel } from "@/locales/economic-events-th";
 import { useEconomicCalendar } from "@/hooks/use-economic-calendar";
 import { IMPACT_RULES } from "@/lib/economic-calendar/impact-engine";
 import type { CalendarEvent, ImpactAssessment } from "@/lib/economic-calendar/types";
+import { normalizeCalendarEvent } from "@/lib/economic-calendar/normalize";
 import { AdvisoryTag, PageHeader, PanelCard, StatusBadge } from "@/components/auriq/primitives";
 import { ExportImageButton } from "@/components/auriq/ExportImageButton";
 import {
@@ -98,6 +99,7 @@ function EventCard({ item }: { item: CalendarEvent }) {
   const { t, lang } = useI18n();
   const [open, setOpen] = useState(false);
   const { release, forecast, estimate, assessment } = item;
+  const norm = normalizeCalendarEvent(item);
 
   const rule = IMPACT_RULES[release.event];
   const rationale = assessment
@@ -139,23 +141,12 @@ function EventCard({ item }: { item: CalendarEvent }) {
           <dd className="num text-right">{release.agency}</dd>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <dt className="text-muted-foreground">{t("ec.marketForecast")}</dt>
+          <dt className="text-muted-foreground" title={t("ec.tipActual")}>
+            {t("ec.actual")}
+          </dt>
           <dd className="flex flex-wrap items-center justify-end gap-1.5">
-            {forecast.label === "Market Consensus" ? (
-              <>
-                <span className="num font-medium">{forecast.value}</span>
-                <ForecastBadge forecast={forecast} />
-              </>
-            ) : (
-              <span className="text-muted-foreground">{t("ec.noConsensusYet")}</span>
-            )}
-          </dd>
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <dt className="text-muted-foreground">{t("ec.actual")}</dt>
-          <dd className="flex flex-wrap items-center justify-end gap-1.5">
-            {release.actualValue == null ? (
-              <span className="text-muted-foreground">—</span>
+            {norm.actual.displayValue === null ? (
+              <span className="text-muted-foreground">{t("ec.notReleased")}</span>
             ) : (
               <>
                 <span
@@ -165,7 +156,7 @@ function EventCard({ item }: { item: CalendarEvent }) {
                     assessment?.goldBias === "bearish" && "text-negative",
                   )}
                 >
-                  {release.actual}
+                  {norm.actual.displayValue}
                 </span>
                 <ActualBadge source={release.actualSource} />
               </>
@@ -173,12 +164,45 @@ function EventCard({ item }: { item: CalendarEvent }) {
           </dd>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <dt className="text-muted-foreground">{t("ec.auriqEstimateCol")}</dt>
-          <dd className="num text-muted-foreground">{estimate ? estimate.value : "—"}</dd>
+          <dt className="text-muted-foreground" title={t("ec.tipForecast")}>
+            {t("ec.marketForecast")}
+          </dt>
+          <dd className="flex flex-wrap items-center justify-end gap-1.5">
+            {norm.marketForecast.displayValue ? (
+              <>
+                <span className="num font-medium">{norm.marketForecast.displayValue}</span>
+                <ForecastBadge forecast={forecast} />
+              </>
+            ) : (
+              <span className="text-muted-foreground">{t("ec.noConsensusYet")}</span>
+            )}
+          </dd>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <dt className="text-muted-foreground">{t("ec.previous")}</dt>
-          <dd className="num">{release.previous}</dd>
+          <dt className="text-muted-foreground" title={t("ec.tipPrevious")}>
+            {t("ec.previous")}
+          </dt>
+          <dd className="num">
+            {norm.previous.displayValue ?? (
+              <span className="text-muted-foreground">{t("ec.noData")}</span>
+            )}
+            {norm.previous.referencePeriod ? (
+              <span className="ml-1 text-[10px] text-muted-foreground">
+                ({norm.previous.referencePeriod.slice(0, 7)})
+              </span>
+            ) : null}
+          </dd>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <dt className="text-muted-foreground" title={t("ec.tipEstimate")}>
+            {t("ec.auriqEstimateCol")}
+          </dt>
+          <dd className="num text-muted-foreground">
+            {norm.auriqEstimate.displayValue ?? "—"}
+            {norm.auriqEstimate.modelVersion ? (
+              <span className="ml-1 text-[10px]">({norm.auriqEstimate.modelVersion})</span>
+            ) : null}
+          </dd>
         </div>
         <div className="flex flex-wrap items-start justify-between gap-2">
           <dt className="text-muted-foreground">{t("ec.colSource")}</dt>
@@ -292,17 +316,29 @@ function CalendarTable({
             <th scope="col" className="px-3 py-2 font-medium">
               {t("ec.colEvent")}
             </th>
-            <th scope="col" className="px-3 py-2 text-right font-medium">
+            <th scope="col" className="px-3 py-2 text-right font-medium" title={t("ec.tipActual")}>
               {t("ec.actual")}
             </th>
-            <th scope="col" className="px-3 py-2 text-right font-medium">
+            <th
+              scope="col"
+              className="px-3 py-2 text-right font-medium"
+              title={t("ec.tipForecast")}
+            >
               {t("ec.marketForecast")}
             </th>
-            <th scope="col" className="px-3 py-2 text-right font-medium">
-              {t("ec.auriqEstimateCol")}
-            </th>
-            <th scope="col" className="px-3 py-2 text-right font-medium">
+            <th
+              scope="col"
+              className="px-3 py-2 text-right font-medium"
+              title={t("ec.tipPrevious")}
+            >
               {t("ec.previous")}
+            </th>
+            <th
+              scope="col"
+              className="px-3 py-2 text-right font-medium"
+              title={t("ec.tipEstimate")}
+            >
+              {t("ec.auriqEstimateCol")}
             </th>
             <th scope="col" className="px-3 py-2 font-medium">
               {t("ec.colSource")}
@@ -331,6 +367,7 @@ function CalendarTable({
             }
             return items.map((item, index) => {
               const { release, forecast, assessment, estimate } = item;
+              const norm = normalizeCalendarEvent(item);
               const id = release.releaseId;
               const open = openRow === id;
               return (
@@ -359,18 +396,17 @@ function CalendarTable({
                         assessment?.goldBias === "bullish" && "text-positive",
                         assessment?.goldBias === "bearish" && "text-negative",
                       )}
+                      title={norm.actual.source ?? undefined}
                     >
-                      {release.actualValue == null ? (
-                        <span className="text-muted-foreground">—</span>
-                      ) : (
-                        release.actual
+                      {norm.actual.displayValue ?? (
+                        <span className="text-muted-foreground">{t("ec.notReleased")}</span>
                       )}
                     </td>
                     <td className="num px-3 py-2 text-right">
                       <span className="inline-flex items-center justify-end gap-1.5">
-                        {forecast.label === "Market Consensus" ? (
+                        {norm.marketForecast.displayValue ? (
                           <>
-                            {forecast.value}
+                            {norm.marketForecast.displayValue}
                             <ForecastBadge forecast={forecast} />
                           </>
                         ) : (
@@ -378,11 +414,21 @@ function CalendarTable({
                         )}
                       </span>
                     </td>
-                    <td className="num px-3 py-2 text-right text-muted-foreground">
-                      {estimate ? estimate.value : "—"}
+                    <td
+                      className="num px-3 py-2 text-right text-muted-foreground"
+                      title={
+                        norm.previous.referencePeriod
+                          ? `${t("ec.refPeriod")}: ${norm.previous.referencePeriod.slice(0, 10)}`
+                          : t("ec.tipPrevious")
+                      }
+                    >
+                      {norm.previous.displayValue ?? t("ec.noData")}
                     </td>
-                    <td className="num px-3 py-2 text-right text-muted-foreground">
-                      {release.previous}
+                    <td
+                      className="num px-3 py-2 text-right text-muted-foreground"
+                      title={norm.auriqEstimate.modelVersion ?? t("ec.tipEstimate")}
+                    >
+                      {norm.auriqEstimate.displayValue ?? "—"}
                     </td>
                     <td className="px-3 py-2 text-[11px] break-words text-muted-foreground">
                       {release.actualSource}
@@ -654,8 +700,8 @@ function EconomicCalendarPage() {
 
       <PanelCard title={t("ec.sources")}>
         <ul className="space-y-1 text-xs text-muted-foreground">
-          {statuses.map((s) => (
-            <li key={s.agency} className="flex flex-wrap items-center gap-2">
+          {statuses.map((s, index) => (
+            <li key={`${s.agency}-${index}`} className="flex flex-wrap items-center gap-2">
               <span
                 className={cn("size-1.5 rounded-full", s.ok ? "bg-positive" : "bg-negative")}
                 aria-hidden

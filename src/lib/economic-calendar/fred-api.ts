@@ -107,6 +107,10 @@ export const fetchFredReleases = createServerFn({ method: "GET" }).handler(
           if (Number.isFinite(value)) points.push({ periodIso: `${o.date}T00:00:00.000Z`, value });
         }
         if (points.length < 3) continue;
+        // Server-only diagnostics: shape of the normalized series, no secrets.
+        console.info(
+          `[calendar] FRED series ${spec.seriesId} → ${points.length} obs · latest ${points.at(-1)?.periodIso} = ${points.at(-1)?.value}`,
+        );
         releases.push(buildRelease(spec, points, fetchedAt, now));
       }
       return {

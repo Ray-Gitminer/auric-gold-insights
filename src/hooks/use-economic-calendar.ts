@@ -43,25 +43,41 @@ async function loadReleases(): Promise<{ releases: OfficialRelease[]; statuses: 
   const nowMs = Date.now();
 
   // Schedule layer drives the grid: every row carries a real, source-published
-  // release date/time. Actuals are joined in only when the publication window
-  // for that specific release has actually passed.
-  const releases = schedule.releases.map<OfficialRelease>((row) => {
+  // release date/time. Actuals are joined per OCCURRENCE — the observation whose
+  // reference period belongs to that specific release — so two CPI rows in
+  // different months never share the same number.
+  const ordered = [...schedule.releases].sort((a, b) =>
+    a.nextReleaseUtc.localeCompare(b.nextReleaseUtc),
+  );
+  const futureSeen = new Set<string>();
+
+  const releases = ordered.map<OfficialRelease>((row) => {
     const live = history.get(row.event);
     if (!live) return row;
 
     const unit = live.unit;
     const points = live.history;
-    const latest = points.at(-1) ?? null;
-    const prior = points.at(-2) ?? null;
     const releaseMs = Date.parse(row.nextReleaseUtc);
-    const lagOk =
-      latest != null &&
-      releaseMs - Date.parse(latest.periodIso) <= row.maxLagDays * 86_400_000 &&
-      Date.parse(latest.periodIso) <= releaseMs;
-    const released = releaseMs <= nowMs && lagOk;
+    const maxLagMs = row.maxLagDays * 86_400_000;
 
-    const actualPoint = released ? latest : null;
-    const previousPoint = released ? prior : latest;
+    // Newest observation whose reference period is covered by THIS release.
+    let idx = -1;
+    for (let i = 0; i < points.length; i++) {
+      const periodMs = Date.parse(points[i]!.periodIso);
+      if (periodMs <= releaseMs && releaseMs - periodMs <= maxLagMs) idx = i;
+    }
+
+    const isPast = releaseMs <= nowMs;
+    const actualPoint = isPast && idx >= 0 ? points[idx]! : null;
+
+    let previousPoint = null as (typeof points)[number] | null;
+    if (actualPoint) {
+      previousPoint = points[idx - 1] ?? null;
+    } else if (!isPast && !futureSeen.has(row.event)) {
+      // For the next upcoming occurrence, "previous" is the last published value.
+      previousPoint = points.at(-1) ?? null;
+    }
+    if (!isPast) futureSeen.add(row.event);
 
     return {
       ...row,
@@ -70,18 +86,33 @@ async function loadReleases(): Promise<{ releases: OfficialRelease[]; statuses: 
       agency: live.agency,
       actualSource: `${row.provider} · ${live.actualSource}`,
       actualValue: actualPoint ? actualPoint.value : null,
+      actualPeriodIso: actualPoint ? actualPoint.periodIso : null,
       actual: actualPoint ? formatValue(actualPoint.value, unit) : "—",
       previousValue: previousPoint ? previousPoint.value : null,
+      previousPeriodIso: previousPoint ? previousPoint.periodIso : null,
       previous: previousPoint ? formatValue(previousPoint.value, unit) : "—",
     };
   });
 
+  // Honest coverage report: which scheduled indicators still have no licensed
+  // numeric feed (ISM and ADP are not redistributed). Never fabricate values.
+  const uncovered = Array.from(
+    new Set(schedule.releases.filter((r) => !history.has(r.event)).map((r) => r.event)),
+  ).sort();
+
+  const coverage: LayerStatus = {
+    agency: "Other",
+    ok: uncovered.length === 0,
+    message: uncovered.length
+      ? `Schedule only — no licensed data source for: ${uncovered.join(", ")}`
+      : "All scheduled indicators have a licensed numeric source",
+  };
+
   return {
     releases: releases.sort((a, b) => a.nextReleaseUtc.localeCompare(b.nextReleaseUtc)),
-    statuses: [schedule.status, ...historical.map((r) => r.status)],
+    statuses: [schedule.status, ...historical.map((r) => r.status), coverage],
   };
 }
-
 
 export function useEconomicCalendar() {
   const releasesQuery = useQuery({

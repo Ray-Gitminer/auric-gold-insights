@@ -108,14 +108,26 @@ export const fetchCensusReleases = createServerFn({ method: "GET" }).handler(
             `&category_code=${spec.categoryCode}&data_type_code=${spec.dataTypeCode}` +
             `&seasonally_adj=yes&key=${encodeURIComponent(key)}`;
           const res = await fetch(url);
-          if (!res.ok) continue;
+          if (!res.ok) {
+            // Server-only diagnostics; the URL (which carries the key) is never logged.
+            console.warn(`[calendar] Census ${spec.seriesId} ${year} → HTTP ${res.status}`);
+            continue;
+          }
           const text = await res.text();
-          if (!text.trim().startsWith("[")) continue;
+          if (!text.trim().startsWith("[")) {
+            console.warn(
+              `[calendar] Census ${spec.seriesId} ${year} → non-JSON: ${text.slice(0, 120)}`,
+            );
+            continue;
+          }
           raw.push(...parseRows(JSON.parse(text) as string[][]));
         }
 
         const ordered = raw.sort((a, b) => a.periodIso.localeCompare(b.periodIso));
         const points = applyTransform(ordered, spec.transform);
+        console.info(
+          `[calendar] Census ${spec.seriesId} → ${ordered.length} raw obs, ${points.length} points`,
+        );
         if (points.length < 3) continue;
         releases.push(buildRelease({ ...spec, transform: "level" }, points, fetchedAt, now));
       }
