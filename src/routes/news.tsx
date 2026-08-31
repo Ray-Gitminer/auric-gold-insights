@@ -57,7 +57,7 @@ function News() {
               className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
             >
               <RefreshCw className={cn("size-3", isFetching && "animate-spin")} aria-hidden />
-              {t("common.retry")}
+              {t("news.refresh")}
             </button>
           </div>
         }
@@ -157,11 +157,11 @@ function News() {
                   <CalendarClock className="size-3 text-primary" aria-hidden />
                   <span className="text-foreground">{linked.release.event}</span>
                   <span className="num">
-                    {t("calendar.forecast")} {linked.forecast.value}
+                    {t("ec.forecast")} {linked.forecast.value}
                   </span>
                   {linked.release.actual && (
                     <span className="num">
-                      {t("calendar.actual")} {linked.release.actual}
+                      {t("ec.actual")} {linked.release.actual}
                     </span>
                   )}
                   {linked.assessment && (
