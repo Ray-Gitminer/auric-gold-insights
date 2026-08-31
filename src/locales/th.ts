@@ -15,6 +15,7 @@ export const th: Dictionary = {
   "nav.tradeHistory": "ประวัติการซื้อขาย",
   "nav.journal": "บันทึกการเทรด",
   "nav.news": "วิเคราะห์ข่าว",
+  "nav.economicNews": "ข่าวเศรษฐกิจ",
   "nav.chartStrategy": "กราฟและกลยุทธ์",
   "nav.alerts": "การแจ้งเตือน",
   "nav.auditLog": "บันทึกกิจกรรม",
@@ -262,6 +263,27 @@ export const th: Dictionary = {
   "news.impactFromCalendar": "จากส่วนต่างการประกาศ",
   "news.footer":
     "AURIQ เชื่อมโยงไปยังแหล่งข่าวต้นทางเสมอ และไม่เผยแพร่เนื้อหาที่มีลิขสิทธิ์ซ้ำ การวิเคราะห์สร้างขึ้นฝั่งเซิร์ฟเวอร์และใช้เพื่อประกอบการวิเคราะห์เท่านั้น ไม่สามารถส่งคำสั่งซื้อขายได้",
+
+  // ---------- economic news ----------
+  "news.loading": "กำลังโหลดพาดหัวข่าว…",
+  "news.sources": "แหล่งฟีดข่าว",
+  "news.updated": "อัปเดตเมื่อ",
+  "enews.title": "ข่าวเศรษฐกิจ",
+  "enews.desc":
+    "พาดหัวข่าวเศรษฐกิจจากแหล่งข่าวที่ระบุชื่อและเวลาเผยแพร่ กรองตามประเภทข่าวและระดับผลกระทบต่อทองคำ ส่งเข้าวิเคราะห์อัตโนมัติ 24 ชั่วโมงก่อนวันประกาศ",
+  "enews.scheduleTitle": "ตารางส่งวิเคราะห์อัตโนมัติ",
+  "enews.scheduleSub": "รายการในปฏิทินจะถูกส่งเข้าระบบวิเคราะห์ข่าวที่ T-24 ชั่วโมง",
+  "enews.dispatched": "ส่งวิเคราะห์แล้ว",
+  "enews.dispatchIn": "ส่งในอีก",
+  "enews.noSchedule": "ยังไม่มีการประกาศในช่วงเวลานี้",
+  "enews.filterCategory": "กรองตามประเภท",
+  "enews.noMatch": "ไม่พบข่าวที่ตรงกับตัวกรอง",
+  "enews.cat.Monetary policy": "นโยบายการเงิน",
+  "enews.cat.Inflation": "เงินเฟ้อ",
+  "enews.cat.Employment": "การจ้างงาน",
+  "enews.cat.Growth": "การเติบโตทางเศรษฐกิจ",
+  "enews.cat.Geopolitics": "ภูมิรัฐศาสตร์",
+  "enews.cat.Gold market": "ตลาดทองคำ",
 
   // ---------- chart & strategy ----------
   "cs.title": "กราฟและกลยุทธ์",

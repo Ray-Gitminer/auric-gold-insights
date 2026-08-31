@@ -8,7 +8,19 @@ export interface FeedArticle {
   publishedIso: string;
 }
 
+export type NewsCategory =
+  | "Monetary policy"
+  | "Inflation"
+  | "Employment"
+  | "Growth"
+  | "Geopolitics"
+  | "Gold market";
+
+export type NewsImpactLevel = "High" | "Medium" | "Low";
+
 export interface AnalyzedNewsItem extends FeedArticle {
+  category: NewsCategory;
+  impactLevel: NewsImpactLevel;
   dedup: "Unique" | "Duplicate cluster";
   relevance: number;
   direction: "Bullish" | "Bearish" | "Neutral";

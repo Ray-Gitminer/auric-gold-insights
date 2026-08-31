@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchBlsReleases } from "@/lib/economic-calendar/bls-api";
 import { fetchBeaReleases } from "@/lib/economic-calendar/bea-api";
 import { fetchFredReleases } from "@/lib/economic-calendar/fred-api";
+import { fetchCensusReleases } from "@/lib/economic-calendar/census-api";
 import { computeAuriqEstimate } from "@/lib/economic-calendar/auriq-model";
 import { assessImpact } from "@/lib/economic-calendar/impact-engine";
 import { searchConsensus } from "@/lib/economic-calendar/consensus-search";
@@ -19,7 +20,12 @@ const FIVE_MIN = 5 * 60_000;
 const SIXTY_MIN = 60 * 60_000;
 
 async function loadReleases(): Promise<{ releases: OfficialRelease[]; statuses: LayerStatus[] }> {
-  const results = await Promise.all([fetchBlsReleases(), fetchBeaReleases(), fetchFredReleases()]);
+  const results = await Promise.all([
+    fetchBlsReleases(),
+    fetchBeaReleases(),
+    fetchFredReleases(),
+    fetchCensusReleases(),
+  ]);
   return {
     releases: results
       .flatMap((r) => r.releases)

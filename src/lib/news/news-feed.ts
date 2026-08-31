@@ -1,6 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import type { AnalyzedNewsItem, CalendarContextItem, FeedArticle, NewsPayload } from "./types";
+import type {
+  AnalyzedNewsItem,
+  CalendarContextItem,
+  FeedArticle,
+  NewsCategory,
+  NewsImpactLevel,
+  NewsPayload,
+} from "./types";
 
 interface FeedSpec {
   name: string;
@@ -65,6 +72,27 @@ function parseRss(xml: string, feedName: string): FeedArticle[] {
 const GOLD_TERMS =
   /(gold|bullion|xau|precious metal|federal reserve|fed |rate cut|rate hike|inflation|cpi|pce|dollar|dxy|treasury yield|payroll|fomc|jobs report)/i;
 
+/** Deterministic topical classification from the real headline text. */
+export function classifyCategory(headline: string): NewsCategory {
+  const h = headline.toLowerCase();
+  if (/(fomc|federal reserve|\bfed\b|rate cut|rate hike|powell|monetary|central bank)/.test(h))
+    return "Monetary policy";
+  if (/(inflation|cpi|pce|ppi|price index|deflation)/.test(h)) return "Inflation";
+  if (/(payroll|jobs|employment|unemployment|jobless|labor market|hiring|layoff)/.test(h))
+    return "Employment";
+  if (/(gdp|growth|recession|retail sales|manufacturing|housing|durable goods|consumer)/.test(h))
+    return "Growth";
+  if (/(war|conflict|sanction|tariff|election|geopolit|attack|tension|ukraine|middle east)/.test(h))
+    return "Geopolitics";
+  return "Gold market";
+}
+
+export function impactLevelFor(relevance: number, linkedImpact?: "High" | "Medium" | "Low" | null) {
+  if (linkedImpact === "High" || relevance >= 75) return "High" as NewsImpactLevel;
+  if (linkedImpact === "Medium" || relevance >= 55) return "Medium" as NewsImpactLevel;
+  return "Low" as NewsImpactLevel;
+}
+
 function heuristicAnalyze(a: FeedArticle): AnalyzedNewsItem {
   const h = a.headline.toLowerCase();
   const bullish =
@@ -75,6 +103,8 @@ function heuristicAnalyze(a: FeedArticle): AnalyzedNewsItem {
   const relevance = /gold|bullion|xau/.test(h) ? 78 : 55;
   return {
     ...a,
+    category: classifyCategory(a.headline),
+    impactLevel: impactLevelFor(relevance),
     dedup: "Unique",
     relevance,
     direction,
@@ -228,10 +258,16 @@ export const fetchNewsIntelligence = createServerFn({ method: "POST" })
           data.calendar.some((c) => c.releaseId === r.linkedReleaseId)
             ? r.linkedReleaseId
             : null;
+        const relevance = Math.max(0, Math.min(100, Math.round(Number(r.relevance) || 0)));
         return {
           ...article,
+          category: classifyCategory(article.headline),
+          impactLevel: impactLevelFor(
+            relevance,
+            data.calendar.find((c) => c.releaseId === linked)?.impact ?? null,
+          ),
           dedup: dup ? "Duplicate cluster" : "Unique",
-          relevance: Math.max(0, Math.min(100, Math.round(Number(r.relevance) || 0))),
+          relevance,
           direction,
           horizon: typeof r.horizon === "string" && r.horizon ? r.horizon : "1–3 sessions",
           confidence,
