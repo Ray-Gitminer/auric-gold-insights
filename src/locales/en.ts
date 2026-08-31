@@ -263,6 +263,27 @@ export const en = {
   "news.footer":
     "AURIQ links to original sources and never republishes licensed content. Analysis is generated server-side and is advisory only — it can never place an order.",
 
+  // ---------- economic news ----------
+  "news.loading": "Loading headlines…",
+  "news.sources": "Feed sources",
+  "news.updated": "Updated",
+  "enews.title": "Economic News",
+  "enews.desc":
+    "Named-source economic headlines with publication timestamps, filtered by topic and gold impact, dispatched automatically 24 hours before each US release.",
+  "enews.scheduleTitle": "Automated dispatch schedule",
+  "enews.scheduleSub": "Calendar releases are handed to the news analyser at T-24h.",
+  "enews.dispatched": "Dispatched",
+  "enews.dispatchIn": "Dispatch in",
+  "enews.noSchedule": "No upcoming releases in the current window.",
+  "enews.filterCategory": "Category filter",
+  "enews.noMatch": "No headlines match the current filters.",
+  "enews.cat.Monetary policy": "Monetary policy",
+  "enews.cat.Inflation": "Inflation",
+  "enews.cat.Employment": "Employment",
+  "enews.cat.Growth": "Growth",
+  "enews.cat.Geopolitics": "Geopolitics",
+  "enews.cat.Gold market": "Gold market",
+
   // ---------- chart & strategy ----------
   "cs.title": "Chart & Strategy",
   "cs.desc":
