@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 
@@ -282,8 +282,8 @@ function CalendarTable({ days, lang }: { days: readonly (readonly [string, Calen
               const id = release.releaseId;
               const open = openRow === id;
               return (
-                <>
-                  <tr key={id} className="border-b border-border/60 hover:bg-surface/40">
+                <Fragment key={id}>
+                  <tr className="border-b border-border/60 hover:bg-surface/40">
                     {index === 0 ? (
                       <th
                         scope="row"
@@ -339,7 +339,7 @@ function CalendarTable({ days, lang }: { days: readonly (readonly [string, Calen
                     </td>
                   </tr>
                   {open ? (
-                    <tr key={`${id}-detail`} className="border-b border-border/60 bg-surface/60">
+                    <tr className="border-b border-border/60 bg-surface/60">
                       <td colSpan={index === 0 ? 8 : 9} className="px-3 py-3">
                         <div className="space-y-1.5 text-xs">
                           {assessment ? (
@@ -378,7 +378,7 @@ function CalendarTable({ days, lang }: { days: readonly (readonly [string, Calen
                       </td>
                     </tr>
                   ) : null}
-                </>
+                </Fragment>
               );
             });
           })}
