@@ -41,6 +41,7 @@ const NAV = [
   { to: "/trade-history", key: "nav.tradeHistory", icon: Clock },
   { to: "/journal", key: "nav.journal", icon: BookOpen },
   { to: "/news", key: "nav.news", icon: Newspaper },
+  { to: "/economic-news", key: "nav.economicNews", icon: Newspaper },
   { to: "/economic-calendar", key: "ec.nav", icon: CalendarDays },
   { to: "/chart-strategy", key: "nav.chartStrategy", icon: Activity },
   { to: "/alerts", key: "nav.alerts", icon: Bell },

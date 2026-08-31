@@ -15,6 +15,7 @@ export const th: Dictionary = {
   "nav.tradeHistory": "ประวัติการซื้อขาย",
   "nav.journal": "บันทึกการเทรด",
   "nav.news": "วิเคราะห์ข่าว",
+  "nav.economicNews": "ข่าวเศรษฐกิจ",
   "nav.chartStrategy": "กราฟและกลยุทธ์",
   "nav.alerts": "การแจ้งเตือน",
   "nav.auditLog": "บันทึกกิจกรรม",

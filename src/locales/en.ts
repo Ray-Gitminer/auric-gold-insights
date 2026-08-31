@@ -13,6 +13,7 @@ export const en = {
   "nav.tradeHistory": "Trade History",
   "nav.journal": "Trader Journal",
   "nav.news": "News Intelligence",
+  "nav.economicNews": "Economic News",
   "nav.chartStrategy": "Chart & Strategy",
   "nav.alerts": "Alerts",
   "nav.auditLog": "Audit Log",
