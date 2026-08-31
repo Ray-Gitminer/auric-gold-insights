@@ -27,6 +27,10 @@ export interface AnalyzedNewsItem extends FeedArticle {
   horizon: string;
   confidence: "High" | "Medium" | "Low";
   rationale: string;
+  /** Thai translation of the headline, when the AI layer supplied one. */
+  headlineTh: string | null;
+  /** Thai translation of the rationale, when the AI layer supplied one. */
+  rationaleTh: string | null;
   citations: string[];
   /** Release id of the economic-calendar event this headline is tied to, if any. */
   linkedReleaseId: string | null;

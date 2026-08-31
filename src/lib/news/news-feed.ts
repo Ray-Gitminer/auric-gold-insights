@@ -111,6 +111,8 @@ function heuristicAnalyze(a: FeedArticle): AnalyzedNewsItem {
     horizon: "1–3 sessions",
     confidence: "Low",
     rationale: "Keyword screen only — AI analysis was unavailable for this batch.",
+    headlineTh: null,
+    rationaleTh: null,
     citations: [a.source],
     linkedReleaseId: null,
     analysisMode: "Heuristic",
@@ -223,7 +225,9 @@ export const fetchNewsIntelligence = createServerFn({ method: "POST" })
                   .join("\n") +
                 `\n\nReturn {"items":[{"index":0,"relevance":0-100,"direction":"Bullish|Bearish|Neutral",` +
                 `"horizon":"intraday|1–3 sessions|1–2 weeks","confidence":"High|Medium|Low",` +
-                `"rationale":"one or two sentences on the gold transmission channel",` +
+                `"rationale":"one or two sentences in English on the gold transmission channel",` +
+                `"headlineTh":"a natural Thai translation of the headline (keep tickers/abbreviations such as XAU/USD, Fed, CPI, NFP, ETF in Latin script)",` +
+                `"rationaleTh":"the same rationale written in natural Thai",` +
                 `"linkedReleaseId":"calendar releaseId or null"}]} for every headline index.`,
             },
           ],
@@ -240,6 +244,8 @@ export const fetchNewsIntelligence = createServerFn({ method: "POST" })
           horizon?: string;
           confidence?: string;
           rationale?: string;
+          headlineTh?: string;
+          rationaleTh?: string;
           linkedReleaseId?: string | null;
         }[];
       };
@@ -272,6 +278,10 @@ export const fetchNewsIntelligence = createServerFn({ method: "POST" })
           horizon: typeof r.horizon === "string" && r.horizon ? r.horizon : "1–3 sessions",
           confidence,
           rationale: typeof r.rationale === "string" ? r.rationale : "",
+          headlineTh:
+            typeof r.headlineTh === "string" && r.headlineTh.trim() ? r.headlineTh.trim() : null,
+          rationaleTh:
+            typeof r.rationaleTh === "string" && r.rationaleTh.trim() ? r.rationaleTh.trim() : null,
           citations: [article.source, ...(linked ? [`AURIQ Economic Calendar · ${linked}`] : [])],
           linkedReleaseId: linked,
           analysisMode: "AI",
