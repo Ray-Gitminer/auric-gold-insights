@@ -116,7 +116,7 @@ export const fetchCensusReleases = createServerFn({ method: "GET" }).handler(
           const text = await res.text();
           if (!text.trim().startsWith("[")) {
             console.warn(
-              `[calendar] Census ${spec.seriesId} ${year} → non-JSON: ${text.slice(0, 120)}`,
+              `[calendar] Census ${spec.seriesId} ${year} → HTTP ${res.status} non-JSON: ${text.replace(/\s+/g, " ").slice(0, 400)}`,
             );
             continue;
           }
