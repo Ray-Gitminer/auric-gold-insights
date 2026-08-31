@@ -14,6 +14,7 @@ import {
   ImpactDots,
   SurprisePill,
 } from "@/components/auriq/CalendarBadges";
+import { TradingViewEconomicCalendar } from "@/components/auriq/TradingViewEconomicCalendar";
 
 export const Route = createFileRoute("/economic-calendar")({
   head: () => ({
@@ -265,6 +266,18 @@ function EconomicCalendarPage() {
           </>
         }
       />
+
+      <PanelCard
+        title={lang === "th" ? "ปฏิทินข่าวสหรัฐทั้งหมด" : "Complete US economic calendar"}
+        bodyClassName="p-0"
+      >
+        <div className="border-b border-border px-4 py-2 text-xs text-muted-foreground">
+          {lang === "th"
+            ? "ข้อมูลจาก TradingView · กรองเฉพาะสหรัฐฯ · แสดงข่าวระดับต่ำ ปานกลาง และสูง"
+            : "TradingView data · United States only · Low, medium and high-impact events"}
+        </div>
+        <TradingViewEconomicCalendar locale={lang === "th" ? "th" : "en"} />
+      </PanelCard>
 
       <div className="flex flex-col gap-3 rounded-md border border-border bg-card p-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap items-center gap-2">
