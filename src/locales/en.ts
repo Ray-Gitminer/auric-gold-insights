@@ -398,6 +398,7 @@ export const en = {
   "ec.retry": "Retry",
   "ec.loading": "Loading official release data…",
   "ec.empty": "No releases match this filter.",
+  "ec.noEventsDay": "No tracked US releases on this day",
   "ec.offlineFallback":
     "No simulated fallback is shown. Retry when the official feeds are available.",
   "ec.pollNote":

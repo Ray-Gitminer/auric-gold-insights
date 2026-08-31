@@ -235,8 +235,13 @@ function EconomicCalendarPage() {
       const key = dayKey(e.release.nextReleaseUtc);
       map.set(key, [...(map.get(key) ?? []), e]);
     }
-    return [...map.entries()].sort(([a], [b]) => a.localeCompare(b));
-  }, [filtered]);
+    if (range === "day") return [[rangeStart, map.get(rangeStart) ?? []] as const];
+
+    return Array.from({ length: 5 }, (_, index) => {
+      const day = addUtcDays(rangeStart, index);
+      return [day, map.get(day) ?? []] as const;
+    });
+  }, [filtered, range, rangeStart]);
 
   const filters: ImpactFilter[] = ["All", "High", "Medium", "Low"];
 
@@ -372,10 +377,6 @@ function EconomicCalendarPage() {
             <RefreshCw className="size-3" aria-hidden /> {t("ec.retry")}
           </button>
         </PanelCard>
-      ) : days.length === 0 ? (
-        <PanelCard>
-          <p className="text-sm text-muted-foreground">{t("ec.empty")}</p>
-        </PanelCard>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {days.map(([day, items]) => (
@@ -384,9 +385,13 @@ function EconomicCalendarPage() {
               title={dayLabel(`${day}T00:00:00Z`, lang)}
               bodyClassName="space-y-3"
             >
-              {items.map((item) => (
-                <EventCard key={item.release.releaseId} item={item} />
-              ))}
+              {items.length ? (
+                items.map((item) => <EventCard key={item.release.releaseId} item={item} />)
+              ) : (
+                <p className="rounded-md border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
+                  {t("ec.noEventsDay")}
+                </p>
+              )}
             </PanelCard>
           ))}
         </div>
