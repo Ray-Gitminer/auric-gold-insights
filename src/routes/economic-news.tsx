@@ -53,7 +53,7 @@ function countdown(ms: number): string {
 }
 
 function EconomicNews() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const {
     items,
     schedule,
@@ -144,7 +144,11 @@ function EconomicNews() {
       </PanelCard>
 
       <div className="flex flex-col gap-3 rounded-md border border-border bg-card p-3">
-        <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t("enews.filterCategory")}>
+        <div
+          className="flex flex-wrap items-center gap-2"
+          role="group"
+          aria-label={t("enews.filterCategory")}
+        >
           <span className="text-xs text-muted-foreground">{t("enews.filterCategory")}</span>
           {(["All", ...CATEGORIES] as const).map((c) => (
             <button
@@ -163,7 +167,11 @@ function EconomicNews() {
             </button>
           ))}
         </div>
-        <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t("ec.filterImpact")}>
+        <div
+          className="flex flex-wrap items-center gap-2"
+          role="group"
+          aria-label={t("ec.filterImpact")}
+        >
           <span className="text-xs text-muted-foreground">{t("ec.filterImpact")}</span>
           {(["All", ...IMPACTS] as const).map((i) => (
             <button
@@ -239,13 +247,21 @@ function EconomicNews() {
                     rel="noopener noreferrer"
                     className="inline-flex items-start gap-1 hover:text-primary"
                   >
-                    <span className="min-w-0">{item.headline}</span>
+                    <span className="min-w-0">
+                      {(lang === "th" && item.headlineTh) || item.headline}
+                    </span>
                     <ExternalLink className="mt-0.5 size-3 shrink-0" aria-hidden />
                   </a>
                 </h2>
 
-                {item.rationale ? (
-                  <p className="text-xs text-muted-foreground">{item.rationale}</p>
+                {lang === "th" && item.headlineTh ? (
+                  <p className="text-[11px] text-muted-foreground/80">{item.headline}</p>
+                ) : null}
+
+                {(lang === "th" && item.rationaleTh) || item.rationale ? (
+                  <p className="text-xs text-muted-foreground">
+                    {(lang === "th" && item.rationaleTh) || item.rationale}
+                  </p>
                 ) : null}
 
                 <footer className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
