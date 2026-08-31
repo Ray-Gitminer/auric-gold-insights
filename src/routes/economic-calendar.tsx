@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 
@@ -209,6 +209,185 @@ function EventCard({ item }: { item: CalendarEvent }) {
   );
 }
 
+function ImpactSquare({ impact }: { impact: CalendarEvent["release"]["impact"] }) {
+  const tone =
+    impact === "High" ? "bg-negative" : impact === "Medium" ? "bg-primary" : "bg-warning/70";
+  return (
+    <span
+      title={impact}
+      className={cn("inline-block h-3 w-4 rounded-[2px] border border-border/60", tone)}
+      aria-label={impact}
+    />
+  );
+}
+
+function CalendarTable({ days, lang }: { days: readonly (readonly [string, CalendarEvent[]])[]; lang: string }) {
+  const { t } = useI18n();
+  const [openRow, setOpenRow] = useState<string | null>(null);
+
+  return (
+    <div className="hidden min-w-0 overflow-x-auto rounded-md border border-border bg-card md:block">
+      <table className="w-full min-w-[820px] border-collapse text-sm">
+        <caption className="sr-only">{t("ec.caption")}</caption>
+        <thead>
+          <tr className="border-b border-border bg-surface text-left text-xs text-muted-foreground">
+            <th scope="col" className="w-28 px-3 py-2 font-medium">
+              {t("ec.colDate")}
+            </th>
+            <th scope="col" className="w-24 px-3 py-2 font-medium">
+              {t("ec.colTime")}
+            </th>
+            <th scope="col" className="w-20 px-3 py-2 font-medium">
+              {t("ec.colCurrency")}
+            </th>
+            <th scope="col" className="w-20 px-3 py-2 font-medium">
+              {t("ec.colImpact")}
+            </th>
+            <th scope="col" className="px-3 py-2 font-medium">
+              {t("ec.colEvent")}
+            </th>
+            <th scope="col" className="px-3 py-2 text-right font-medium">
+              {t("ec.actual")}
+            </th>
+            <th scope="col" className="px-3 py-2 text-right font-medium">
+              {t("ec.forecast")}
+            </th>
+            <th scope="col" className="px-3 py-2 text-right font-medium">
+              {t("ec.previous")}
+            </th>
+            <th scope="col" className="w-24 px-3 py-2 text-right font-medium">
+              {t("ec.colDetail")}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {days.map(([day, items]) => {
+            if (!items.length) {
+              return (
+                <tr key={day} className="border-b border-border/60">
+                  <th
+                    scope="row"
+                    className="bg-surface/60 px-3 py-3 text-left text-xs font-semibold whitespace-pre-line"
+                  >
+                    {dayLabel(`${day}T00:00:00Z`, lang).replace(" ", "\n")}
+                  </th>
+                  <td colSpan={8} className="px-3 py-3 text-xs text-muted-foreground">
+                    {t("ec.noEventsDay")}
+                  </td>
+                </tr>
+              );
+            }
+            return items.map((item, index) => {
+              const { release, forecast, assessment, estimate } = item;
+              const id = release.releaseId;
+              const open = openRow === id;
+              return (
+                <Fragment key={id}>
+                  <tr className="border-b border-border/60 hover:bg-surface/40">
+                    {index === 0 ? (
+                      <th
+                        scope="row"
+                        rowSpan={items.length}
+                        className="border-r border-border/60 bg-surface/60 px-3 py-2 align-top text-left text-xs font-semibold whitespace-pre-line"
+                      >
+                        {dayLabel(`${day}T00:00:00Z`, lang).replace(" ", "\n")}
+                      </th>
+                    ) : null}
+                    <td className="num px-3 py-2 text-xs text-muted-foreground">
+                      {release.time} UTC
+                    </td>
+                    <td className="num px-3 py-2 text-xs">USD</td>
+                    <td className="px-3 py-2">
+                      <ImpactSquare impact={release.impact} />
+                    </td>
+                    <td className="min-w-0 px-3 py-2">{release.event}</td>
+                    <td
+                      className={cn(
+                        "num px-3 py-2 text-right",
+                        assessment?.goldBias === "bullish" && "text-positive",
+                        assessment?.goldBias === "bearish" && "text-negative",
+                      )}
+                    >
+                      {release.actualValue == null ? (
+                        <span className="text-muted-foreground">—</span>
+                      ) : (
+                        release.actual
+                      )}
+                    </td>
+                    <td className="num px-3 py-2 text-right">
+                      <span className="inline-flex items-center justify-end gap-1.5">
+                        {forecast.value}
+                        <ForecastBadge forecast={forecast} />
+                      </span>
+                    </td>
+                    <td className="num px-3 py-2 text-right text-muted-foreground">
+                      {release.previous}
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      <button
+                        type="button"
+                        onClick={() => setOpenRow(open ? null : id)}
+                        aria-expanded={open}
+                        className="inline-flex items-center gap-1 text-xs text-info hover:underline"
+                      >
+                        {t("ec.analysis")}
+                        <ChevronDown
+                          className={cn("size-3 transition-transform", open && "rotate-180")}
+                          aria-hidden
+                        />
+                      </button>
+                    </td>
+                  </tr>
+                  {open ? (
+                    <tr className="border-b border-border/60 bg-surface/60">
+                      <td colSpan={index === 0 ? 8 : 9} className="px-3 py-3">
+                        <div className="space-y-1.5 text-xs">
+                          {assessment ? (
+                            <>
+                              <SurprisePill assessment={assessment} />
+                              <p>
+                                <span className="text-muted-foreground">{t("ec.goldBias")}: </span>
+                                <span className={biasTone(assessment.goldBias)}>
+                                  {t(`ec.${assessment.goldBias}` as "ec.bullish")}
+                                </span>
+                              </p>
+                              <p>
+                                <span className="text-muted-foreground">{t("ec.usdBias")}: </span>
+                                {assessment.usdBias === "strong"
+                                  ? t("ec.usdStrong")
+                                  : assessment.usdBias === "weak"
+                                    ? t("ec.usdWeak")
+                                    : t("ec.usdNeutral")}
+                              </p>
+                            </>
+                          ) : (
+                            <p className="text-muted-foreground">{t("ec.notReleased")}</p>
+                          )}
+                          <p className="num text-[11px] text-muted-foreground">
+                            {t("ec.schedule")}: {release.agency}
+                            {estimate
+                              ? ` · ${t("ec.model")}: ${estimate.modelVersion} · ${estimate.historicalPoints} pts`
+                              : ""}
+                          </p>
+                          {forecast.label !== "Market Consensus" ? (
+                            <p className="text-[11px] text-muted-foreground">
+                              {t("ec.noConsensus")}
+                            </p>
+                          ) : null}
+                        </div>
+                      </td>
+                    </tr>
+                  ) : null}
+                </Fragment>
+              );
+            });
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function EconomicCalendarPage() {
   const { t, lang } = useI18n();
   const { events, isLoading, isError, refetch, statuses } = useEconomicCalendar();
@@ -378,23 +557,26 @@ function EconomicCalendarPage() {
           </button>
         </PanelCard>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {days.map(([day, items]) => (
-            <PanelCard
-              key={day}
-              title={dayLabel(`${day}T00:00:00Z`, lang)}
-              bodyClassName="space-y-3"
-            >
-              {items.length ? (
-                items.map((item) => <EventCard key={item.release.releaseId} item={item} />)
-              ) : (
-                <p className="rounded-md border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
-                  {t("ec.noEventsDay")}
-                </p>
-              )}
-            </PanelCard>
-          ))}
-        </div>
+        <>
+          <CalendarTable days={days} lang={lang} />
+          <div className="grid gap-4 md:hidden">
+            {days.map(([day, items]) => (
+              <PanelCard
+                key={day}
+                title={dayLabel(`${day}T00:00:00Z`, lang)}
+                bodyClassName="space-y-3"
+              >
+                {items.length ? (
+                  items.map((item) => <EventCard key={item.release.releaseId} item={item} />)
+                ) : (
+                  <p className="rounded-md border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
+                    {t("ec.noEventsDay")}
+                  </p>
+                )}
+              </PanelCard>
+            ))}
+          </div>
+        </>
       )}
 
       <PanelCard title={t("ec.sources")}>

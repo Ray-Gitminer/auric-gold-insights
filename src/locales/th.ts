@@ -411,4 +411,12 @@ export const th: Dictionary = {
   "ec.later": "ถัดไป",
   "ec.caption": "การประกาศตัวเลขเศรษฐกิจสหรัฐฯ พร้อมที่มาของค่าคาดการณ์",
   "ec.noConsensus": "ไม่พบแหล่งข่าวการเงินที่ระบุชื่อได้ — แสดงค่าจากโมเดลแทน",
+  "ec.colDate": "วันที่",
+  "ec.colTime": "เวลา",
+  "ec.colCurrency": "สกุลเงิน",
+  "ec.colImpact": "ผลกระทบ",
+  "ec.colEvent": "เหตุการณ์",
+  "ec.colDetail": "รายละเอียด",
+  "ec.viewTable": "ตาราง",
+  "ec.viewCards": "การ์ด",
 };
