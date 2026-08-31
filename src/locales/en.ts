@@ -403,6 +403,13 @@ export const en = {
   "ec.pollNote":
     "Polling every 5 minutes on release days, otherwise every 60 minutes. All times UTC.",
   "ec.week": "This week",
+  "ec.range": "Calendar range",
+  "ec.daily": "Day",
+  "ec.weekly": "Week",
+  "ec.today": "Today",
+  "ec.chooseDate": "Choose date",
+  "ec.previousPeriod": "Previous period",
+  "ec.nextPeriod": "Next period",
   "ec.later": "Later",
   "ec.caption": "US economic releases with forecast provenance",
   "ec.noConsensus": "No named publication found — showing model output.",

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ChevronDown, RefreshCw } from "lucide-react";
+import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/contexts/I18nContext";
@@ -38,9 +38,23 @@ export const Route = createFileRoute("/economic-calendar")({
 });
 
 type ImpactFilter = "All" | "High" | "Medium" | "Low";
+type CalendarRange = "day" | "week";
 
 function dayKey(iso: string) {
   return iso.slice(0, 10);
+}
+
+function addUtcDays(isoDate: string, days: number) {
+  const date = new Date(`${isoDate}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+function startOfUtcWeek(isoDate: string) {
+  const date = new Date(`${isoDate}T00:00:00Z`);
+  const mondayOffset = (date.getUTCDay() + 6) % 7;
+  date.setUTCDate(date.getUTCDate() - mondayOffset);
+  return date.toISOString().slice(0, 10);
 }
 
 function dayLabel(iso: string, lang: string) {
@@ -199,10 +213,20 @@ function EconomicCalendarPage() {
   const { t, lang } = useI18n();
   const { events, isLoading, isError, refetch, statuses } = useEconomicCalendar();
   const [filter, setFilter] = useState<ImpactFilter>("All");
+  const [range, setRange] = useState<CalendarRange>("week");
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
+
+  const rangeStart = range === "day" ? selectedDate : startOfUtcWeek(selectedDate);
+  const rangeEnd = range === "day" ? selectedDate : addUtcDays(rangeStart, 6);
 
   const filtered = useMemo(
-    () => events.filter((e) => filter === "All" || e.release.impact === filter),
-    [events, filter],
+    () =>
+      events.filter((e) => {
+        const day = dayKey(e.release.nextReleaseUtc);
+        const inRange = day >= rangeStart && day <= rangeEnd;
+        return inRange && (filter === "All" || e.release.impact === filter);
+      }),
+    [events, filter, rangeEnd, rangeStart],
   );
 
   const days = useMemo(() => {
@@ -211,7 +235,7 @@ function EconomicCalendarPage() {
       const key = dayKey(e.release.nextReleaseUtc);
       map.set(key, [...(map.get(key) ?? []), e]);
     }
-    return [...map.entries()].sort(([a], [b]) => a.localeCompare(b)).slice(0, 7);
+    return [...map.entries()].sort(([a], [b]) => a.localeCompare(b));
   }, [filtered]);
 
   const filters: ImpactFilter[] = ["All", "High", "Medium", "Low"];
@@ -236,6 +260,71 @@ function EconomicCalendarPage() {
           </>
         }
       />
+
+      <div className="flex flex-col gap-3 rounded-md border border-border bg-card p-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
+          <div
+            className="inline-flex rounded-sm border border-border bg-surface p-0.5"
+            role="group"
+            aria-label={t("ec.range")}
+          >
+            {(["day", "week"] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setRange(value)}
+                aria-pressed={range === value}
+                className={cn(
+                  "rounded-[3px] px-3 py-1.5 text-xs font-medium transition-colors",
+                  range === value
+                    ? "bg-primary/15 text-primary"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {value === "day" ? t("ec.daily") : t("ec.weekly")}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setSelectedDate((date) => addUtcDays(date, range === "day" ? -1 : -7))}
+            className="grid size-8 place-items-center rounded-sm border border-border text-muted-foreground hover:text-foreground"
+            aria-label={t("ec.previousPeriod")}
+          >
+            <ChevronLeft className="size-4" aria-hidden />
+          </button>
+          <label className="flex items-center gap-2 rounded-sm border border-border bg-surface px-2 py-1 text-xs text-muted-foreground">
+            <CalendarDays className="size-3.5" aria-hidden />
+            <span className="sr-only">{t("ec.chooseDate")}</span>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(event) => setSelectedDate(event.target.value)}
+              className="num bg-transparent text-foreground outline-none"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={() => setSelectedDate((date) => addUtcDays(date, range === "day" ? 1 : 7))}
+            className="grid size-8 place-items-center rounded-sm border border-border text-muted-foreground hover:text-foreground"
+            aria-label={t("ec.nextPeriod")}
+          >
+            <ChevronRight className="size-4" aria-hidden />
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedDate(new Date().toISOString().slice(0, 10))}
+            className="rounded-sm border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground"
+          >
+            {t("ec.today")}
+          </button>
+        </div>
+        <p className="num text-xs text-muted-foreground">
+          {range === "day"
+            ? dayLabel(`${rangeStart}T00:00:00Z`, lang)
+            : `${dayLabel(`${rangeStart}T00:00:00Z`, lang)} — ${dayLabel(`${rangeEnd}T00:00:00Z`, lang)}`}
+        </p>
+      </div>
 
       <div
         className="flex flex-wrap items-center gap-2"
