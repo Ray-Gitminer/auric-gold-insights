@@ -616,7 +616,14 @@ function EconomicCalendarPanel() {
             <tbody>
               {rows.map(({ release, forecast, assessment }) => (
                 <tr key={release.releaseId} className="border-b border-border/60 last:border-0">
-                  <td className="num px-4 py-2 align-top">{release.time}</td>
+                  <td className="num px-4 py-2 align-top">
+                    {new Intl.DateTimeFormat("en-GB", {
+                      timeZone: "Asia/Bangkok",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    }).format(new Date(release.nextReleaseUtc))}
+                  </td>
                   <td className="px-2 py-2 align-top">{release.event}</td>
                   <td className="px-2 py-2 align-top">
                     <ImpactDots impact={release.impact} />

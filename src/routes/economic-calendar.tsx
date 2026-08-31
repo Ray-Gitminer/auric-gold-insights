@@ -40,8 +40,26 @@ export const Route = createFileRoute("/economic-calendar")({
 type ImpactFilter = "All" | "High" | "Medium" | "Low";
 type CalendarRange = "day" | "week";
 
+const BKK_TZ = "Asia/Bangkok";
+
+/** Calendar day of a UTC instant in Asia/Bangkok. */
 function dayKey(iso: string) {
-  return iso.slice(0, 10);
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: BKK_TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(iso));
+}
+
+/** HH:mm of a UTC instant in Asia/Bangkok. */
+function bkkTime(iso: string) {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: BKK_TZ,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date(iso));
 }
 
 function addUtcDays(isoDate: string, days: number) {
@@ -104,7 +122,9 @@ function EventCard({ item }: { item: CalendarEvent }) {
   return (
     <article className="flex min-w-0 flex-col gap-3 rounded-md border border-border bg-card p-3">
       <header className="flex min-w-0 flex-wrap items-center gap-2">
-        <span className="num text-xs text-muted-foreground">{release.time} UTC</span>
+        <span className="num text-xs text-muted-foreground">
+          {bkkTime(release.nextReleaseUtc)} {t("ec.tz")}
+        </span>
         <ImpactDots impact={release.impact} />
         <h3 className="min-w-0 flex-1 text-sm leading-snug font-semibold">{release.event}</h3>
       </header>
@@ -117,8 +137,14 @@ function EventCard({ item }: { item: CalendarEvent }) {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <dt className="text-muted-foreground">{t("ec.forecast")}</dt>
           <dd className="flex flex-wrap items-center justify-end gap-1.5">
-            <span className="num font-medium">{forecast.value}</span>
-            <ForecastBadge forecast={forecast} />
+            {forecast.label === "Market Consensus" ? (
+              <>
+                <span className="num font-medium">{forecast.value}</span>
+                <ForecastBadge forecast={forecast} />
+              </>
+            ) : (
+              <span className="text-muted-foreground">{t("ec.noConsensusYet")}</span>
+            )}
           </dd>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -294,7 +320,7 @@ function CalendarTable({ days, lang }: { days: readonly (readonly [string, Calen
                       </th>
                     ) : null}
                     <td className="num px-3 py-2 text-xs text-muted-foreground">
-                      {release.time} UTC
+                      {bkkTime(release.nextReleaseUtc)} {t("ec.tz")}
                     </td>
                     <td className="num px-3 py-2 text-xs">{release.currency ?? "USD"}</td>
                     <td className="px-3 py-2">
@@ -316,8 +342,14 @@ function CalendarTable({ days, lang }: { days: readonly (readonly [string, Calen
                     </td>
                     <td className="num px-3 py-2 text-right">
                       <span className="inline-flex items-center justify-end gap-1.5">
-                        {forecast.value}
-                        <ForecastBadge forecast={forecast} />
+                        {forecast.label === "Market Consensus" ? (
+                          <>
+                            {forecast.value}
+                            <ForecastBadge forecast={forecast} />
+                          </>
+                        ) : (
+                          <span className="text-muted-foreground">{t("ec.noConsensusYet")}</span>
+                        )}
                       </span>
                     </td>
                     <td className="num px-3 py-2 text-right text-muted-foreground">
@@ -363,8 +395,8 @@ function CalendarTable({ days, lang }: { days: readonly (readonly [string, Calen
                           ) : (
                             <p className="text-muted-foreground">{t("ec.notReleased")}</p>
                           )}
-                          <p className="num text-[11px] text-muted-foreground">
-                            {t("ec.schedule")}: {release.agency}
+                          <p className="num text-[11px] break-words text-muted-foreground">
+                            {t("ec.schedule")}: {release.actualSource}
                             {estimate
                               ? ` · ${t("ec.model")}: ${estimate.modelVersion} · ${estimate.historicalPoints} pts`
                               : ""}
@@ -372,6 +404,7 @@ function CalendarTable({ days, lang }: { days: readonly (readonly [string, Calen
                           {forecast.label !== "Market Consensus" ? (
                             <p className="text-[11px] text-muted-foreground">
                               {t("ec.noConsensus")}
+                              {estimate ? ` · ${t("ec.auriqEstimate")}: ${estimate.value}` : ""}
                             </p>
                           ) : null}
                         </div>
@@ -393,7 +426,7 @@ function EconomicCalendarPage() {
   const { events, isLoading, isError, refetch, statuses } = useEconomicCalendar();
   const [filter, setFilter] = useState<ImpactFilter>("All");
   const [range, setRange] = useState<CalendarRange>("week");
-  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [selectedDate, setSelectedDate] = useState(() => dayKey(new Date().toISOString()));
 
   const rangeStart = range === "day" ? selectedDate : startOfUtcWeek(selectedDate);
   const rangeEnd = range === "day" ? selectedDate : addUtcDays(rangeStart, 6);
@@ -497,7 +530,7 @@ function EconomicCalendarPage() {
           </button>
           <button
             type="button"
-            onClick={() => setSelectedDate(new Date().toISOString().slice(0, 10))}
+            onClick={() => setSelectedDate(dayKey(new Date().toISOString()))}
             className="rounded-sm border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground"
           >
             {t("ec.today")}
