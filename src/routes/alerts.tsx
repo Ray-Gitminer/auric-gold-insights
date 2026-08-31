@@ -18,7 +18,10 @@ export const Route = createFileRoute("/alerts")({
           "In-app alert rules for drawdown breaches, key gold levels, strategy state changes and stale connections, plus a system health timeline.",
       },
       { property: "og:title", content: "Alerts · AURIQ" },
-      { property: "og:description", content: "Alert rules and system health timeline — demo data." },
+      {
+        property: "og:description",
+        content: "Alert rules and system health timeline — demo data.",
+      },
     ],
   }),
   component: Alerts,
@@ -40,7 +43,10 @@ function Alerts() {
         <PanelCard title={t("alerts.recent")} bodyClassName="p-0">
           <ul className="divide-y divide-border">
             {alerts.map((a) => (
-              <li key={a.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
+              <li
+                key={a.id}
+                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3"
+              >
                 <div className="flex min-w-0 items-center gap-2">
                   {a.severity === "info" ? (
                     <Info className="size-4 shrink-0 text-info" aria-hidden />
@@ -77,7 +83,10 @@ function Alerts() {
                   <p className="text-[11px] text-muted-foreground">{tx(s.detail)}</p>
                 </div>
                 <span
-                  className={cn("mt-1 size-1.5 shrink-0 rounded-full", s.status === "ok" ? "bg-positive" : "bg-primary")}
+                  className={cn(
+                    "mt-1 size-1.5 shrink-0 rounded-full",
+                    s.status === "ok" ? "bg-positive" : "bg-primary",
+                  )}
                   aria-label={s.status === "ok" ? t("shell.operational") : t("shell.attention")}
                 />
               </li>
@@ -89,13 +98,18 @@ function Alerts() {
       <PanelCard title={t("alerts.rules")} bodyClassName="p-0">
         <ul className="divide-y divide-border">
           {rules.map((r) => (
-            <li key={r.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3">
+            <li
+              key={r.id}
+              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3"
+            >
               <div className="min-w-0">
                 <p className="text-sm font-medium">{tx(r.name)}</p>
                 <p className="num text-[11px] text-muted-foreground">{tx(r.condition)}</p>
               </div>
               <div className="flex shrink-0 items-center gap-3">
-                <span className="hidden text-[11px] text-muted-foreground sm:inline">{tx(r.channel)}</span>
+                <span className="hidden text-[11px] text-muted-foreground sm:inline">
+                  {tx(r.channel)}
+                </span>
                 <Switch
                   checked={r.enabled}
                   aria-label={t("alerts.enabledAria", { name: r.name })}

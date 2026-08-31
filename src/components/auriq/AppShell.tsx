@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { StatusBadge } from "./primitives";
 import { useI18n, type Language } from "@/contexts/I18nContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const NAV = [
   { to: "/", key: "nav.overview", icon: LayoutDashboard },
@@ -80,7 +81,13 @@ function LanguageSwitcher({ className }: { className?: string }) {
   );
 }
 
-function NavList({ onNavigate, collapsed = false }: { onNavigate?: (() => void) | undefined; collapsed?: boolean }) {
+function NavList({
+  onNavigate,
+  collapsed = false,
+}: {
+  onNavigate?: (() => void) | undefined;
+  collapsed?: boolean;
+}) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { t } = useI18n();
   return (
@@ -143,7 +150,10 @@ function HealthPanel() {
               {tx(s.label)} · {tx(s.detail)}
             </span>
             <span
-              className={cn("size-1.5 shrink-0 rounded-full", s.status === "ok" ? "bg-positive" : "bg-primary")}
+              className={cn(
+                "size-1.5 shrink-0 rounded-full",
+                s.status === "ok" ? "bg-positive" : "bg-primary",
+              )}
               aria-label={s.status === "ok" ? t("shell.operational") : t("shell.attention")}
             />
           </li>
@@ -153,7 +163,13 @@ function HealthPanel() {
   );
 }
 
-function SidebarInner({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: (() => void) | undefined }) {
+function SidebarInner({
+  collapsed,
+  onNavigate,
+}: {
+  collapsed: boolean;
+  onNavigate?: (() => void) | undefined;
+}) {
   const { t } = useI18n();
   return (
     <div className="flex h-full flex-col">
@@ -180,6 +196,7 @@ function SidebarInner({ collapsed, onNavigate }: { collapsed: boolean; onNavigat
 
 function TopBar({ onOpenMobile }: { onOpenMobile: ReactNode }) {
   const { t } = useI18n();
+  const { configured, user, signOut } = useAuth();
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-surface/95 px-3 backdrop-blur sm:px-5">
       <div className="lg:hidden">{onOpenMobile}</div>
@@ -225,7 +242,7 @@ function TopBar({ onOpenMobile }: { onOpenMobile: ReactNode }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52">
             <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-              owner@auriq.demo
+              {user?.email ?? "owner@auriq.demo"}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
@@ -235,7 +252,9 @@ function TopBar({ onOpenMobile }: { onOpenMobile: ReactNode }) {
               <Link to="/audit-log">{t("shell.auditLog")}</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem disabled>{t("shell.signOut")}</DropdownMenuItem>
+            <DropdownMenuItem disabled={!configured} onSelect={() => void signOut()}>
+              {t("shell.signOut")}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -290,7 +309,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           {t("shell.safety")}
         </p>
         <main className="w-full min-w-0 flex-1 overflow-x-hidden px-3 py-5 sm:px-5 lg:px-6">
-          <div className="mx-auto flex w-full min-w-0 max-w-[1600px] flex-col gap-5">{children}</div>
+          <div className="mx-auto flex w-full min-w-0 max-w-[1600px] flex-col gap-5">
+            {children}
+          </div>
         </main>
       </div>
     </div>

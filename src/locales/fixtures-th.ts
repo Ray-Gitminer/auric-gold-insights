@@ -84,8 +84,7 @@ export const fixturesTh: Record<string, string> = {
   "Risk Alert: Drawdown 1.28% exceeds daily threshold 1.00%":
     "เตือนความเสี่ยง: การลดลงของพอร์ต 1.28% เกินเพดานรายวัน 1.00%",
   "GCM5 reached resistance R1 (2,390.0)": "GCM5 แตะแนวต้าน R1 (2,390.0)",
-  "CPI data released: Core CPI m/m 0.3% (in line)":
-    "ประกาศตัวเลข CPI: Core CPI m/m 0.3% (ตามคาด)",
+  "CPI data released: Core CPI m/m 0.3% (in line)": "ประกาศตัวเลข CPI: Core CPI m/m 0.3% (ตามคาด)",
   "Market data snapshot refreshed": "รีเฟรชข้อมูลตลาดล่าสุดแล้ว",
   "Daily drawdown breach": "การลดลงของพอร์ตเกินเพดานรายวัน",
   "Drawdown ≤ -1.00% intraday": "การลดลงของพอร์ต ≤ -1.00% ระหว่างวัน",

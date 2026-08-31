@@ -22,7 +22,10 @@ export const Route = createFileRoute("/settings")({
           "Account mode, risk limits, session security, data refresh cadence and notification preferences for the AURIQ prototype.",
       },
       { property: "og:title", content: "Settings · AURIQ" },
-      { property: "og:description", content: "Risk limits, session security and refresh cadence — demo data." },
+      {
+        property: "og:description",
+        content: "Risk limits, session security and refresh cadence — demo data.",
+      },
     ],
   }),
   component: Settings,
@@ -86,7 +89,12 @@ function Settings() {
           >
             <div className="grid gap-1.5">
               <Label htmlFor="dailyLoss">{t("settings.dailyLoss")}</Label>
-              <Input id="dailyLoss" className="num" defaultValue={risk.dailyLossLimit} inputMode="numeric" />
+              <Input
+                id="dailyLoss"
+                className="num"
+                defaultValue={risk.dailyLossLimit}
+                inputMode="numeric"
+              />
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="maxRisk">{t("settings.maxRisk")}</Label>
@@ -119,9 +127,7 @@ function Settings() {
               <dd className="num">{t("settings.lastSignInValue")}</dd>
             </div>
           </dl>
-          <p className="mt-3 text-xs text-muted-foreground">
-            {t("settings.securityNote")}
-          </p>
+          <p className="mt-3 text-xs text-muted-foreground">{t("settings.securityNote")}</p>
         </PanelCard>
 
         <PanelCard title={t("settings.data")}>
@@ -132,14 +138,20 @@ function Settings() {
 
           <div className="mt-4 flex items-center justify-between gap-4">
             <span className="text-sm">{t("settings.language")}</span>
-            <div className="inline-flex overflow-hidden rounded-sm border border-border" role="group" aria-label={t("lang.switchTo")}>
+            <div
+              className="inline-flex overflow-hidden rounded-sm border border-border"
+              role="group"
+              aria-label={t("lang.switchTo")}
+            >
               <button
                 type="button"
                 onClick={() => setLang("th")}
                 aria-pressed={lang === "th"}
                 className={cn(
                   "px-3 py-1 text-xs font-medium transition-colors",
-                  lang === "th" ? "bg-primary text-primary-foreground" : "bg-transparent text-muted-foreground hover:text-foreground",
+                  lang === "th"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-transparent text-muted-foreground hover:text-foreground",
                 )}
               >
                 ไทย (TH)
@@ -150,7 +162,9 @@ function Settings() {
                 aria-pressed={lang === "en"}
                 className={cn(
                   "px-3 py-1 text-xs font-medium transition-colors",
-                  lang === "en" ? "bg-primary text-primary-foreground" : "bg-transparent text-muted-foreground hover:text-foreground",
+                  lang === "en"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-transparent text-muted-foreground hover:text-foreground",
                 )}
               >
                 English (EN)

@@ -20,7 +20,10 @@ export const Route = createFileRoute("/trade-history")({
           "Closed paper trades with win rate, profit factor, average win and loss, expectancy and export controls.",
       },
       { property: "og:title", content: "Trade History · AURIQ" },
-      { property: "og:description", content: "Closed trades and performance statistics — demo data." },
+      {
+        property: "og:description",
+        content: "Closed trades and performance statistics — demo data.",
+      },
     ],
   }),
   component: TradeHistory,
@@ -80,11 +83,28 @@ function TradeHistory() {
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-        <KpiCard label={t("th.winRate")} value={`${tradeStats.winRate}%`} delta={t("th.trades", { n: tradeStats.totalTrades })} />
-        <KpiCard label={t("th.profitFactor")} value={num(tradeStats.profitFactor, 2)} delta={t("th.target")} deltaTone="positive" />
+        <KpiCard
+          label={t("th.winRate")}
+          value={`${tradeStats.winRate}%`}
+          delta={t("th.trades", { n: tradeStats.totalTrades })}
+        />
+        <KpiCard
+          label={t("th.profitFactor")}
+          value={num(tradeStats.profitFactor, 2)}
+          delta={t("th.target")}
+          deltaTone="positive"
+        />
         <KpiCard label={t("th.avgWin")} value={money(tradeStats.avgWin, 0)} deltaTone="positive" />
-        <KpiCard label={t("th.avgLoss")} value={money(tradeStats.avgLoss, 0)} deltaTone="negative" />
-        <KpiCard label={t("th.expectancy")} value={money(tradeStats.expectancy, 0)} delta={t("th.perTrade")} />
+        <KpiCard
+          label={t("th.avgLoss")}
+          value={money(tradeStats.avgLoss, 0)}
+          deltaTone="negative"
+        />
+        <KpiCard
+          label={t("th.expectancy")}
+          value={money(tradeStats.expectancy, 0)}
+          delta={t("th.perTrade")}
+        />
       </div>
 
       <PanelCard
@@ -99,7 +119,9 @@ function TradeHistory() {
                 onClick={() => setResult(r)}
                 className={cn(
                   "rounded-sm border px-2 py-0.5 text-[11px] transition-colors",
-                  result === r ? "border-primary/50 bg-primary/15 text-primary" : "border-border text-muted-foreground",
+                  result === r
+                    ? "border-primary/50 bg-primary/15 text-primary"
+                    : "border-border text-muted-foreground",
                 )}
               >
                 {resultLabels[r]}
@@ -109,7 +131,11 @@ function TradeHistory() {
         }
         bodyClassName="p-0"
       >
-        <div className="flex flex-wrap gap-1 border-b border-border px-4 py-2" role="group" aria-label={t("th.filterSetup")}>
+        <div
+          className="flex flex-wrap gap-1 border-b border-border px-4 py-2"
+          role="group"
+          aria-label={t("th.filterSetup")}
+        >
           {SETUPS.map((s) => (
             <button
               key={s}
@@ -118,7 +144,9 @@ function TradeHistory() {
               onClick={() => setSetup(s)}
               className={cn(
                 "rounded-sm border px-2 py-0.5 text-[11px] transition-colors",
-                setup === s ? "border-info/50 bg-info/15 text-info" : "border-border text-muted-foreground",
+                setup === s
+                  ? "border-info/50 bg-info/15 text-info"
+                  : "border-border text-muted-foreground",
               )}
             >
               {setupLabels[s]}
@@ -130,30 +158,59 @@ function TradeHistory() {
             <caption className="sr-only">{t("th.caption")}</caption>
             <thead>
               <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                <th scope="col" className="px-4 py-2 text-left font-medium">{t("th.closed")}</th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.symbol")}</th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.side")}</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.qty")}</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">{t("th.entry")}</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">{t("th.exit")}</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">{t("th.pl")}</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">{t("th.r")}</th>
-                <th scope="col" className="px-4 py-2 text-left font-medium">{t("common.setup")}</th>
+                <th scope="col" className="px-4 py-2 text-left font-medium">
+                  {t("th.closed")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">
+                  {t("common.symbol")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">
+                  {t("common.side")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">
+                  {t("common.qty")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">
+                  {t("th.entry")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">
+                  {t("th.exit")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">
+                  {t("th.pl")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">
+                  {t("th.r")}
+                </th>
+                <th scope="col" className="px-4 py-2 text-left font-medium">
+                  {t("common.setup")}
+                </th>
               </tr>
             </thead>
             <tbody>
               {rows.map((tr) => (
                 <tr key={tr.id} className="border-b border-border/60 last:border-0">
                   <td className="num px-4 py-2.5">{tr.closed}</td>
-                  <th scope="row" className="num px-2 py-2.5 text-left font-medium">{tr.symbol}</th>
-                  <td className={cn("px-2 py-2.5 text-xs font-semibold", tr.side === "LONG" ? "text-positive" : "text-negative")}>
+                  <th scope="row" className="num px-2 py-2.5 text-left font-medium">
+                    {tr.symbol}
+                  </th>
+                  <td
+                    className={cn(
+                      "px-2 py-2.5 text-xs font-semibold",
+                      tr.side === "LONG" ? "text-positive" : "text-negative",
+                    )}
+                  >
                     {tr.side}
                   </td>
                   <td className="num px-2 py-2.5 text-right">{tr.qty}</td>
                   <td className="num px-2 py-2.5 text-right">{num(tr.entry, 2)}</td>
                   <td className="num px-2 py-2.5 text-right">{num(tr.exit, 2)}</td>
-                  <td className={cn("num px-2 py-2.5 text-right", toneFor(tr.pnl))}>{signedMoney(tr.pnl, 0)}</td>
-                  <td className={cn("num px-2 py-2.5 text-right", toneFor(tr.rMultiple))}>{tr.rMultiple.toFixed(1)}R</td>
+                  <td className={cn("num px-2 py-2.5 text-right", toneFor(tr.pnl))}>
+                    {signedMoney(tr.pnl, 0)}
+                  </td>
+                  <td className={cn("num px-2 py-2.5 text-right", toneFor(tr.rMultiple))}>
+                    {tr.rMultiple.toFixed(1)}R
+                  </td>
                   <td className="px-4 py-2.5 text-xs text-muted-foreground">{tr.setup}</td>
                 </tr>
               ))}

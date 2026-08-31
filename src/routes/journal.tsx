@@ -18,7 +18,10 @@ export const Route = createFileRoute("/journal")({
           "Trade journaling with thesis, setup, pre-trade checklist, emotions, errors, review notes and a discipline score.",
       },
       { property: "og:title", content: "Trader Journal · AURIQ" },
-      { property: "og:description", content: "Thesis, checklist, emotions and discipline scoring — demo data." },
+      {
+        property: "og:description",
+        content: "Thesis, checklist, emotions and discipline scoring — demo data.",
+      },
     ],
   }),
   component: Journal,
@@ -58,15 +61,29 @@ function Journal() {
               title={tx(j.title)}
               subtitle={`${j.date} ${j.time} · ${tx(j.setup)}`}
               action={
-                <StatusBadge tone={j.disciplineScore >= 8 ? "positive" : j.disciplineScore >= 6 ? "gold" : "negative"}>
+                <StatusBadge
+                  tone={
+                    j.disciplineScore >= 8
+                      ? "positive"
+                      : j.disciplineScore >= 6
+                        ? "gold"
+                        : "negative"
+                  }
+                >
                   {t("journal.discipline", { score: j.disciplineScore })}
                 </StatusBadge>
               }
             >
               <div className="grid gap-4 sm:grid-cols-[112px_minmax(0,1fr)]">
                 <div className="grid h-20 place-items-center rounded-sm border border-dashed border-border bg-surface/60 text-muted-foreground">
-                  {j.hasScreenshot ? <ImageIcon className="size-5" aria-hidden /> : <ImagePlus className="size-5" aria-hidden />}
-                  <span className="sr-only">{j.hasScreenshot ? t("journal.screenshot") : t("journal.noScreenshot")}</span>
+                  {j.hasScreenshot ? (
+                    <ImageIcon className="size-5" aria-hidden />
+                  ) : (
+                    <ImagePlus className="size-5" aria-hidden />
+                  )}
+                  <span className="sr-only">
+                    {j.hasScreenshot ? t("journal.screenshot") : t("journal.noScreenshot")}
+                  </span>
                 </div>
                 <dl className="min-w-0 space-y-2 text-xs">
                   <div>
@@ -101,10 +118,15 @@ function Journal() {
               {CHECKLIST.map((c, i) => (
                 <li key={c} className="flex items-start gap-2">
                   <span
-                    className={cn("mt-1 size-1.5 shrink-0 rounded-full", i < 4 ? "bg-positive" : "bg-muted-foreground")}
+                    className={cn(
+                      "mt-1 size-1.5 shrink-0 rounded-full",
+                      i < 4 ? "bg-positive" : "bg-muted-foreground",
+                    )}
                     aria-hidden
                   />
-                  <span className={cn(i < 4 ? "text-foreground" : "text-muted-foreground")}>{c}</span>
+                  <span className={cn(i < 4 ? "text-foreground" : "text-muted-foreground")}>
+                    {c}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -113,9 +135,7 @@ function Journal() {
           <PanelCard title={t("journal.upload")}>
             <div className="grid place-items-center rounded-sm border border-dashed border-border px-4 py-8 text-center">
               <ImagePlus className="size-5 text-muted-foreground" aria-hidden />
-              <p className="mt-2 text-xs text-muted-foreground">
-                {t("journal.uploadHint")}
-              </p>
+              <p className="mt-2 text-xs text-muted-foreground">{t("journal.uploadHint")}</p>
             </div>
           </PanelCard>
 
@@ -123,7 +143,10 @@ function Journal() {
             <div className="flex h-24 items-end gap-2">
               {[7, 6, 9, 5, 8, 9, 10].map((v, i) => (
                 <div key={i} className="flex flex-1 flex-col items-center gap-1">
-                  <div className="w-full rounded-sm bg-primary/70" style={{ height: `${v * 8}px` }} />
+                  <div
+                    className="w-full rounded-sm bg-primary/70"
+                    style={{ height: `${v * 8}px` }}
+                  />
                   <span className="num text-[10px] text-muted-foreground">{v}</span>
                 </div>
               ))}

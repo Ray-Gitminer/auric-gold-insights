@@ -5,6 +5,7 @@ Build a responsive, multi-page clickable prototype named `auriq-gold-dashboard`.
 ## Design system
 
 Dark institutional finance UI, per the supplied colour system:
+
 - Background `#06111F`, sidebar/elevated `#091827`, cards `#0D2235`, borders `#16364E`
 - Gold `#E7B84B` / highlight `#F4D27A`, cyan `#39C6E8`, positive `#35C58A`, risk `#F06464`
 - Text `#E8EEF3` / muted `#8FA4B5`

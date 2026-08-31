@@ -84,10 +84,21 @@ export function GoldChart({
           viewBox={`0 0 ${W} ${H}`}
           className={cn("w-full", compact ? "h-48" : "h-[300px] sm:h-[380px]")}
           role="img"
-          aria-label={t("chart.aria", { label: instrument.label, tf: timeframe, price: num(instrument.last, 1) })}
+          aria-label={t("chart.aria", {
+            label: instrument.label,
+            tf: timeframe,
+            price: num(instrument.last, 1),
+          })}
         >
           {/* session shading */}
-          <rect x={0} y={PAD_T} width={(W - PAD_R) * 0.32} height={H - PAD_T - PAD_B} fill="var(--color-info)" opacity={0.04} />
+          <rect
+            x={0}
+            y={PAD_T}
+            width={(W - PAD_R) * 0.32}
+            height={H - PAD_T - PAD_B}
+            fill="var(--color-info)"
+            opacity={0.04}
+          />
           <rect
             x={(W - PAD_R) * 0.66}
             y={PAD_T}
@@ -100,8 +111,22 @@ export function GoldChart({
           {/* price grid + scale */}
           {priceTicks.map((p) => (
             <g key={p}>
-              <line x1={0} x2={W - PAD_R} y1={y(p)} y2={y(p)} stroke="var(--color-border)" strokeWidth={0.5} opacity={0.6} />
-              <text x={W - PAD_R + 6} y={y(p) + 3.5} fontSize={10} fill="var(--color-muted-foreground)" fontFamily="var(--font-mono)">
+              <line
+                x1={0}
+                x2={W - PAD_R}
+                y1={y(p)}
+                y2={y(p)}
+                stroke="var(--color-border)"
+                strokeWidth={0.5}
+                opacity={0.6}
+              />
+              <text
+                x={W - PAD_R + 6}
+                y={y(p) + 3.5}
+                fontSize={10}
+                fill="var(--color-muted-foreground)"
+                fontFamily="var(--font-mono)"
+              >
                 {num(p, 1)}
               </text>
             </g>
@@ -120,7 +145,13 @@ export function GoldChart({
                 strokeDasharray="5 4"
                 opacity={0.8}
               />
-              <text x={(W - PAD_R) * 0.55 + 4} y={y(r.value) - 4} fontSize={10} fill="var(--color-negative)" fontFamily="var(--font-mono)">
+              <text
+                x={(W - PAD_R) * 0.55 + 4}
+                y={y(r.value) - 4}
+                fontSize={10}
+                fill="var(--color-negative)"
+                fontFamily="var(--font-mono)"
+              >
                 {r.label} {num(r.value, 1)}
               </text>
             </g>
@@ -137,7 +168,13 @@ export function GoldChart({
                 strokeDasharray="5 4"
                 opacity={0.8}
               />
-              <text x={(W - PAD_R) * 0.55 + 4} y={y(s.value) - 4} fontSize={10} fill="var(--color-positive)" fontFamily="var(--font-mono)">
+              <text
+                x={(W - PAD_R) * 0.55 + 4}
+                y={y(s.value) - 4}
+                fontSize={10}
+                fill="var(--color-positive)"
+                fontFamily="var(--font-mono)"
+              >
                 {s.label} {num(s.value, 1)}
               </text>
             </g>
@@ -151,7 +188,15 @@ export function GoldChart({
             const bodyH = Math.max(1, Math.abs(y(c.o) - y(c.c)));
             return (
               <g key={c.t}>
-                <line x1={x(i)} x2={x(i)} y1={y(c.h)} y2={y(c.l)} stroke={colour} strokeWidth={0.9} opacity={0.85} />
+                <line
+                  x1={x(i)}
+                  x2={x(i)}
+                  y1={y(c.h)}
+                  y2={y(c.l)}
+                  stroke={colour}
+                  strokeWidth={0.9}
+                  opacity={0.85}
+                />
                 <rect
                   x={x(i) - slot * 0.3}
                   y={bodyTop}
@@ -162,8 +207,24 @@ export function GoldChart({
                 />
                 {c.event ? (
                   <g>
-                    <rect x={x(i) - 6} y={y(c.h) - 18} width={12} height={12} rx={2} fill="var(--color-info)" opacity={0.18} stroke="var(--color-info)" strokeWidth={0.6} />
-                    <text x={x(i)} y={y(c.h) - 9} fontSize={8} textAnchor="middle" fill="var(--color-info)">
+                    <rect
+                      x={x(i) - 6}
+                      y={y(c.h) - 18}
+                      width={12}
+                      height={12}
+                      rx={2}
+                      fill="var(--color-info)"
+                      opacity={0.18}
+                      stroke="var(--color-info)"
+                      strokeWidth={0.6}
+                    />
+                    <text
+                      x={x(i)}
+                      y={y(c.h) - 9}
+                      fontSize={8}
+                      textAnchor="middle"
+                      fill="var(--color-info)"
+                    >
                       N
                     </text>
                   </g>
@@ -182,7 +243,14 @@ export function GoldChart({
             strokeWidth={1}
             strokeDasharray="3 3"
           />
-          <rect x={W - PAD_R + 1} y={y(last.c) - 8} width={PAD_R - 2} height={16} rx={2} fill="var(--color-gold-bright)" />
+          <rect
+            x={W - PAD_R + 1}
+            y={y(last.c) - 8}
+            width={PAD_R - 2}
+            height={16}
+            rx={2}
+            fill="var(--color-gold-bright)"
+          />
           <text
             x={W - PAD_R + 6}
             y={y(last.c) + 4}

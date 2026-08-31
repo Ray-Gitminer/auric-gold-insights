@@ -122,11 +122,56 @@ export interface Order {
 }
 
 export const orders: Order[] = [
-  { id: "ord-1", symbol: "GCM5", side: "BUY", type: "LIMIT", qty: 1, price: 2300, status: "Working", submitted: "08:41:02" },
-  { id: "ord-2", symbol: "GCM5", side: "SELL", type: "LIMIT", qty: 1, price: 2410, status: "Working", submitted: "08:41:20" },
-  { id: "ord-3", symbol: "SILM5", side: "SELL", type: "STOP", qty: 5, price: 30.25, status: "PreSubmitted", submitted: "09:02:55" },
-  { id: "ord-4", symbol: "HGK5", side: "BUY", type: "LIMIT", qty: 1, price: 4.08, status: "Working", submitted: "09:14:33" },
-  { id: "ord-5", symbol: "XAUUSD", side: "SELL", type: "STOP LIMIT", qty: 20, price: 2312, status: "Submitted", submitted: "09:20:07" },
+  {
+    id: "ord-1",
+    symbol: "GCM5",
+    side: "BUY",
+    type: "LIMIT",
+    qty: 1,
+    price: 2300,
+    status: "Working",
+    submitted: "08:41:02",
+  },
+  {
+    id: "ord-2",
+    symbol: "GCM5",
+    side: "SELL",
+    type: "LIMIT",
+    qty: 1,
+    price: 2410,
+    status: "Working",
+    submitted: "08:41:20",
+  },
+  {
+    id: "ord-3",
+    symbol: "SILM5",
+    side: "SELL",
+    type: "STOP",
+    qty: 5,
+    price: 30.25,
+    status: "PreSubmitted",
+    submitted: "09:02:55",
+  },
+  {
+    id: "ord-4",
+    symbol: "HGK5",
+    side: "BUY",
+    type: "LIMIT",
+    qty: 1,
+    price: 4.08,
+    status: "Working",
+    submitted: "09:14:33",
+  },
+  {
+    id: "ord-5",
+    symbol: "XAUUSD",
+    side: "SELL",
+    type: "STOP LIMIT",
+    qty: 20,
+    price: 2312,
+    status: "Submitted",
+    submitted: "09:20:07",
+  },
 ];
 
 export interface Candle {
@@ -262,11 +307,46 @@ export interface EconomicEvent {
 }
 
 export const economicEvents: EconomicEvent[] = [
-  { time: "08:30", event: "CPI m/m (Apr)", impact: "High", actual: "0.3%", forecast: "0.3%", previous: "0.4%" },
-  { time: "08:30", event: "CPI y/y (Apr)", impact: "High", actual: "3.4%", forecast: "3.5%", previous: "3.5%" },
-  { time: "10:00", event: "Core CPI m/m (Apr)", impact: "High", actual: "0.3%", forecast: "0.3%", previous: "0.4%" },
-  { time: "10:00", event: "Core CPI y/y (Apr)", impact: "Medium", actual: "3.6%", forecast: "3.6%", previous: "3.8%" },
-  { time: "14:00", event: "FOMC Member Speech", impact: "Medium", actual: "—", forecast: "—", previous: "—" },
+  {
+    time: "08:30",
+    event: "CPI m/m (Apr)",
+    impact: "High",
+    actual: "0.3%",
+    forecast: "0.3%",
+    previous: "0.4%",
+  },
+  {
+    time: "08:30",
+    event: "CPI y/y (Apr)",
+    impact: "High",
+    actual: "3.4%",
+    forecast: "3.5%",
+    previous: "3.5%",
+  },
+  {
+    time: "10:00",
+    event: "Core CPI m/m (Apr)",
+    impact: "High",
+    actual: "0.3%",
+    forecast: "0.3%",
+    previous: "0.4%",
+  },
+  {
+    time: "10:00",
+    event: "Core CPI y/y (Apr)",
+    impact: "Medium",
+    actual: "3.6%",
+    forecast: "3.6%",
+    previous: "3.8%",
+  },
+  {
+    time: "14:00",
+    event: "FOMC Member Speech",
+    impact: "Medium",
+    actual: "—",
+    forecast: "—",
+    previous: "—",
+  },
 ];
 
 export interface JournalEntry {
@@ -290,7 +370,8 @@ export const journal: JournalEntry[] = [
     time: "09:15",
     title: "GCM5 swing setup monitored",
     setup: "Trend continuation",
-    thesis: "Watching the 2,300 support zone for a controlled retest before adding to the June future.",
+    thesis:
+      "Watching the 2,300 support zone for a controlled retest before adding to the June future.",
     emotion: "Calm",
     disciplineScore: 9,
     errors: [],
@@ -347,10 +428,34 @@ export interface AlertItem {
 }
 
 export const alerts: AlertItem[] = [
-  { id: "a-1", severity: "risk", message: "Risk Alert: Drawdown 1.28% exceeds daily threshold 1.00%", time: "09:31", date: "14 May" },
-  { id: "a-2", severity: "warning", message: "GCM5 reached resistance R1 (2,390.0)", time: "09:27", date: "14 May" },
-  { id: "a-3", severity: "info", message: "CPI data released: Core CPI m/m 0.3% (in line)", time: "08:30", date: "14 May" },
-  { id: "a-4", severity: "info", message: "Market data snapshot refreshed", time: "08:05", date: "14 May" },
+  {
+    id: "a-1",
+    severity: "risk",
+    message: "Risk Alert: Drawdown 1.28% exceeds daily threshold 1.00%",
+    time: "09:31",
+    date: "14 May",
+  },
+  {
+    id: "a-2",
+    severity: "warning",
+    message: "GCM5 reached resistance R1 (2,390.0)",
+    time: "09:27",
+    date: "14 May",
+  },
+  {
+    id: "a-3",
+    severity: "info",
+    message: "CPI data released: Core CPI m/m 0.3% (in line)",
+    time: "08:30",
+    date: "14 May",
+  },
+  {
+    id: "a-4",
+    severity: "info",
+    message: "Market data snapshot refreshed",
+    time: "08:05",
+    date: "14 May",
+  },
 ];
 
 export interface AlertRule {
@@ -362,11 +467,41 @@ export interface AlertRule {
 }
 
 export const alertRules: AlertRule[] = [
-  { id: "r-1", name: "Daily drawdown breach", condition: "Drawdown ≤ -1.00% intraday", channel: "In-app + Email", enabled: true },
-  { id: "r-2", name: "Gold key level", condition: "XAUUSD crosses 2,390 or 2,300", channel: "In-app", enabled: true },
-  { id: "r-3", name: "Strategy setup valid", condition: "Setup state changes to VALID", channel: "In-app", enabled: true },
-  { id: "r-4", name: "High-impact US event", condition: "60 minutes before High impact event", channel: "In-app + Email", enabled: false },
-  { id: "r-5", name: "Connection stale", condition: "Data feed age > 60s", channel: "In-app", enabled: true },
+  {
+    id: "r-1",
+    name: "Daily drawdown breach",
+    condition: "Drawdown ≤ -1.00% intraday",
+    channel: "In-app + Email",
+    enabled: true,
+  },
+  {
+    id: "r-2",
+    name: "Gold key level",
+    condition: "XAUUSD crosses 2,390 or 2,300",
+    channel: "In-app",
+    enabled: true,
+  },
+  {
+    id: "r-3",
+    name: "Strategy setup valid",
+    condition: "Setup state changes to VALID",
+    channel: "In-app",
+    enabled: true,
+  },
+  {
+    id: "r-4",
+    name: "High-impact US event",
+    condition: "60 minutes before High impact event",
+    channel: "In-app + Email",
+    enabled: false,
+  },
+  {
+    id: "r-5",
+    name: "Connection stale",
+    condition: "Data feed age > 60s",
+    channel: "In-app",
+    enabled: true,
+  },
 ];
 
 export interface NewsItem {
@@ -396,7 +531,8 @@ export const news: NewsItem[] = [
     direction: "Bullish",
     horizon: "1–3 sessions",
     confidence: "High",
-    rationale: "A weaker dollar historically supports gold pricing; rate-cut odds reduce the opportunity cost of holding bullion.",
+    rationale:
+      "A weaker dollar historically supports gold pricing; rate-cut odds reduce the opportunity cost of holding bullion.",
     citations: ["Reuters FX wrap", "CME FedWatch summary"],
   },
   {
@@ -410,7 +546,8 @@ export const news: NewsItem[] = [
     direction: "Bullish",
     horizon: "1–2 quarters",
     confidence: "Medium",
-    rationale: "Sustained official-sector demand provides a structural bid, though it moves slowly relative to intraday price action.",
+    rationale:
+      "Sustained official-sector demand provides a structural bid, though it moves slowly relative to intraday price action.",
     citations: ["WGC quarterly demand trends"],
   },
   {
@@ -424,7 +561,8 @@ export const news: NewsItem[] = [
     direction: "Bearish",
     horizon: "1 week",
     confidence: "Medium",
-    rationale: "Higher real yields raise the carrying cost of non-yielding assets and typically pressure gold.",
+    rationale:
+      "Higher real yields raise the carrying cost of non-yielding assets and typically pressure gold.",
     citations: ["US TIPS curve", "Bloomberg rates desk note"],
   },
   {
@@ -438,7 +576,8 @@ export const news: NewsItem[] = [
     direction: "Neutral",
     horizon: "Intraday",
     confidence: "Low",
-    rationale: "Regional premium changes are a weak short-term signal and are already reflected in spot pricing.",
+    rationale:
+      "Regional premium changes are a weak short-term signal and are already reflected in spot pricing.",
     citations: ["Kitco Asia physical market report"],
   },
 ];
@@ -457,14 +596,102 @@ export interface Trade {
 }
 
 export const trades: Trade[] = [
-  { id: "t-1", closed: "13 May", symbol: "GCM5", side: "LONG", qty: 1, entry: 2268.4, exit: 2312.8, pnl: 4440, rMultiple: 2.1, setup: "Trend continuation" },
-  { id: "t-2", closed: "12 May", symbol: "XAUUSD", side: "LONG", qty: 30, entry: 2301.2, exit: 2294.6, pnl: -198, rMultiple: -0.6, setup: "Breakout" },
-  { id: "t-3", closed: "10 May", symbol: "SILM5", side: "LONG", qty: 3, entry: 30.12, exit: 31.04, pnl: 13800, rMultiple: 1.8, setup: "Trend continuation" },
-  { id: "t-4", closed: "09 May", symbol: "GCM5", side: "SHORT", qty: 1, entry: 2288.0, exit: 2299.5, pnl: -1150, rMultiple: -1.0, setup: "Mean reversion" },
-  { id: "t-5", closed: "08 May", symbol: "XAUUSD", side: "LONG", qty: 25, entry: 2276.5, exit: 2298.9, pnl: 560, rMultiple: 1.4, setup: "Pullback" },
-  { id: "t-6", closed: "07 May", symbol: "HGK5", side: "SHORT", qty: 2, entry: 4.31, exit: 4.24, pnl: 3500, rMultiple: 1.2, setup: "Mean reversion" },
-  { id: "t-7", closed: "06 May", symbol: "GCM5", side: "LONG", qty: 2, entry: 2255.0, exit: 2246.2, pnl: -1760, rMultiple: -0.9, setup: "Breakout" },
-  { id: "t-8", closed: "03 May", symbol: "XAUUSD", side: "LONG", qty: 40, entry: 2240.8, exit: 2268.4, pnl: 1104, rMultiple: 2.4, setup: "Trend continuation" },
+  {
+    id: "t-1",
+    closed: "13 May",
+    symbol: "GCM5",
+    side: "LONG",
+    qty: 1,
+    entry: 2268.4,
+    exit: 2312.8,
+    pnl: 4440,
+    rMultiple: 2.1,
+    setup: "Trend continuation",
+  },
+  {
+    id: "t-2",
+    closed: "12 May",
+    symbol: "XAUUSD",
+    side: "LONG",
+    qty: 30,
+    entry: 2301.2,
+    exit: 2294.6,
+    pnl: -198,
+    rMultiple: -0.6,
+    setup: "Breakout",
+  },
+  {
+    id: "t-3",
+    closed: "10 May",
+    symbol: "SILM5",
+    side: "LONG",
+    qty: 3,
+    entry: 30.12,
+    exit: 31.04,
+    pnl: 13800,
+    rMultiple: 1.8,
+    setup: "Trend continuation",
+  },
+  {
+    id: "t-4",
+    closed: "09 May",
+    symbol: "GCM5",
+    side: "SHORT",
+    qty: 1,
+    entry: 2288.0,
+    exit: 2299.5,
+    pnl: -1150,
+    rMultiple: -1.0,
+    setup: "Mean reversion",
+  },
+  {
+    id: "t-5",
+    closed: "08 May",
+    symbol: "XAUUSD",
+    side: "LONG",
+    qty: 25,
+    entry: 2276.5,
+    exit: 2298.9,
+    pnl: 560,
+    rMultiple: 1.4,
+    setup: "Pullback",
+  },
+  {
+    id: "t-6",
+    closed: "07 May",
+    symbol: "HGK5",
+    side: "SHORT",
+    qty: 2,
+    entry: 4.31,
+    exit: 4.24,
+    pnl: 3500,
+    rMultiple: 1.2,
+    setup: "Mean reversion",
+  },
+  {
+    id: "t-7",
+    closed: "06 May",
+    symbol: "GCM5",
+    side: "LONG",
+    qty: 2,
+    entry: 2255.0,
+    exit: 2246.2,
+    pnl: -1760,
+    rMultiple: -0.9,
+    setup: "Breakout",
+  },
+  {
+    id: "t-8",
+    closed: "03 May",
+    symbol: "XAUUSD",
+    side: "LONG",
+    qty: 40,
+    entry: 2240.8,
+    exit: 2268.4,
+    pnl: 1104,
+    rMultiple: 2.4,
+    setup: "Trend continuation",
+  },
 ];
 
 export const tradeStats = {

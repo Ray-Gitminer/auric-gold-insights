@@ -15,18 +15,16 @@ import {
 } from "lucide-react";
 
 import {
-  account,
   alerts,
   bias,
   economicEvents,
   impact,
   instrument,
   journal,
-  orders,
-  positions,
   risk,
   strategy,
 } from "@/data/fixtures";
+import { usePortfolioData } from "@/hooks/use-portfolio-data";
 import { money, num, pct, signedMoney, toneFor } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { GoldChart, type Timeframe } from "@/components/auriq/GoldChart";
@@ -53,7 +51,8 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Overview · AURIQ Gold Trading Intelligence" },
       {
         property: "og:description",
-        content: "Account KPIs, gold chart workspace, AI advisory rail and risk monitor — demo data.",
+        content:
+          "Account KPIs, gold chart workspace, AI advisory rail and risk monitor — demo data.",
       },
     ],
   }),
@@ -70,6 +69,9 @@ const setupTone: Record<string, "gold" | "positive" | "negative" | "info"> = {
 function Overview() {
   const { t, tx } = useI18n();
   const [timeframe, setTimeframe] = useState<Timeframe>("1D");
+  const portfolio = usePortfolioData();
+  const { account, positions, orders, source, accountLabel } = portfolio.data;
+  const usingDemoData = source === "demo";
 
   return (
     <>
@@ -78,7 +80,17 @@ function Overview() {
         description={t("overview.desc")}
         actions={
           <>
-            <StatusBadge tone="positive">{t("overview.feedLive")}</StatusBadge>
+            <StatusBadge
+              tone={portfolio.error ? "negative" : usingDemoData ? "neutral" : "positive"}
+            >
+              {portfolio.error
+                ? "SUPABASE · ERROR"
+                : portfolio.loading
+                  ? "SUPABASE · LOADING"
+                  : usingDemoData
+                    ? t("common.demoData")
+                    : "SUPABASE · READ ONLY"}
+            </StatusBadge>
             <StatusBadge tone="neutral">{t("common.timezone")}</StatusBadge>
           </>
         }
@@ -143,7 +155,8 @@ function Overview() {
               <div className="min-w-0">
                 <div className="flex min-w-0 flex-wrap items-center gap-2">
                   <h2 className="text-sm font-semibold break-words">{instrument.label}</h2>
-                  <DemoDataTag />
+                  {usingDemoData && <DemoDataTag />}
+                  {!usingDemoData && <StatusBadge tone="info">{accountLabel}</StatusBadge>}
                 </div>
                 <p className="num mt-1 text-xs text-muted-foreground">
                   {instrument.exchange} · {timeframe}
@@ -201,7 +214,9 @@ function Overview() {
                     />
                     <div className="min-w-0">
                       <p className="text-xs leading-snug font-medium">{tx(c.label)}</p>
-                      <p className="num text-[11px] leading-snug text-muted-foreground">{tx(c.detail)}</p>
+                      <p className="num text-[11px] leading-snug text-muted-foreground">
+                        {tx(c.detail)}
+                      </p>
                     </div>
                   </li>
                 ))}
@@ -224,12 +239,24 @@ function Overview() {
                   <caption className="sr-only">{t("overview.positionsCaption")}</caption>
                   <thead>
                     <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                      <th scope="col" className="px-4 py-2 text-left font-medium">{t("common.symbol")}</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.qty")}</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.avg")}</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.last")}</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.unrlzd")}</th>
-                      <th scope="col" className="px-4 py-2 text-right font-medium">{t("common.plPct")}</th>
+                      <th scope="col" className="px-4 py-2 text-left font-medium">
+                        {t("common.symbol")}
+                      </th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">
+                        {t("common.qty")}
+                      </th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">
+                        {t("common.avg")}
+                      </th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">
+                        {t("common.last")}
+                      </th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">
+                        {t("common.unrlzd")}
+                      </th>
+                      <th scope="col" className="px-4 py-2 text-right font-medium">
+                        {t("common.plPct")}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -268,12 +295,24 @@ function Overview() {
                   <caption className="sr-only">{t("overview.ordersCaption")}</caption>
                   <thead>
                     <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                      <th scope="col" className="px-4 py-2 text-left font-medium">{t("common.symbol")}</th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.side")}</th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.type")}</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.qty")}</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.price")}</th>
-                      <th scope="col" className="px-4 py-2 text-right font-medium">{t("common.status")}</th>
+                      <th scope="col" className="px-4 py-2 text-left font-medium">
+                        {t("common.symbol")}
+                      </th>
+                      <th scope="col" className="px-2 py-2 text-left font-medium">
+                        {t("common.side")}
+                      </th>
+                      <th scope="col" className="px-2 py-2 text-left font-medium">
+                        {t("common.type")}
+                      </th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">
+                        {t("common.qty")}
+                      </th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">
+                        {t("common.price")}
+                      </th>
+                      <th scope="col" className="px-4 py-2 text-right font-medium">
+                        {t("common.status")}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -282,7 +321,12 @@ function Overview() {
                         <th scope="row" className="num px-4 py-2 text-left font-medium">
                           {o.symbol}
                         </th>
-                        <td className={cn("px-2 py-2 text-xs font-semibold", o.side === "BUY" ? "text-positive" : "text-negative")}>
+                        <td
+                          className={cn(
+                            "px-2 py-2 text-xs font-semibold",
+                            o.side === "BUY" ? "text-positive" : "text-negative",
+                          )}
+                        >
                           {o.side}
                         </td>
                         <td className="px-2 py-2 text-xs text-info">{o.type}</td>
@@ -318,22 +362,44 @@ function Overview() {
                   <caption className="sr-only">{t("overview.eventsCaption")}</caption>
                   <thead>
                     <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                      <th scope="col" className="px-4 py-2 text-left font-medium">{t("common.time")}</th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.event")}</th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.impact")}</th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.actual")}</th>
-                      <th scope="col" className="px-4 py-2 text-right font-medium">{t("common.forecast")}</th>
+                      <th scope="col" className="px-4 py-2 text-left font-medium">
+                        {t("common.time")}
+                      </th>
+                      <th scope="col" className="px-2 py-2 text-left font-medium">
+                        {t("common.event")}
+                      </th>
+                      <th scope="col" className="px-2 py-2 text-left font-medium">
+                        {t("common.impact")}
+                      </th>
+                      <th scope="col" className="px-2 py-2 text-right font-medium">
+                        {t("common.actual")}
+                      </th>
+                      <th scope="col" className="px-4 py-2 text-right font-medium">
+                        {t("common.forecast")}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {economicEvents.map((e) => (
-                      <tr key={`${e.time}-${e.event}`} className="border-b border-border/60 last:border-0">
+                      <tr
+                        key={`${e.time}-${e.event}`}
+                        className="border-b border-border/60 last:border-0"
+                      >
                         <td className="num px-4 py-2">{e.time}</td>
                         <td className="px-2 py-2">{e.event}</td>
                         <td className="px-2 py-2">
-                          <span className="flex gap-0.5" aria-label={t("overview.impactAria", { impact: e.impact })}>
-                            {Array.from({ length: e.impact === "High" ? 3 : e.impact === "Medium" ? 2 : 1 }).map((_, i) => (
-                              <span key={i} className="size-1.5 rounded-full bg-negative" aria-hidden />
+                          <span
+                            className="flex gap-0.5"
+                            aria-label={t("overview.impactAria", { impact: e.impact })}
+                          >
+                            {Array.from({
+                              length: e.impact === "High" ? 3 : e.impact === "Medium" ? 2 : 1,
+                            }).map((_, i) => (
+                              <span
+                                key={i}
+                                className="size-1.5 rounded-full bg-negative"
+                                aria-hidden
+                              />
                             ))}
                           </span>
                         </td>
@@ -368,7 +434,8 @@ function Overview() {
                       <p className="truncate text-sm font-medium">{tx(j.title)}</p>
                       <p className="truncate text-xs text-muted-foreground">{tx(j.thesis)}</p>
                       <p className="num mt-1 text-[11px] text-muted-foreground">
-                        {tx(j.setup)} · {tx(j.emotion)} · {t("overview.discipline")} {j.disciplineScore}/10
+                        {tx(j.setup)} · {tx(j.emotion)} · {t("overview.discipline")}{" "}
+                        {j.disciplineScore}/10
                       </p>
                     </div>
                     <span className="num shrink-0 text-[11px] text-muted-foreground">
@@ -383,7 +450,10 @@ function Overview() {
           <PanelCard
             title={t("overview.alertsHealth")}
             action={
-              <Link to="/alerts" className="inline-flex items-center gap-1 text-xs text-info hover:underline">
+              <Link
+                to="/alerts"
+                className="inline-flex items-center gap-1 text-xs text-info hover:underline"
+              >
                 {t("overview.viewAllAlerts")} <ArrowRight className="size-3" aria-hidden />
               </Link>
             }
@@ -391,13 +461,19 @@ function Overview() {
           >
             <ul className="divide-y divide-border">
               {alerts.map((a) => (
-                <li key={a.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-2.5">
+                <li
+                  key={a.id}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-2.5"
+                >
                   <div className="flex min-w-0 items-center gap-2">
                     {a.severity === "info" ? (
                       <Info className="size-3.5 shrink-0 text-info" aria-hidden />
                     ) : (
                       <Bell
-                        className={cn("size-3.5 shrink-0", a.severity === "risk" ? "text-negative" : "text-primary")}
+                        className={cn(
+                          "size-3.5 shrink-0",
+                          a.severity === "risk" ? "text-negative" : "text-primary",
+                        )}
                         aria-hidden
                       />
                     )}
@@ -454,11 +530,20 @@ function Overview() {
           <PanelCard title={t("overview.marketBias")} subtitle={t("overview.biasSubtitle")}>
             <AdvisoryTag />
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              <StatusBadge tone={bias.direction === "Bullish" ? "positive" : bias.direction === "Bearish" ? "negative" : "neutral"}>
+              <StatusBadge
+                tone={
+                  bias.direction === "Bullish"
+                    ? "positive"
+                    : bias.direction === "Bearish"
+                      ? "negative"
+                      : "neutral"
+                }
+              >
                 {tx(bias.direction)}
               </StatusBadge>
               <span className="text-xs text-muted-foreground">
-                {t("common.confidence")} <span className="text-foreground">{tx(bias.confidence)}</span>
+                {t("common.confidence")}{" "}
+                <span className="text-foreground">{tx(bias.confidence)}</span>
               </span>
               <span className="text-xs text-muted-foreground">
                 {t("common.horizon")} <span className="text-foreground">{tx(bias.horizon)}</span>
@@ -485,7 +570,8 @@ function Overview() {
               <div className="flex items-center justify-between gap-2">
                 <dt className="text-muted-foreground">{t("risk.exposure")}</dt>
                 <dd className="num">
-                  {money(risk.exposure, 0)} <span className="text-muted-foreground">({risk.exposurePct}%)</span>
+                  {money(risk.exposure, 0)}{" "}
+                  <span className="text-muted-foreground">({risk.exposurePct}%)</span>
                 </dd>
               </div>
               <div className="flex items-center justify-between gap-2">
@@ -516,7 +602,9 @@ function Overview() {
               </div>
               <div className="flex items-center justify-between gap-2">
                 <dt className="text-muted-foreground">{t("risk.freshness")}</dt>
-                <dd className="num text-positive">{t("risk.secondsAgo", { n: risk.connectionAgeSeconds })}</dd>
+                <dd className="num text-positive">
+                  {t("risk.secondsAgo", { n: risk.connectionAgeSeconds })}
+                </dd>
               </div>
               <div className="flex items-center justify-between gap-2">
                 <dt className="text-muted-foreground">{t("risk.status")}</dt>
@@ -529,9 +617,7 @@ function Overview() {
             <p className="text-xs font-semibold tracking-[0.1em] text-primary uppercase">
               {t("overview.aiOnly")}
             </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("overview.aiOnlyBody")}
-            </p>
+            <p className="mt-1 text-xs text-muted-foreground">{t("overview.aiOnlyBody")}</p>
           </div>
 
           <StaleState age={t("overview.staleAge")} />

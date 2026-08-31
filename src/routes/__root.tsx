@@ -6,6 +6,8 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  Navigate,
+  useRouterState,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
@@ -14,7 +16,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppShell } from "@/components/auriq/AppShell";
 import { Toaster } from "@/components/ui/sonner";
 import { I18nProvider } from "@/contexts/I18nContext";
-
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 function NotFoundComponent() {
   return (
@@ -129,13 +131,33 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
-        <AppShell>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-        </AppShell>
+        <AuthProvider>
+          <AuthGate />
+        </AuthProvider>
         <Toaster />
       </I18nProvider>
     </QueryClientProvider>
   );
 }
 
+function AuthGate() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const { configured, loading, session } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-background text-muted-foreground">
+        กำลังตรวจสอบการเข้าสู่ระบบ…
+      </div>
+    );
+  }
+
+  if (configured && !session && pathname !== "/login") return <Navigate to="/login" replace />;
+  if (pathname === "/login") return <Outlet />;
+
+  return (
+    <AppShell>
+      <Outlet />
+    </AppShell>
+  );
+}

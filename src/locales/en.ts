@@ -34,7 +34,7 @@ export const en = {
   "shell.userMenu": "User menu",
   "shell.settings": "Settings",
   "shell.auditLog": "Audit log",
-  "shell.signOut": "Sign out (prototype)",
+  "shell.signOut": "Sign out",
   "shell.openNav": "Open navigation",
   "shell.nav": "AURIQ navigation",
   "shell.expand": "Expand sidebar",
@@ -150,7 +150,8 @@ export const en = {
 
   // ---------- portfolio ----------
   "portfolio.title": "Portfolio",
-  "portfolio.desc": "Allocation, exposure, margin usage and performance across the paper-trading account.",
+  "portfolio.desc":
+    "Allocation, exposure, margin usage and performance across the paper-trading account.",
   "portfolio.account": "Paper account {id}",
   "portfolio.grossExposure": "Gross exposure",
   "portfolio.comfortable": "Comfortable",
@@ -177,9 +178,11 @@ export const en = {
   "po.ordersCaption": "Working orders — demo data",
   "po.limitStop": "Limit / Stop",
   "po.closeTitle": "Close position (prototype)",
-  "po.closeDesc": "Review the simulated close for {symbol}. AURIQ will not send this to any broker.",
+  "po.closeDesc":
+    "Review the simulated close for {symbol}. AURIQ will not send this to any broker.",
   "po.cancelTitle": "Cancel order (prototype)",
-  "po.cancelDesc": "Review the simulated cancellation for order {id}. Nothing is transmitted to IBKR.",
+  "po.cancelDesc":
+    "Review the simulated cancellation for order {id}. Nothing is transmitted to IBKR.",
   "po.sideQty": "Side / Qty",
   "po.estProceeds": "Estimated proceeds",
   "po.order": "Order",
@@ -190,7 +193,8 @@ export const en = {
 
   // ---------- trade history ----------
   "th.title": "Trade History",
-  "th.desc": "Closed paper trades with performance statistics. Export controls are prototype placeholders.",
+  "th.desc":
+    "Closed paper trades with performance statistics. Export controls are prototype placeholders.",
   "th.winRate": "Win rate",
   "th.trades": "{n} trades",
   "th.profitFactor": "Profit factor",
@@ -235,7 +239,8 @@ export const en = {
   "journal.check4": "No high-impact event within 60 minutes",
   "journal.check5": "Position size verified against margin",
   "journal.upload": "Chart upload",
-  "journal.uploadHint": "Drop a chart screenshot here. Upload is a placeholder until storage is connected.",
+  "journal.uploadHint":
+    "Drop a chart screenshot here. Upload is a placeholder until storage is connected.",
   "journal.trend": "Discipline trend",
 
   // ---------- news ----------
@@ -245,6 +250,20 @@ export const en = {
   "news.source": "Source",
   "news.relevance": "Gold relevance",
   "news.citations": "Citations",
+  "news.weeklyTimeline": "US macro timeline",
+  "news.weeklyTimelineDesc": "Official releases that can shape this week's gold narrative",
+  "news.officialData": "Official data",
+  "news.awaitingRelease": "Awaiting release",
+  "news.noOfficialEvents": "No official events have been collected yet.",
+  "news.weeklyBrief": "Weekly AI narrative",
+  "news.briefPending": "Collecting evidence before the first server-side analysis.",
+  "news.officialHeadlines": "Official headlines",
+  "news.officialHeadlinesDesc":
+    "Filtered source links stored in Supabase; analysis is not generated yet",
+  "news.demoAnalysis": "Analysis prototype",
+  "news.impactMap": "News impact map",
+  "news.impactMapDesc":
+    "Three price scenarios, confirmation zones and risk rules around the next US release",
   "news.footer":
     "AURIQ links to original sources and never republishes licensed content. Analysis is generated server-side and is advisory only — it can never place an order.",
 

@@ -18,7 +18,10 @@ export const Route = createFileRoute("/chart-strategy")({
           "Multi-timeframe gold chart workspace with an explicit setup state machine and pass/fail strategy conditions.",
       },
       { property: "og:title", content: "Chart & Strategy · AURIQ" },
-      { property: "og:description", content: "Multi-timeframe workspace and setup state machine — demo data." },
+      {
+        property: "og:description",
+        content: "Multi-timeframe workspace and setup state machine — demo data.",
+      },
     ],
   }),
   component: ChartStrategy,
@@ -40,7 +43,11 @@ function ChartStrategy() {
       <PageHeader
         title={t("cs.title")}
         description={t("cs.desc")}
-        actions={<StatusBadge tone="gold">{t("common.setup")}: {strategy.state}</StatusBadge>}
+        actions={
+          <StatusBadge tone="gold">
+            {t("common.setup")}: {strategy.state}
+          </StatusBadge>
+        }
       />
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
@@ -75,7 +82,9 @@ function ChartStrategy() {
                   key={s.state}
                   className={cn(
                     "rounded-sm border px-3 py-2",
-                    s.state === strategy.state ? "border-primary/50 bg-primary/10" : "border-border",
+                    s.state === strategy.state
+                      ? "border-primary/50 bg-primary/10"
+                      : "border-border",
                   )}
                 >
                   <p
@@ -97,7 +106,10 @@ function ChartStrategy() {
               {strategy.conditions.map((c) => (
                 <li key={c.label} className="flex items-start gap-2">
                   <span
-                    className={cn("mt-1 size-1.5 shrink-0 rounded-full", c.pass ? "bg-positive" : "bg-negative")}
+                    className={cn(
+                      "mt-1 size-1.5 shrink-0 rounded-full",
+                      c.pass ? "bg-positive" : "bg-negative",
+                    )}
                     aria-hidden
                   />
                   <div className="min-w-0">
@@ -113,13 +125,17 @@ function ChartStrategy() {
             <ul className="space-y-1.5 text-xs">
               {instrument.resistance.map((r) => (
                 <li key={r.label} className="flex items-center justify-between">
-                  <span className="text-muted-foreground">{t("cs.resistance", { label: r.label })}</span>
+                  <span className="text-muted-foreground">
+                    {t("cs.resistance", { label: r.label })}
+                  </span>
                   <span className="num text-negative">{num(r.value, 1)}</span>
                 </li>
               ))}
               {instrument.support.map((s) => (
                 <li key={s.label} className="flex items-center justify-between">
-                  <span className="text-muted-foreground">{t("cs.support", { label: s.label })}</span>
+                  <span className="text-muted-foreground">
+                    {t("cs.support", { label: s.label })}
+                  </span>
                   <span className="num text-positive">{num(s.value, 1)}</span>
                 </li>
               ))}

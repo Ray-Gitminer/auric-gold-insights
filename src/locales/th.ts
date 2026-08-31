@@ -36,7 +36,7 @@ export const th: Dictionary = {
   "shell.userMenu": "เมนูผู้ใช้",
   "shell.settings": "การตั้งค่า",
   "shell.auditLog": "บันทึกกิจกรรม",
-  "shell.signOut": "ออกจากระบบ (ต้นแบบ)",
+  "shell.signOut": "ออกจากระบบ",
   "shell.openNav": "เปิดเมนูนำทาง",
   "shell.nav": "เมนูนำทาง AURIQ",
   "shell.expand": "ขยายแถบเมนู",
@@ -116,7 +116,8 @@ export const th: Dictionary = {
   "overview.positionsCaption": "สถานะที่ถืออยู่ — ข้อมูลจำลอง",
   "overview.ordersCaption": "คำสั่งที่รอดำเนินการ — ข้อมูลจำลอง",
   "overview.events": "ปฏิทินเศรษฐกิจสหรัฐฯ",
-  "overview.eventsSubtitle": "วิดเจ็ตปฏิทินเศรษฐกิจอย่างเป็นทางการของ Investing.com — ตัวอย่างพื้นที่แสดงผล",
+  "overview.eventsSubtitle":
+    "วิดเจ็ตปฏิทินเศรษฐกิจอย่างเป็นทางการของ Investing.com — ตัวอย่างพื้นที่แสดงผล",
   "overview.openCalendar": "เปิดปฏิทิน",
   "overview.eventsCaption": "ปฏิทินเศรษฐกิจสหรัฐฯ — ตัวอย่างพื้นที่วิดเจ็ต",
   "overview.eventsNote":
@@ -152,7 +153,8 @@ export const th: Dictionary = {
 
   // ---------- portfolio ----------
   "portfolio.title": "พอร์ตการลงทุน",
-  "portfolio.desc": "สัดส่วนการลงทุน มูลค่าที่เปิดรับความเสี่ยง การใช้มาร์จิ้น และผลตอบแทนของบัญชี Paper Trading",
+  "portfolio.desc":
+    "สัดส่วนการลงทุน มูลค่าที่เปิดรับความเสี่ยง การใช้มาร์จิ้น และผลตอบแทนของบัญชี Paper Trading",
   "portfolio.account": "บัญชี Paper {id}",
   "portfolio.grossExposure": "มูลค่ารวมที่เปิดรับความเสี่ยง",
   "portfolio.comfortable": "อยู่ในระดับสบาย",
@@ -237,7 +239,8 @@ export const th: Dictionary = {
   "journal.check4": "ไม่มีเหตุการณ์ผลกระทบสูงภายใน 60 นาที",
   "journal.check5": "ตรวจสอบขนาดสถานะเทียบกับมาร์จิ้นแล้ว",
   "journal.upload": "อัปโหลดภาพกราฟ",
-  "journal.uploadHint": "ลากภาพกราฟมาวางที่นี่ การอัปโหลดเป็นตัวอย่างจนกว่าจะเชื่อมต่อพื้นที่จัดเก็บ",
+  "journal.uploadHint":
+    "ลากภาพกราฟมาวางที่นี่ การอัปโหลดเป็นตัวอย่างจนกว่าจะเชื่อมต่อพื้นที่จัดเก็บ",
   "journal.trend": "แนวโน้มคะแนนวินัย",
 
   // ---------- news ----------
@@ -247,6 +250,19 @@ export const th: Dictionary = {
   "news.source": "แหล่งข่าว",
   "news.relevance": "ความเกี่ยวข้องกับทองคำ",
   "news.citations": "แหล่งอ้างอิง",
+  "news.weeklyTimeline": "ไทม์ไลน์เศรษฐกิจสหรัฐ",
+  "news.weeklyTimelineDesc": "ประกาศทางการที่อาจเชื่อมโยงเป็นเรื่องราวของทองคำในสัปดาห์นี้",
+  "news.officialData": "ข้อมูลทางการ",
+  "news.awaitingRelease": "รอประกาศ",
+  "news.noOfficialEvents": "ยังไม่มีเหตุการณ์ทางการที่ Collector ดึงเข้ามา",
+  "news.weeklyBrief": "บทวิเคราะห์ภาพรวมรายสัปดาห์",
+  "news.briefPending": "กำลังสะสมหลักฐานก่อนสร้างบทวิเคราะห์จากระบบฝั่งเซิร์ฟเวอร์",
+  "news.officialHeadlines": "พาดหัวข่าวทางการ",
+  "news.officialHeadlinesDesc":
+    "ลิงก์ต้นทางที่ผ่านตัวกรองและเก็บใน Supabase โดยยังไม่ได้สร้างผลวิเคราะห์",
+  "news.demoAnalysis": "ต้นแบบการวิเคราะห์",
+  "news.impactMap": "แผนที่ผลกระทบจากข่าว",
+  "news.impactMapDesc": "3 สถานการณ์ราคา โซนยืนยัน และกฎความเสี่ยงรอบข่าวสหรัฐรายการถัดไป",
   "news.footer":
     "AURIQ เชื่อมโยงไปยังแหล่งข่าวต้นทางเสมอ และไม่เผยแพร่เนื้อหาที่มีลิขสิทธิ์ซ้ำ การวิเคราะห์สร้างขึ้นฝั่งเซิร์ฟเวอร์และใช้เพื่อประกอบการวิเคราะห์เท่านั้น ไม่สามารถส่งคำสั่งซื้อขายได้",
 

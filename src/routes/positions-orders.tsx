@@ -81,15 +81,33 @@ function PositionsOrders() {
             <caption className="sr-only">{t("overview.positionsCaption")}</caption>
             <thead>
               <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                <th scope="col" className="px-4 py-2 text-left font-medium">{t("common.instrument")}</th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.side")}</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.qty")}</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.avg")}</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.last")}</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.unrealised")}</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">{t("po.sl")}</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">{t("po.tp")}</th>
-                <th scope="col" className="px-4 py-2 text-right font-medium">{t("common.action")}</th>
+                <th scope="col" className="px-4 py-2 text-left font-medium">
+                  {t("common.instrument")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">
+                  {t("common.side")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">
+                  {t("common.qty")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">
+                  {t("common.avg")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">
+                  {t("common.last")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">
+                  {t("common.unrealised")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">
+                  {t("po.sl")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">
+                  {t("po.tp")}
+                </th>
+                <th scope="col" className="px-4 py-2 text-right font-medium">
+                  {t("common.action")}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -97,19 +115,31 @@ function PositionsOrders() {
                 <tr key={p.id} className="border-b border-border/60 last:border-0">
                   <th scope="row" className="px-4 py-2.5 text-left font-medium">
                     <span className="num">{p.symbol}</span>
-                    <span className="block text-[11px] font-normal text-muted-foreground">{p.name}</span>
+                    <span className="block text-[11px] font-normal text-muted-foreground">
+                      {p.name}
+                    </span>
                   </th>
-                  <td className={cn("px-2 py-2.5 text-xs font-semibold", p.side === "LONG" ? "text-positive" : "text-negative")}>
+                  <td
+                    className={cn(
+                      "px-2 py-2.5 text-xs font-semibold",
+                      p.side === "LONG" ? "text-positive" : "text-negative",
+                    )}
+                  >
                     {p.side}
                   </td>
                   <td className="num px-2 py-2.5 text-right">{p.qty}</td>
                   <td className="num px-2 py-2.5 text-right">{num(p.avgPrice, 3)}</td>
                   <td className="num px-2 py-2.5 text-right">{num(p.lastPrice, 3)}</td>
                   <td className={cn("num px-2 py-2.5 text-right", toneFor(p.unrealisedPnl))}>
-                    {signedMoney(p.unrealisedPnl, 0)} <span className="text-muted-foreground">({pct(p.pnlPct)})</span>
+                    {signedMoney(p.unrealisedPnl, 0)}{" "}
+                    <span className="text-muted-foreground">({pct(p.pnlPct)})</span>
                   </td>
-                  <td className="num px-2 py-2.5 text-right text-negative">{p.stopLoss ? num(p.stopLoss, 2) : "—"}</td>
-                  <td className="num px-2 py-2.5 text-right text-positive">{p.takeProfit ? num(p.takeProfit, 2) : "—"}</td>
+                  <td className="num px-2 py-2.5 text-right text-negative">
+                    {p.stopLoss ? num(p.stopLoss, 2) : "—"}
+                  </td>
+                  <td className="num px-2 py-2.5 text-right text-positive">
+                    {p.takeProfit ? num(p.takeProfit, 2) : "—"}
+                  </td>
                   <td className="px-4 py-2.5 text-right">
                     <Button
                       size="sm"
@@ -145,28 +175,53 @@ function PositionsOrders() {
             <caption className="sr-only">{t("po.ordersCaption")}</caption>
             <thead>
               <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                <th scope="col" className="px-4 py-2 text-left font-medium">{t("common.symbol")}</th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.side")}</th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.type")}</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.qty")}</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">{t("po.limitStop")}</th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">{t("common.status")}</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">{t("common.submitted")}</th>
-                <th scope="col" className="px-4 py-2 text-right font-medium">{t("common.action")}</th>
+                <th scope="col" className="px-4 py-2 text-left font-medium">
+                  {t("common.symbol")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">
+                  {t("common.side")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">
+                  {t("common.type")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">
+                  {t("common.qty")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">
+                  {t("po.limitStop")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">
+                  {t("common.status")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">
+                  {t("common.submitted")}
+                </th>
+                <th scope="col" className="px-4 py-2 text-right font-medium">
+                  {t("common.action")}
+                </th>
               </tr>
             </thead>
             <tbody>
               {shownOrders.map((o) => (
                 <tr key={o.id} className="border-b border-border/60 last:border-0">
-                  <th scope="row" className="num px-4 py-2.5 text-left font-medium">{o.symbol}</th>
-                  <td className={cn("px-2 py-2.5 text-xs font-semibold", o.side === "BUY" ? "text-positive" : "text-negative")}>
+                  <th scope="row" className="num px-4 py-2.5 text-left font-medium">
+                    {o.symbol}
+                  </th>
+                  <td
+                    className={cn(
+                      "px-2 py-2.5 text-xs font-semibold",
+                      o.side === "BUY" ? "text-positive" : "text-negative",
+                    )}
+                  >
                     {o.side}
                   </td>
                   <td className="px-2 py-2.5 text-xs text-info">{o.type}</td>
                   <td className="num px-2 py-2.5 text-right">{o.qty}</td>
                   <td className="num px-2 py-2.5 text-right">{num(o.price, 2)}</td>
                   <td className="px-2 py-2.5 text-xs text-info">{o.status}</td>
-                  <td className="num px-2 py-2.5 text-right text-muted-foreground">{o.submitted}</td>
+                  <td className="num px-2 py-2.5 text-right text-muted-foreground">
+                    {o.submitted}
+                  </td>
                   <td className="px-4 py-2.5 text-right">
                     <Button
                       size="sm"
