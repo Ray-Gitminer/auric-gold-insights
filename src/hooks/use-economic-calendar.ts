@@ -5,6 +5,7 @@ import { fetchBlsReleases } from "@/lib/economic-calendar/bls-api";
 import { fetchBeaReleases } from "@/lib/economic-calendar/bea-api";
 import { fetchFredReleases } from "@/lib/economic-calendar/fred-api";
 import { fetchCensusReleases } from "@/lib/economic-calendar/census-api";
+import { buildScheduledReleases } from "@/lib/economic-calendar/global-schedule";
 import { computeAuriqEstimate } from "@/lib/economic-calendar/auriq-model";
 import { assessImpact } from "@/lib/economic-calendar/impact-engine";
 import { searchConsensus } from "@/lib/economic-calendar/consensus-search";
@@ -26,10 +27,19 @@ async function loadReleases(): Promise<{ releases: OfficialRelease[]; statuses: 
     fetchFredReleases(),
     fetchCensusReleases(),
   ]);
+
+  const live = results.flatMap((r) => r.releases);
+  // Keep the grid complete: recurring global releases fill the days the API
+  // layers don't cover, without ever overwriting a live row.
+  const liveKeys = new Set(live.map((r) => `${r.event}|${r.nextReleaseUtc.slice(0, 10)}`));
+  const scheduled = buildScheduledReleases().filter(
+    (r) => !liveKeys.has(`${r.event}|${r.nextReleaseUtc.slice(0, 10)}`),
+  );
+
   return {
-    releases: results
-      .flatMap((r) => r.releases)
-      .sort((a, b) => a.nextReleaseUtc.localeCompare(b.nextReleaseUtc)),
+    releases: [...live, ...scheduled].sort((a, b) =>
+      a.nextReleaseUtc.localeCompare(b.nextReleaseUtc),
+    ),
     statuses: results.map((r) => r.status),
   };
 }

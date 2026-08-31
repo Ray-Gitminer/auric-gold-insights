@@ -296,7 +296,7 @@ function CalendarTable({ days, lang }: { days: readonly (readonly [string, Calen
                     <td className="num px-3 py-2 text-xs text-muted-foreground">
                       {release.time} UTC
                     </td>
-                    <td className="num px-3 py-2 text-xs">USD</td>
+                    <td className="num px-3 py-2 text-xs">{release.currency ?? "USD"}</td>
                     <td className="px-3 py-2">
                       <ImpactSquare impact={release.impact} />
                     </td>
