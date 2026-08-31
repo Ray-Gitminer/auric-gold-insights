@@ -45,6 +45,7 @@ export const en = {
 
   // ---------- shared ----------
   "common.demoData": "Demo data",
+  "common.liveOfficialData": "Live official data",
   "common.advisory": "AI analysis · advisory only",
   "common.viewAll": "View all",
   "common.cancel": "Cancel",
@@ -397,7 +398,8 @@ export const en = {
   "ec.retry": "Retry",
   "ec.loading": "Loading official release data…",
   "ec.empty": "No releases match this filter.",
-  "ec.offlineFallback": "Showing offline demo fixture — live feeds unavailable.",
+  "ec.offlineFallback":
+    "No simulated fallback is shown. Retry when the official feeds are available.",
   "ec.pollNote":
     "Polling every 5 minutes on release days, otherwise every 60 minutes. All times UTC.",
   "ec.week": "This week",

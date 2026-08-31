@@ -5,10 +5,9 @@ import { ChevronDown, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/contexts/I18nContext";
 import { useEconomicCalendar } from "@/hooks/use-economic-calendar";
-import { economicEvents } from "@/data/fixtures";
 import { IMPACT_RULES } from "@/lib/economic-calendar/impact-engine";
 import type { CalendarEvent, ImpactAssessment } from "@/lib/economic-calendar/types";
-import { AdvisoryTag, PageHeader, PanelCard } from "@/components/auriq/primitives";
+import { AdvisoryTag, PageHeader, PanelCard, StatusBadge } from "@/components/auriq/primitives";
 import {
   ActualBadge,
   ForecastBadge,
@@ -222,6 +221,7 @@ function EconomicCalendarPage() {
       <PageHeader
         title={t("ec.title")}
         description={t("ec.desc")}
+        dataTag={<StatusBadge tone="positive">{t("common.liveOfficialData")}</StatusBadge>}
         actions={
           <>
             <AdvisoryTag />
@@ -275,13 +275,6 @@ function EconomicCalendarPage() {
         <PanelCard title={t("ec.week")}>
           <p className="text-sm text-negative">{t("ec.unavailable")}</p>
           <p className="mt-1 text-xs text-muted-foreground">{t("ec.offlineFallback")}</p>
-          <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
-            {economicEvents.map((e) => (
-              <li key={`${e.time}-${e.event}`} className="num">
-                {e.time} · {e.event} · {t("ec.forecast")} {e.forecast} · {t("ec.actual")} {e.actual}
-              </li>
-            ))}
-          </ul>
           <button
             type="button"
             onClick={refetch}

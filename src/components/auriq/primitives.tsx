@@ -32,10 +32,12 @@ export function PageHeader({
   title,
   description,
   actions,
+  dataTag,
 }: {
   title: string;
   description: string;
   actions?: ReactNode;
+  dataTag?: ReactNode;
 }) {
   return (
     <header className="flex w-full min-w-0 flex-col gap-3 border-b border-border pb-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
@@ -44,7 +46,7 @@ export function PageHeader({
         <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{description}</p>
       </div>
       <div className="flex min-w-0 flex-wrap items-center gap-2 sm:shrink-0">
-        <DemoDataTag />
+        {dataTag === undefined ? <DemoDataTag /> : dataTag}
         {actions}
       </div>
     </header>

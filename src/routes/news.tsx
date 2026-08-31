@@ -54,6 +54,7 @@ function News() {
       <PageHeader
         title={t("news.title")}
         description={t("news.desc")}
+        dataTag={<StatusBadge tone="positive">{t("common.liveOfficialData")}</StatusBadge>}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <AdvisoryTag />
