@@ -26,10 +26,19 @@ async function loadReleases(): Promise<{ releases: OfficialRelease[]; statuses: 
     fetchFredReleases(),
     fetchCensusReleases(),
   ]);
+
+  const live = results.flatMap((r) => r.releases);
+  // Keep the grid complete: recurring global releases fill the days the API
+  // layers don't cover, without ever overwriting a live row.
+  const liveKeys = new Set(live.map((r) => `${r.event}|${r.nextReleaseUtc.slice(0, 10)}`));
+  const scheduled = buildScheduledReleases().filter(
+    (r) => !liveKeys.has(`${r.event}|${r.nextReleaseUtc.slice(0, 10)}`),
+  );
+
   return {
-    releases: results
-      .flatMap((r) => r.releases)
-      .sort((a, b) => a.nextReleaseUtc.localeCompare(b.nextReleaseUtc)),
+    releases: [...live, ...scheduled].sort((a, b) =>
+      a.nextReleaseUtc.localeCompare(b.nextReleaseUtc),
+    ),
     statuses: results.map((r) => r.status),
   };
 }
