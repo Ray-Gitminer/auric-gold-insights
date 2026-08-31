@@ -5,6 +5,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  type Context,
   type ReactNode,
 } from "react";
 
@@ -31,7 +32,7 @@ type I18nValue = {
 // Keep a single context instance across hot-module reloads, otherwise consumers
 // that were re-evaluated separately read a different (empty) context and throw.
 const globalScope = globalThis as typeof globalThis & {
-  __auriqI18nContext?: React.Context<I18nValue | null>;
+  __auriqI18nContext?: Context<I18nValue | null>;
 };
 const I18nContext =
   globalScope.__auriqI18nContext ??
