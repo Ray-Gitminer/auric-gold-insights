@@ -4,7 +4,6 @@ import {
   Activity,
   BarChart3,
   Bell,
-  CalendarDays,
   BookOpen,
   ChevronLeft,
   ChevronRight,
@@ -40,9 +39,9 @@ const NAV = [
   { to: "/positions-orders", key: "nav.positionsOrders", icon: BarChart3 },
   { to: "/trade-history", key: "nav.tradeHistory", icon: Clock },
   { to: "/journal", key: "nav.journal", icon: BookOpen },
-  { to: "/news", key: "nav.news", icon: Newspaper },
+  // News, weekly analysis and the economic calendar live as tabs inside /economic-news.
   { to: "/economic-news", key: "nav.economicNews", icon: Newspaper },
-  { to: "/economic-calendar", key: "ec.nav", icon: CalendarDays },
+
   { to: "/chart-strategy", key: "nav.chartStrategy", icon: Activity },
   { to: "/alerts", key: "nav.alerts", icon: Bell },
   { to: "/audit-log", key: "nav.auditLog", icon: FileClock },
