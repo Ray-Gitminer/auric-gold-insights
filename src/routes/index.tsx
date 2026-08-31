@@ -5,7 +5,6 @@ import {
   Bell,
   BookOpen,
   CircleDollarSign,
-  ExternalLink,
   Gauge,
   Info,
   Landmark,
@@ -15,20 +14,28 @@ import {
 } from "lucide-react";
 
 import {
+  account,
   alerts,
   bias,
-  economicEvents,
-  impact,
   instrument,
   journal,
+  orders,
+  positions,
   risk,
   strategy,
 } from "@/data/fixtures";
-import { usePortfolioData } from "@/hooks/use-portfolio-data";
 import { money, num, pct, signedMoney, toneFor } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { GoldChart, type Timeframe } from "@/components/auriq/GoldChart";
 import { useI18n } from "@/contexts/I18nContext";
+import { useEconomicCalendar } from "@/hooks/use-economic-calendar";
+import { useNewsIntelligence } from "@/hooks/use-news-intelligence";
+import {
+  ActualBadge,
+  ForecastBadge,
+  ImpactDots,
+  SurprisePill,
+} from "@/components/auriq/CalendarBadges";
 import {
   AdvisoryTag,
   DemoDataTag,
@@ -68,10 +75,9 @@ const setupTone: Record<string, "gold" | "positive" | "negative" | "info"> = {
 
 function Overview() {
   const { t, tx } = useI18n();
+  const { impact: goldImpact, isLoading: newsLoading } = useNewsIntelligence();
+
   const [timeframe, setTimeframe] = useState<Timeframe>("1D");
-  const portfolio = usePortfolioData();
-  const { account, positions, orders, source, accountLabel } = portfolio.data;
-  const usingDemoData = source === "demo";
 
   return (
     <>
@@ -80,17 +86,7 @@ function Overview() {
         description={t("overview.desc")}
         actions={
           <>
-            <StatusBadge
-              tone={portfolio.error ? "negative" : usingDemoData ? "neutral" : "positive"}
-            >
-              {portfolio.error
-                ? "SUPABASE · ERROR"
-                : portfolio.loading
-                  ? "SUPABASE · LOADING"
-                  : usingDemoData
-                    ? t("common.demoData")
-                    : "SUPABASE · READ ONLY"}
-            </StatusBadge>
+            <StatusBadge tone="positive">{t("overview.feedLive")}</StatusBadge>
             <StatusBadge tone="neutral">{t("common.timezone")}</StatusBadge>
           </>
         }
@@ -155,8 +151,7 @@ function Overview() {
               <div className="min-w-0">
                 <div className="flex min-w-0 flex-wrap items-center gap-2">
                   <h2 className="text-sm font-semibold break-words">{instrument.label}</h2>
-                  {usingDemoData && <DemoDataTag />}
-                  {!usingDemoData && <StatusBadge tone="info">{accountLabel}</StatusBadge>}
+                  <DemoDataTag />
                 </div>
                 <p className="num mt-1 text-xs text-muted-foreground">
                   {instrument.exchange} · {timeframe}
@@ -342,78 +337,7 @@ function Overview() {
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <PanelCard
-              title={t("overview.events")}
-              subtitle={t("overview.eventsSubtitle")}
-              action={
-                <a
-                  href="https://www.investing.com/economic-calendar/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-info hover:underline"
-                >
-                  {t("overview.openCalendar")} <ExternalLink className="size-3" aria-hidden />
-                </a>
-              }
-              bodyClassName="p-0"
-            >
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[520px] text-sm">
-                  <caption className="sr-only">{t("overview.eventsCaption")}</caption>
-                  <thead>
-                    <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                      <th scope="col" className="px-4 py-2 text-left font-medium">
-                        {t("common.time")}
-                      </th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">
-                        {t("common.event")}
-                      </th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">
-                        {t("common.impact")}
-                      </th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">
-                        {t("common.actual")}
-                      </th>
-                      <th scope="col" className="px-4 py-2 text-right font-medium">
-                        {t("common.forecast")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {economicEvents.map((e) => (
-                      <tr
-                        key={`${e.time}-${e.event}`}
-                        className="border-b border-border/60 last:border-0"
-                      >
-                        <td className="num px-4 py-2">{e.time}</td>
-                        <td className="px-2 py-2">{e.event}</td>
-                        <td className="px-2 py-2">
-                          <span
-                            className="flex gap-0.5"
-                            aria-label={t("overview.impactAria", { impact: e.impact })}
-                          >
-                            {Array.from({
-                              length: e.impact === "High" ? 3 : e.impact === "Medium" ? 2 : 1,
-                            }).map((_, i) => (
-                              <span
-                                key={i}
-                                className="size-1.5 rounded-full bg-negative"
-                                aria-hidden
-                              />
-                            ))}
-                          </span>
-                        </td>
-                        <td className="num px-2 py-2 text-right">{e.actual}</td>
-                        <td className="num px-4 py-2 text-right">{e.forecast}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <p className="border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
-                {t("overview.eventsNote")}
-              </p>
-            </PanelCard>
+            <EconomicCalendarPanel />
 
             <PanelCard
               title={t("overview.journalLatest")}
@@ -503,27 +427,34 @@ function Overview() {
             <AdvisoryTag />
             <div className="mt-3 flex items-center gap-4">
               <div className="num grid size-20 shrink-0 place-items-center rounded-full border-4 border-primary/70 text-xl font-semibold text-primary">
-                {impact.score > 0 ? "+" : ""}
-                {impact.score}
+                {goldImpact.score > 0 ? "+" : ""}
+                {goldImpact.score}
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-primary">{tx(impact.band)}</p>
+                <p className="text-sm font-semibold text-primary">{tx(goldImpact.band)}</p>
                 <p className="num text-xs text-muted-foreground">
-                  {t("kpi.vsYesterday")} {impact.vsYesterday > 0 ? "+" : ""}
-                  {impact.vsYesterday}
+                  {goldImpact.newsCount} {t("news.title")} · {goldImpact.eventCount} {t("ec.title")}
                 </p>
               </div>
             </div>
             <ul className="mt-4 space-y-1.5">
-              {impact.drivers.map((d) => (
+              {goldImpact.drivers.map((d) => (
                 <li key={d.label} className="flex items-center justify-between gap-2 text-xs">
-                  <span className="min-w-0 text-muted-foreground">{tx(d.label)}</span>
+                  <span className="min-w-0 truncate text-muted-foreground" title={d.label}>
+                    {d.kind === "calendar" ? "📅 " : ""}
+                    {d.label}
+                  </span>
                   <span className={cn("num shrink-0", toneFor(d.weight))}>
                     {d.weight > 0 ? "+" : ""}
                     {d.weight}
                   </span>
                 </li>
               ))}
+              {goldImpact.drivers.length === 0 && (
+                <li className="text-xs text-muted-foreground">
+                  {newsLoading ? t("common.loading") : t("news.empty")}
+                </li>
+              )}
             </ul>
           </PanelCard>
 
@@ -624,5 +555,106 @@ function Overview() {
         </aside>
       </div>
     </>
+  );
+}
+
+function EconomicCalendarPanel() {
+  const { t } = useI18n();
+  const { events, isLoading, isError, refetch } = useEconomicCalendar();
+  const rows = events.slice(0, 6);
+
+  return (
+    <PanelCard
+      title={t("overview.events")}
+      subtitle={t("ec.dashSubtitle")}
+      action={
+        <Link
+          to="/economic-calendar"
+          className="inline-flex items-center gap-1 text-xs text-info hover:underline"
+        >
+          {t("ec.openFull")} <ArrowRight className="size-3" aria-hidden />
+        </Link>
+      }
+      bodyClassName="p-0"
+    >
+      {isLoading ? (
+        <p className="p-4 text-sm text-muted-foreground">{t("ec.loading")}</p>
+      ) : isError ? (
+        <div className="p-4">
+          <p className="text-sm text-negative">{t("ec.unavailable")}</p>
+          <button
+            type="button"
+            onClick={refetch}
+            className="mt-2 rounded-sm border border-border bg-card px-2.5 py-1.5 text-xs"
+          >
+            {t("ec.retry")}
+          </button>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[560px] text-sm">
+            <caption className="sr-only">{t("ec.caption")}</caption>
+            <thead>
+              <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
+                <th scope="col" className="px-4 py-2 text-left font-medium">
+                  {t("common.time")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">
+                  {t("common.event")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-left font-medium">
+                  {t("common.impact")}
+                </th>
+                <th scope="col" className="px-2 py-2 text-right font-medium">
+                  {t("common.actual")}
+                </th>
+                <th scope="col" className="px-4 py-2 text-right font-medium">
+                  {t("common.forecast")}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(({ release, forecast, assessment }) => (
+                <tr key={release.releaseId} className="border-b border-border/60 last:border-0">
+                  <td className="num px-4 py-2 align-top">{release.time}</td>
+                  <td className="px-2 py-2 align-top">{release.event}</td>
+                  <td className="px-2 py-2 align-top">
+                    <ImpactDots impact={release.impact} />
+                  </td>
+                  <td className="px-2 py-2 text-right align-top">
+                    {release.actualValue == null ? (
+                      <span className="text-muted-foreground">—</span>
+                    ) : (
+                      <div className="flex flex-col items-end gap-1">
+                        <span
+                          className={cn(
+                            "num",
+                            assessment?.goldBias === "bullish" && "text-positive",
+                            assessment?.goldBias === "bearish" && "text-negative",
+                          )}
+                        >
+                          {release.actual}
+                        </span>
+                        <ActualBadge source={release.actualSource} />
+                        {assessment ? <SurprisePill assessment={assessment} /> : null}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-4 py-2 text-right align-top">
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="num">{forecast.value}</span>
+                      <ForecastBadge forecast={forecast} />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      <p className="border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
+        {t("ec.pollNote")}
+      </p>
+    </PanelCard>
   );
 }

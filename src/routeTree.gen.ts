@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AuditLogRouteImport } from './routes/audit-log'
 import { Route as ChartStrategyRouteImport } from './routes/chart-strategy'
+import { Route as EconomicCalendarRouteImport } from './routes/economic-calendar'
 import { Route as JournalRouteImport } from './routes/journal'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as NewsRouteImport } from './routes/news'
@@ -39,6 +40,11 @@ const AuditLogRoute = AuditLogRouteImport.update({
 const ChartStrategyRoute = ChartStrategyRouteImport.update({
   id: '/chart-strategy',
   path: '/chart-strategy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EconomicCalendarRoute = EconomicCalendarRouteImport.update({
+  id: '/economic-calendar',
+  path: '/economic-calendar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JournalRoute = JournalRouteImport.update({
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/alerts': typeof AlertsRoute
   '/audit-log': typeof AuditLogRoute
   '/chart-strategy': typeof ChartStrategyRoute
+  '/economic-calendar': typeof EconomicCalendarRoute
   '/journal': typeof JournalRoute
   '/login': typeof LoginRoute
   '/news': typeof NewsRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/alerts': typeof AlertsRoute
   '/audit-log': typeof AuditLogRoute
   '/chart-strategy': typeof ChartStrategyRoute
+  '/economic-calendar': typeof EconomicCalendarRoute
   '/journal': typeof JournalRoute
   '/login': typeof LoginRoute
   '/news': typeof NewsRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/alerts': typeof AlertsRoute
   '/audit-log': typeof AuditLogRoute
   '/chart-strategy': typeof ChartStrategyRoute
+  '/economic-calendar': typeof EconomicCalendarRoute
   '/journal': typeof JournalRoute
   '/login': typeof LoginRoute
   '/news': typeof NewsRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/audit-log'
     | '/chart-strategy'
+    | '/economic-calendar'
     | '/journal'
     | '/login'
     | '/news'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/audit-log'
     | '/chart-strategy'
+    | '/economic-calendar'
     | '/journal'
     | '/login'
     | '/news'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/audit-log'
     | '/chart-strategy'
+    | '/economic-calendar'
     | '/journal'
     | '/login'
     | '/news'
@@ -164,6 +176,7 @@ export interface RootRouteChildren {
   AlertsRoute: typeof AlertsRoute
   AuditLogRoute: typeof AuditLogRoute
   ChartStrategyRoute: typeof ChartStrategyRoute
+  EconomicCalendarRoute: typeof EconomicCalendarRoute
   JournalRoute: typeof JournalRoute
   LoginRoute: typeof LoginRoute
   NewsRoute: typeof NewsRoute
@@ -201,6 +214,13 @@ declare module '@tanstack/react-router' {
       path: '/chart-strategy'
       fullPath: '/chart-strategy'
       preLoaderRoute: typeof ChartStrategyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/economic-calendar': {
+      id: '/economic-calendar'
+      path: '/economic-calendar'
+      fullPath: '/economic-calendar'
+      preLoaderRoute: typeof EconomicCalendarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/journal': {
@@ -260,6 +280,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlertsRoute: AlertsRoute,
   AuditLogRoute: AuditLogRoute,
   ChartStrategyRoute: ChartStrategyRoute,
+  EconomicCalendarRoute: EconomicCalendarRoute,
   JournalRoute: JournalRoute,
   LoginRoute: LoginRoute,
   NewsRoute: NewsRoute,
