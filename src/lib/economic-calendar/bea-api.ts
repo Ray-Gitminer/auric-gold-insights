@@ -11,8 +11,8 @@ export const BEA_INDICATORS: IndicatorSpec[] = [
     impact: "High",
     unit: "%",
     transform: "pct-change",
-    // NIPA table T20304 (price indexes for PCE), line 1.
-    seriesId: "T20304:1",
+    // NIPA table T20804 (monthly price indexes for PCE), line 1.
+    seriesId: "T20804:1",
     schedule: { kind: "day-of-month", day: 27, timeUtc: "12:30" },
   },
   {
@@ -55,9 +55,13 @@ async function fetchTable(
   const res = await fetch(url);
   if (!res.ok) throw new Error(`BEA responded ${res.status}`);
   const json = (await res.json()) as {
-    BEAAPI?: { Results?: { Data?: BeaRow[]; Error?: { APIErrorDescription?: string } } };
+    BEAAPI?: {
+      Error?: { APIErrorDescription?: string };
+      Results?: { Data?: BeaRow[]; Error?: { APIErrorDescription?: string } };
+    };
   };
-  const err = json.BEAAPI?.Results?.Error?.APIErrorDescription;
+  const err =
+    json.BEAAPI?.Error?.APIErrorDescription ?? json.BEAAPI?.Results?.Error?.APIErrorDescription;
   if (err) throw new Error(err);
   const points: HistoricalPoint[] = [];
   for (const row of json.BEAAPI?.Results?.Data ?? []) {
