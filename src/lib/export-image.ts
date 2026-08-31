@@ -13,8 +13,12 @@ export async function exportNodeAsPng(node: HTMLElement, filename: string): Prom
     pixelRatio: 2,
     cacheBust: true,
     backgroundColor: background,
+    // Remote Google Fonts stylesheets are cross-origin, so they cannot be
+    // inlined; the rasteriser uses the already-loaded fonts instead.
+    skipFonts: true,
     style: { margin: "0" },
   });
+
 
   const link = document.createElement("a");
   link.download = filename.endsWith(".png") ? filename : `${filename}.png`;
