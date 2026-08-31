@@ -17,7 +17,6 @@ import {
   account,
   alerts,
   bias,
-  impact,
   instrument,
   journal,
   orders,
@@ -30,6 +29,7 @@ import { cn } from "@/lib/utils";
 import { GoldChart, type Timeframe } from "@/components/auriq/GoldChart";
 import { useI18n } from "@/contexts/I18nContext";
 import { useEconomicCalendar } from "@/hooks/use-economic-calendar";
+import { useNewsIntelligence } from "@/hooks/use-news-intelligence";
 import {
   ActualBadge,
   ForecastBadge,
