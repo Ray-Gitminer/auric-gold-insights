@@ -74,6 +74,8 @@ const setupTone: Record<string, "gold" | "positive" | "negative" | "info"> = {
 
 function Overview() {
   const { t, tx } = useI18n();
+  const { impact: goldImpact, isLoading: newsLoading } = useNewsIntelligence();
+
   const [timeframe, setTimeframe] = useState<Timeframe>("1D");
 
   return (
