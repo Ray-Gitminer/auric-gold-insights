@@ -27,6 +27,17 @@ function nthWeekdayDate(year: number, monthIndex: number, weekday: number, nth: 
 
 /** Next scheduled release for an indicator, derived from its recurrence rule. */
 export function nextReleaseUtc(spec: IndicatorSpec, now = new Date()): string {
+  if (spec.schedule.kind === "weekly") {
+    const daysAhead = (spec.schedule.weekday - now.getUTCDay() + 7) % 7;
+    const candidate = atUtc(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate() + daysAhead,
+      spec.schedule.timeUtc,
+    );
+    if (candidate.getTime() <= now.getTime()) candidate.setUTCDate(candidate.getUTCDate() + 7);
+    return candidate.toISOString();
+  }
   for (let i = 0; i < 3; i++) {
     const y = now.getUTCFullYear();
     const m = now.getUTCMonth() + i;
@@ -39,6 +50,8 @@ export function nextReleaseUtc(spec: IndicatorSpec, now = new Date()): string {
             nthWeekdayDate(y, m, spec.schedule.weekday, spec.schedule.nth),
             spec.schedule.timeUtc,
           );
+    if (date.getUTCDay() === 6) date.setUTCDate(date.getUTCDate() - 1);
+    if (date.getUTCDay() === 0) date.setUTCDate(date.getUTCDate() + 1);
     if (date.getTime() > now.getTime()) return date.toISOString();
   }
   return new Date(now.getTime() + 30 * 86_400_000).toISOString();

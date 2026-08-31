@@ -1,6 +1,6 @@
 import type { EconomicEvent } from "@/data/fixtures";
 
-export type Agency = "BLS" | "BEA" | "Census" | "Fed";
+export type Agency = "BLS" | "BEA" | "Census" | "DOL" | "Fed" | "Other";
 
 /** One historical observation for an indicator. */
 export interface HistoricalPoint {
@@ -95,5 +95,6 @@ export interface IndicatorSpec {
   /** Release-time rule used when the official schedule feed is unavailable. */
   schedule:
     | { kind: "day-of-month"; day: number; timeUtc: string }
-    | { kind: "nth-weekday"; weekday: number; nth: number; timeUtc: string };
+    | { kind: "nth-weekday"; weekday: number; nth: number; timeUtc: string }
+    | { kind: "weekly"; weekday: number; timeUtc: string };
 }
