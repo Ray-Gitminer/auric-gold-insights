@@ -10,13 +10,20 @@ export async function exportNodeAsPng(node: HTMLElement, filename: string): Prom
     "#06111F";
 
   const dataUrl = await toPng(node, {
+    width: node.scrollWidth,
+    height: node.scrollHeight,
     pixelRatio: 2,
     cacheBust: true,
     backgroundColor: background,
     // Remote Google Fonts stylesheets are cross-origin, so they cannot be
     // inlined; the rasteriser uses the already-loaded fonts instead.
     skipFonts: true,
-    style: { margin: "0" },
+    style: {
+      margin: "0",
+      width: `${node.scrollWidth}px`,
+      height: `${node.scrollHeight}px`,
+      overflow: "visible",
+    },
   });
 
   const link = document.createElement("a");

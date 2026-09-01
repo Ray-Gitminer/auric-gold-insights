@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type Ref } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CalendarClock, ExternalLink, Loader2, RefreshCw, Send, Upload } from "lucide-react";
 
@@ -1132,11 +1132,24 @@ function AnalysisResultView({
   events: EventSnapshot[];
 }) {
   const { t, lang } = useI18n();
+  const visualRef = useRef<HTMLDivElement>(null);
   const label = (id: string) =>
     eventLabel(events.find((e) => e.releaseId === id)?.event ?? id, lang);
 
   return (
     <>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs font-medium text-muted-foreground">
+          {lang === "th" ? "ภาพสรุปพร้อมแชร์" : "Shareable visual summary"}
+        </p>
+        <ExportImageButton
+          targetRef={visualRef}
+          filePrefix="auriq-gold-impact-summary"
+          label={lang === "th" ? "ดาวน์โหลดภาพสรุป" : "Download summary image"}
+        />
+      </div>
+      <WeeklyVisualSummary ref={visualRef} result={result} events={events} lang={lang} />
+
       <PanelCard title={t("an.resultTitle")} subtitle={result.summary}>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-md border border-border bg-surface p-3 text-xs">
@@ -1245,3 +1258,130 @@ function AnalysisResultView({
     </>
   );
 }
+
+const WeeklyVisualSummary = function WeeklyVisualSummary({
+  ref,
+  result,
+  events,
+  lang,
+}: {
+  ref: Ref<HTMLDivElement>;
+  result: WeeklyAnalysisResult;
+  events: EventSnapshot[];
+  lang: string;
+}) {
+  const visualRows = result.visualSummary?.rows ?? [];
+  const findVisual = (releaseId: string) => visualRows.find((row) => row.releaseId === releaseId);
+  const dateRange = events.length
+    ? `${bkkDateTime(events[0].nextReleaseUtc)} – ${bkkDateTime(events.at(-1)!.nextReleaseUtc)}`
+    : "";
+  const impactText = (impact: EventSnapshot["impact"]) =>
+    impact === "High"
+      ? lang === "th"
+        ? "สูง"
+        : "High"
+      : impact === "Medium"
+        ? lang === "th"
+          ? "กลาง"
+          : "Medium"
+        : lang === "th"
+          ? "ต่ำ"
+          : "Low";
+
+  return (
+    <div
+      ref={ref}
+      className="overflow-hidden rounded-lg border border-[#d9ad43] bg-[#f7f4ed] text-[#071a3a] shadow-[0_18px_50px_rgba(0,0,0,0.25)]"
+    >
+      <header className="border-b-4 border-[#d9ad43] bg-[linear-gradient(135deg,#03132d,#082d5e)] px-5 py-5 text-white">
+        <p className="text-[10px] font-semibold tracking-[0.22em] text-[#e9bb4c]">
+          AURIQ INTELLIGENCE
+        </p>
+        <h2 className="mt-1 text-xl leading-tight font-extrabold sm:text-3xl">
+          {result.visualSummary?.title ??
+            (lang === "th"
+              ? "สรุปผลกระทบข่าวเศรษฐกิจต่อทองคำ (XAU/USD)"
+              : "Economic impact summary for gold (XAU/USD)")}
+        </h2>
+        <p className="mt-2 text-xs text-blue-100">{dateRange} · ICT</p>
+      </header>
+
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[760px] table-fixed border-collapse text-left text-xs sm:text-sm">
+          <thead className="bg-[#082d5e] text-white">
+            <tr>
+              <th className="w-[15%] border-r border-white/30 px-3 py-3">
+                {lang === "th" ? "วัน / เวลา" : "Date / time"}
+              </th>
+              <th className="w-[26%] border-r border-white/30 px-3 py-3">
+                {lang === "th" ? "ข่าว" : "Release"}
+              </th>
+              <th className="w-[12%] border-r border-white/30 px-3 py-3 text-center">Impact</th>
+              <th className="w-[24%] border-r border-white/30 px-3 py-3">
+                {lang === "th" ? "ผลต่อทองคำ" : "Gold impact"}
+              </th>
+              <th className="w-[23%] px-3 py-3">{lang === "th" ? "แผนรับมือ" : "Response plan"}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {events.map((event, index) => {
+              const row = findVisual(event.releaseId);
+              const fallbackComparison = result.forecastVsPrevious.find(
+                (item) => item.releaseId === event.releaseId,
+              )?.comparison;
+              return (
+                <tr key={event.releaseId} className={index % 2 ? "bg-[#eef1f5]" : "bg-white"}>
+                  <td className="border-r border-b border-[#9aa9bb] px-3 py-3 font-bold">
+                    {bkkDateTime(event.nextReleaseUtc)}
+                  </td>
+                  <td className="border-r border-b border-[#9aa9bb] px-3 py-3 font-semibold">
+                    {eventLabel(event.event, lang)}
+                    <p className="mt-1 text-[10px] font-normal text-[#52627a]">
+                      F {event.marketForecast ?? "—"} · P {event.previous ?? "—"}
+                    </p>
+                  </td>
+                  <td
+                    className={cn(
+                      "border-r border-b border-[#9aa9bb] px-3 py-3 text-center text-base font-extrabold",
+                      event.impact === "High"
+                        ? "text-[#b51f1f]"
+                        : event.impact === "Medium"
+                          ? "text-[#c27a00]"
+                          : "text-[#52627a]",
+                    )}
+                  >
+                    {impactText(event.impact)}
+                  </td>
+                  <td className="border-r border-b border-[#9aa9bb] px-3 py-3 font-medium">
+                    {row?.goldImpact || fallbackComparison || "—"}
+                  </td>
+                  <td className="border-b border-[#9aa9bb] px-3 py-3 font-semibold text-[#103f89]">
+                    {row?.responsePlan ||
+                      (lang === "th"
+                        ? "รอผลจริงและสัญญาณราคายืนยัน"
+                        : "Wait for actual data and price confirmation")}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <footer className="grid gap-3 bg-[linear-gradient(135deg,#03132d,#082d5e)] px-5 py-4 text-white sm:grid-cols-[1fr_auto] sm:items-center">
+        <div>
+          <p className="text-[10px] font-bold tracking-[0.18em] text-[#e9bb4c]">
+            {lang === "th" ? "ภาพรวมและการบริหารความเสี่ยง" : "MARKET & RISK CONTEXT"}
+          </p>
+          <p className="mt-1 text-xs text-blue-100">
+            {result.visualSummary?.marketContext || result.confidence.reason}
+          </p>
+        </div>
+        <span className="rounded border border-[#e9bb4c]/70 px-3 py-1.5 text-xs font-bold text-[#e9bb4c]">
+          {lang === "th" ? "ความมั่นใจ" : "Confidence"}: {result.confidence.level}
+        </span>
+        <p className="text-[9px] text-blue-200 sm:col-span-2">{result.disclaimer}</p>
+      </footer>
+    </div>
+  );
+};

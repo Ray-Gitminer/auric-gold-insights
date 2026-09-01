@@ -43,6 +43,15 @@ export interface WeeklyAnalysisResult {
   scenarios: { above: string; inline: string; below: string };
   avoidWindows: { window: string; reason: string }[];
   confidence: { level: ConfidenceLevel; reason: string };
+  visualSummary?: {
+    title: string;
+    rows: {
+      releaseId: string;
+      goldImpact: string;
+      responsePlan: string;
+    }[];
+    marketContext: string;
+  };
   sources: string[];
   disclaimer: string;
   modelName: string;

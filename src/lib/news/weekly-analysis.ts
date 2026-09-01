@@ -112,6 +112,9 @@ export const runWeeklyAnalysis = createServerFn({ method: "POST" })
               `"scenarios":{"above":"if actual comes in above forecast","inline":"if in line","below":"if below"},` +
               `"avoidWindows":[{"window":"e.g. 19:30-20:15 ICT, 5 Sep","reason":"..."}],` +
               `"confidence":{"level":"High|Medium|Low","reason":"..."},` +
+              `"visualSummary":{"title":"short weekly XAU/USD impact summary title",` +
+              `"rows":[{"releaseId":"...","goldImpact":"conditional impact on gold based on actual vs forecast","responsePlan":"risk-first response; wait for confirmation; never invent a price"}],` +
+              `"marketContext":"short risk note; include price levels only if explicitly present in input"},` +
               `"sources":["named source strings taken from the input only"]}`,
           },
         ],
@@ -131,6 +134,8 @@ export const runWeeklyAnalysis = createServerFn({ method: "POST" })
     const scen = (parsed["scenarios"] ?? {}) as Record<string, unknown>;
     const conf = (parsed["confidence"] ?? {}) as { level?: unknown; reason?: unknown };
     const avoid = Array.isArray(parsed["avoidWindows"]) ? parsed["avoidWindows"] : [];
+    const visual = (parsed["visualSummary"] ?? {}) as Record<string, unknown>;
+    const visualRows = Array.isArray(visual["rows"]) ? visual["rows"] : [];
 
     const inputSources = Array.from(
       new Set([...data.events.map((e) => e.source), ...data.headlines.map((h) => h.source)]),
@@ -168,6 +173,35 @@ export const runWeeklyAnalysis = createServerFn({ method: "POST" })
       confidence: {
         level: level(conf.level),
         reason: typeof conf.reason === "string" ? conf.reason : "",
+      },
+      visualSummary: {
+        title:
+          typeof visual["title"] === "string"
+            ? visual["title"]
+            : data.lang === "th"
+              ? "สรุปผลกระทบข่าวเศรษฐกิจต่อทองคำ (XAU/USD)"
+              : "Economic impact summary for gold (XAU/USD)",
+        rows: visualRows
+          .map((raw) => {
+            const row = raw as {
+              releaseId?: unknown;
+              goldImpact?: unknown;
+              responsePlan?: unknown;
+            };
+            const releaseId = typeof row.releaseId === "string" ? row.releaseId : "";
+            if (!data.events.some((event) => event.releaseId === releaseId)) return null;
+            return {
+              releaseId,
+              goldImpact: typeof row.goldImpact === "string" ? row.goldImpact : "",
+              responsePlan: typeof row.responsePlan === "string" ? row.responsePlan : "",
+            };
+          })
+          .filter(
+            (row): row is { releaseId: string; goldImpact: string; responsePlan: string } =>
+              row !== null,
+          ),
+        marketContext:
+          typeof visual["marketContext"] === "string" ? visual["marketContext"] : disclaimer,
       },
       // Only surface sources that actually came from the supplied inputs.
       sources: modelSources.length
