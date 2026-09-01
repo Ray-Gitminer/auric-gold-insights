@@ -93,18 +93,49 @@ export const fetchFredReleases = createServerFn({ method: "GET" }).handler(
     try {
       const releases = [];
       for (const spec of FRED_INDICATORS) {
-        const url =
+        const base =
           `https://api.stlouisfed.org/fred/series/observations?series_id=${spec.seriesId}` +
           `&observation_start=${start}&file_type=json&api_key=${encodeURIComponent(key)}`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`FRED responded ${res.status}`);
-        const json = (await res.json()) as { observations?: { date: string; value: string }[] };
-        const points: HistoricalPoint[] = [];
         // DOL claims series are reported as persons; the calendar shows thousands.
         const divisor = spec.seriesId === "ICSA" || spec.seriesId === "CCSA" ? 1000 : 1;
+
+        const [res, firstRes] = await Promise.all([
+          fetch(base),
+          // ALFRED vintage: output_type=4 returns the value as FIRST published,
+          // before any revision — the number a public calendar shows.
+          fetch(`${base}&output_type=4&realtime_start=1776-07-04&realtime_end=9999-12-31`),
+        ]);
+        if (!res.ok) throw new Error(`FRED responded ${res.status}`);
+        const json = (await res.json()) as { observations?: { date: string; value: string }[] };
+
+        const firstPrint = new Map<string, number>();
+        if (firstRes.ok) {
+          const vintage = (await firstRes.json()) as {
+            observations?: Record<string, string>[];
+          };
+          for (const row of vintage.observations ?? []) {
+            const date = row["date"];
+            if (!date) continue;
+            // The initial-release column is named after the first vintage date,
+            // e.g. "ICSA_19670107". Take the first non-date, non-"." value.
+            const raw = Object.entries(row).find(
+              ([k, v]) => !k.startsWith("realtime") && k !== "date" && v !== ".",
+            )?.[1];
+            const value = Number(raw) / divisor;
+            if (raw !== undefined && Number.isFinite(value)) firstPrint.set(date, value);
+          }
+        }
+
+        const points: HistoricalPoint[] = [];
         for (const o of json.observations ?? []) {
           const value = Number(o.value) / divisor;
-          if (Number.isFinite(value)) points.push({ periodIso: `${o.date}T00:00:00.000Z`, value });
+          if (!Number.isFinite(value)) continue;
+          const first = firstPrint.get(o.date);
+          points.push({
+            periodIso: `${o.date}T00:00:00.000Z`,
+            value,
+            ...(first !== undefined ? { firstValue: first } : {}),
+          });
         }
         if (points.length < 3) continue;
         // Server-only diagnostics: shape of the normalized series, no secrets.
