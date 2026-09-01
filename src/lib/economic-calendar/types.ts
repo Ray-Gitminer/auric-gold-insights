@@ -6,7 +6,13 @@ export type Agency = "BLS" | "BEA" | "Census" | "DOL" | "Fed" | "Other";
 export interface HistoricalPoint {
   /** ISO-8601 date for the reference period (first day of the period). */
   periodIso: string;
+  /** Latest (possibly revised) value — used by the AURIQ model. */
   value: number;
+  /**
+   * Value as first published by the agency (ALFRED vintage). Calendars such as
+   * Forex Factory display this, not the revised number.
+   */
+  firstValue?: number;
 }
 
 /** Layer 1 — official release schedule + published actual. */

@@ -1,7 +1,12 @@
 import { canonicalEconomicEventId } from "./canonical-event";
 import { formatValue } from "./schedule";
-import type { OfficialRelease, OfficialReleasePayload } from "./types";
+import type { HistoricalPoint, OfficialRelease, OfficialReleasePayload } from "./types";
 import type { ScheduledRelease } from "./us-release-calendar";
+
+/** Number as first published by the agency; falls back to the revised value. */
+function published(point: HistoricalPoint): number {
+  return point.firstValue ?? point.value;
+}
 
 /** Join official observations to dated schedule rows without relying on display names. */
 export function mergeScheduledReleases(
@@ -50,12 +55,12 @@ export function mergeScheduledReleases(
       history: points,
       agency: live.agency,
       actualSource: `${row.provider} · ${live.actualSource}`,
-      actualValue: actualPoint?.value ?? null,
+      actualValue: actualPoint ? published(actualPoint) : null,
       actualPeriodIso: actualPoint?.periodIso ?? null,
-      actual: actualPoint ? formatValue(actualPoint.value, live.unit) : "—",
-      previousValue: previousPoint?.value ?? null,
+      actual: actualPoint ? formatValue(published(actualPoint), live.unit) : "—",
+      previousValue: previousPoint ? published(previousPoint) : null,
       previousPeriodIso: previousPoint?.periodIso ?? null,
-      previous: previousPoint ? formatValue(previousPoint.value, live.unit) : "—",
+      previous: previousPoint ? formatValue(published(previousPoint), live.unit) : "—",
     };
   });
 

@@ -1,5 +1,10 @@
 import type { HistoricalPoint, IndicatorSpec, OfficialRelease } from "./types";
 
+/** Number as first published by the agency; falls back to the revised value. */
+function pub(point: HistoricalPoint): number {
+  return point.firstValue ?? point.value;
+}
+
 /** Format a model/actual number using the indicator unit. */
 export function formatValue(value: number, unit: string): string {
   if (unit === "K") return `${Math.round(value).toLocaleString("en-US")}K`;
@@ -99,14 +104,14 @@ export function buildRelease(
     actualLabel: "Actual",
     actualSource: `${spec.agency} API · fetched ${fetchedAt}`,
     time: timeLabel(next),
-    actualValue: releasedToday && latest ? latest.value : null,
-    previousValue: latest ? latest.value : null,
-    actual: releasedToday && latest ? formatValue(latest.value, spec.unit) : "—",
+    actualValue: releasedToday && latest ? pub(latest) : null,
+    previousValue: latest ? pub(latest) : null,
+    actual: releasedToday && latest ? formatValue(pub(latest), spec.unit) : "—",
     forecast: "—",
     previous: latest
-      ? formatValue(latest.value, spec.unit)
+      ? formatValue(pub(latest), spec.unit)
       : prior
-        ? formatValue(prior.value, spec.unit)
+        ? formatValue(pub(prior), spec.unit)
         : "—",
     history: history.slice(-24),
   };
