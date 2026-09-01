@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import { useI18n } from "@/contexts/I18nContext";
 import { Button } from "@/components/ui/button";
 import { PageHeader, PanelCard, StatusBadge } from "@/components/auriq/primitives";
+import { useMt5Deals } from "@/hooks/use-mt5-deals";
+import { num, signedMoney, toneFor } from "@/lib/format";
 
 export const Route = createFileRoute("/journal")({
   head: () => ({
@@ -29,6 +31,7 @@ export const Route = createFileRoute("/journal")({
 
 function Journal() {
   const { t, tx } = useI18n();
+  const deals = useMt5Deals();
 
   const CHECKLIST = [
     t("journal.check1"),
@@ -55,7 +58,62 @@ function Journal() {
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="flex flex-col gap-4">
-          {journal.map((j) => (
+          {deals.data?.length ? (
+            <PanelCard
+              title="MT5 Trade Journal · Auto-created"
+              subtitle="รายการจริงแบบ Read-only — เพิ่มเหตุผลและรีวิวได้ในขั้นถัดไป"
+              bodyClassName="p-0"
+            >
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[720px] text-xs">
+                  <thead>
+                    <tr className="border-b border-border text-muted-foreground">
+                      <th className="px-3 py-2 text-left">เวลา ICT</th>
+                      <th className="px-3 py-2 text-left">Symbol</th>
+                      <th className="px-3 py-2 text-left">Side</th>
+                      <th className="px-3 py-2 text-right">Lot</th>
+                      <th className="px-3 py-2 text-right">Price</th>
+                      <th className="px-3 py-2 text-right">Net P/L</th>
+                      <th className="px-3 py-2 text-left">Review</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {deals.data.map((deal) => (
+                      <tr key={deal.id} className="border-b border-border/60">
+                        <td className="px-3 py-2">
+                          {new Intl.DateTimeFormat("th-TH", {
+                            timeZone: "Asia/Bangkok",
+                            day: "2-digit",
+                            month: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false,
+                          }).format(new Date(deal.executedAt))}
+                        </td>
+                        <td className="num px-3 py-2 font-semibold">{deal.symbol}</td>
+                        <td
+                          className={cn(
+                            "px-3 py-2 font-semibold",
+                            deal.side === "BUY" ? "text-positive" : "text-negative",
+                          )}
+                        >
+                          {deal.side}
+                        </td>
+                        <td className="num px-3 py-2 text-right">{deal.volume}</td>
+                        <td className="num px-3 py-2 text-right">{num(deal.price, 3)}</td>
+                        <td className={cn("num px-3 py-2 text-right", toneFor(deal.netPnl))}>
+                          {signedMoney(deal.netPnl)}
+                        </td>
+                        <td className="px-3 py-2 text-muted-foreground">รอรีวิว</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </PanelCard>
+          ) : null}
+
+          {(deals.data?.length ? [] : journal).map((j) => (
             <PanelCard
               key={j.id}
               title={tx(j.title)}

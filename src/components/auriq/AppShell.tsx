@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { account, systemHealth } from "@/data/fixtures";
+import { systemHealth } from "@/data/fixtures";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
@@ -32,6 +32,7 @@ import {
 import { StatusBadge } from "./primitives";
 import { useI18n, type Language } from "@/contexts/I18nContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePortfolioData } from "@/hooks/use-portfolio-data";
 
 const NAV = [
   { to: "/", key: "nav.overview", icon: LayoutDashboard },
@@ -168,9 +169,11 @@ function HealthPanel() {
 function SidebarInner({
   collapsed,
   onNavigate,
+  live = false,
 }: {
   collapsed: boolean;
   onNavigate?: (() => void) | undefined;
+  live?: boolean;
 }) {
   const { t } = useI18n();
   return (
@@ -178,10 +181,12 @@ function SidebarInner({
       <Wordmark collapsed={collapsed} />
       {!collapsed && (
         <div className="flex flex-wrap items-center gap-2 px-4 pb-4">
-          <StatusBadge tone="gold">{t("shell.paperShort")}</StatusBadge>
+          <StatusBadge tone={live ? "positive" : "gold"}>
+            {live ? "LIVE · READ-ONLY" : t("shell.paperShort")}
+          </StatusBadge>
           <span className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
             <span className="size-1.5 rounded-full bg-positive" aria-hidden />
-            {t("shell.gatewayDemo")}
+            {live ? "MT5 Connected" : t("shell.gatewayDemo")}
           </span>
         </div>
       )}
@@ -196,15 +201,25 @@ function SidebarInner({
   );
 }
 
-function TopBar({ onOpenMobile }: { onOpenMobile: ReactNode }) {
+function TopBar({
+  onOpenMobile,
+  accountId,
+  lastSync,
+  live,
+}: {
+  onOpenMobile: ReactNode;
+  accountId: string;
+  lastSync: string;
+  live: boolean;
+}) {
   const { t } = useI18n();
   const { configured, user, signOut } = useAuth();
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-surface/95 px-3 backdrop-blur sm:px-5">
       <div className="lg:hidden">{onOpenMobile}</div>
 
-      <StatusBadge tone="gold" className="shrink-0">
-        {t("shell.paper")}
+      <StatusBadge tone={live ? "positive" : "gold"} className="shrink-0">
+        {live ? "MT5 LIVE · READ-ONLY" : t("shell.paper")}
       </StatusBadge>
       <span className="hidden shrink-0 items-center gap-1.5 text-xs text-muted-foreground md:inline-flex">
         <ShieldCheck className="size-3.5" aria-hidden />
@@ -214,7 +229,7 @@ function TopBar({ onOpenMobile }: { onOpenMobile: ReactNode }) {
       <div className="ml-auto flex min-w-0 items-center gap-3 sm:gap-4">
         <LanguageSwitcher />
         <span className="num hidden text-xs text-muted-foreground lg:inline">
-          {t("shell.account")} {account.accountId}
+          {t("shell.account")} {accountId}
         </span>
         <span className="hidden items-center gap-1.5 text-xs md:inline-flex">
           <span className="size-1.5 rounded-full bg-positive" aria-hidden />
@@ -223,7 +238,7 @@ function TopBar({ onOpenMobile }: { onOpenMobile: ReactNode }) {
         </span>
         <span className="num hidden items-center gap-1.5 text-xs text-muted-foreground xl:inline-flex">
           <RefreshCw className="size-3" aria-hidden />
-          {t("shell.lastSync")} {account.lastSync}
+          {t("shell.lastSync")} {lastSync}
         </span>
         <Link
           to="/alerts"
@@ -266,6 +281,8 @@ function TopBar({ onOpenMobile }: { onOpenMobile: ReactNode }) {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useI18n();
+  const { data: portfolio } = usePortfolioData();
+  const live = portfolio.source === "mt5";
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -278,7 +295,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
       >
         <div className="sticky top-0 h-screen">
-          <SidebarInner collapsed={collapsed} />
+          <SidebarInner collapsed={collapsed} live={live} />
         </div>
         <button
           type="button"
@@ -292,6 +309,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar
+          accountId={portfolio.account.accountId}
+          lastSync={portfolio.account.lastSync}
+          live={live}
           onOpenMobile={
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger
@@ -302,13 +322,19 @@ export function AppShell({ children }: { children: ReactNode }) {
               </SheetTrigger>
               <SheetContent side="left" className="w-64 border-border bg-sidebar p-0">
                 <SheetTitle className="sr-only">{t("shell.nav")}</SheetTitle>
-                <SidebarInner collapsed={false} onNavigate={() => setMobileOpen(false)} />
+                <SidebarInner
+                  collapsed={false}
+                  live={live}
+                  onNavigate={() => setMobileOpen(false)}
+                />
               </SheetContent>
             </Sheet>
           }
         />
         <p className="border-b border-primary/30 bg-primary/8 px-3 py-1.5 text-center text-[11px] font-medium tracking-wide text-primary sm:px-5">
-          {t("shell.safety")}
+          {live
+            ? "บัญชีจริง · อ่านข้อมูลเท่านั้น · ไม่มีคำสั่งซื้อขายอัตโนมัติ"
+            : t("shell.safety")}
         </p>
         <main className="w-full min-w-0 flex-1 overflow-x-hidden px-3 py-5 sm:px-5 lg:px-6">
           <div className="mx-auto flex w-full min-w-0 max-w-[1600px] flex-col gap-5">

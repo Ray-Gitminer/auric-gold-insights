@@ -840,6 +840,7 @@ export type Database = {
       };
       mt5_accounts: {
         Row: {
+          account_type: string | null;
           auto_trade_enabled: boolean;
           broker: string;
           connector_agent_id: number | null;
@@ -858,6 +859,7 @@ export type Database = {
           user_id: string;
         };
         Insert: {
+          account_type?: string | null;
           auto_trade_enabled?: boolean;
           broker: string;
           connector_agent_id?: number | null;
@@ -876,6 +878,7 @@ export type Database = {
           user_id: string;
         };
         Update: {
+          account_type?: string | null;
           auto_trade_enabled?: boolean;
           broker?: string;
           connector_agent_id?: number | null;
@@ -899,6 +902,59 @@ export type Database = {
             columns: ["connector_agent_id"];
             isOneToOne: false;
             referencedRelation: "connector_agents";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      mt5_candles: {
+        Row: {
+          account_id: number;
+          close: number;
+          high: number;
+          id: number;
+          low: number;
+          open: number;
+          open_time: string;
+          spread: number;
+          symbol: string;
+          tick_volume: number;
+          timeframe: string;
+          user_id: string;
+        };
+        Insert: {
+          account_id: number;
+          close: number;
+          high: number;
+          id?: never;
+          low: number;
+          open: number;
+          open_time: string;
+          spread?: number;
+          symbol: string;
+          tick_volume?: number;
+          timeframe: string;
+          user_id: string;
+        };
+        Update: {
+          account_id?: number;
+          close?: number;
+          high?: number;
+          id?: never;
+          low?: number;
+          open?: number;
+          open_time?: string;
+          spread?: number;
+          symbol?: string;
+          tick_volume?: number;
+          timeframe?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "mt5_candles_account_id_fkey";
+            columns: ["account_id"];
+            isOneToOne: false;
+            referencedRelation: "mt5_accounts";
             referencedColumns: ["id"];
           },
         ];

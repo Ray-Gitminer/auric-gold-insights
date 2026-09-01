@@ -6,6 +6,7 @@ import { num, pct, toneFor } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/contexts/I18nContext";
 import { GoldChart, type Timeframe } from "@/components/auriq/GoldChart";
+import { useMt5Candles } from "@/hooks/use-mt5-candles";
 import { PageHeader, PanelCard, StatusBadge } from "@/components/auriq/primitives";
 
 export const Route = createFileRoute("/chart-strategy")({
@@ -32,6 +33,8 @@ const STATE_KEYS = ["WAITING", "VALID", "INVALID", "TRIGGERED"] as const;
 function ChartStrategy() {
   const [primary, setPrimary] = useState<Timeframe>("1D");
   const { t, tx } = useI18n();
+  const primaryCandles = useMt5Candles(primary);
+  const live = Boolean(primaryCandles.data?.length);
 
   const STATES = STATE_KEYS.map((state) => ({
     state,
@@ -62,13 +65,18 @@ function ChartStrategy() {
             }
             bodyClassName="p-0"
           >
-            <GoldChart timeframe={primary} onTimeframeChange={setPrimary} />
+            <GoldChart
+              timeframe={primary}
+              onTimeframeChange={setPrimary}
+              candlesOverride={primaryCandles.data}
+              live={live}
+            />
           </PanelCard>
 
           <div className="grid gap-4 lg:grid-cols-3">
             {(["1h", "4h", "1D"] as Timeframe[]).map((tf) => (
               <PanelCard key={tf} title={t("cs.context", { tf })} bodyClassName="p-0">
-                <GoldChart timeframe={tf} compact />
+                <LiveContextChart timeframe={tf} />
               </PanelCard>
             ))}
           </div>
@@ -144,5 +152,17 @@ function ChartStrategy() {
         </aside>
       </div>
     </>
+  );
+}
+
+function LiveContextChart({ timeframe }: { timeframe: Timeframe }) {
+  const candles = useMt5Candles(timeframe);
+  return (
+    <GoldChart
+      timeframe={timeframe}
+      compact
+      candlesOverride={candles.data}
+      live={Boolean(candles.data?.length)}
+    />
   );
 }

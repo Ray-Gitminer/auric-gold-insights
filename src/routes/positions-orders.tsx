@@ -2,12 +2,12 @@ import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 
-import { orders, positions } from "@/data/fixtures";
 import { money, num, pct, signedMoney, toneFor } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog, PageHeader, PanelCard, StateGallery } from "@/components/auriq/primitives";
 import { useI18n } from "@/contexts/I18nContext";
+import { usePortfolioData } from "@/hooks/use-portfolio-data";
 
 export const Route = createFileRoute("/positions-orders")({
   head: () => ({
@@ -28,11 +28,18 @@ export const Route = createFileRoute("/positions-orders")({
   component: PositionsOrders,
 });
 
-const SYMBOLS = ["All", "GCM5", "SILM5", "HGK5", "XAUUSD"] as const;
-
 function PositionsOrders() {
   const { t } = useI18n();
-  const [symbol, setSymbol] = useState<(typeof SYMBOLS)[number]>("All");
+  const { data } = usePortfolioData();
+  const { positions, orders } = data;
+  const symbols = useMemo(
+    () => [
+      "All",
+      ...Array.from(new Set([...positions.map((p) => p.symbol), ...orders.map((o) => o.symbol)])),
+    ],
+    [orders, positions],
+  );
+  const [symbol, setSymbol] = useState("All");
   const [dialog, setDialog] = useState<null | {
     title: string;
     description: string;
@@ -41,11 +48,11 @@ function PositionsOrders() {
 
   const shownPositions = useMemo(
     () => positions.filter((p) => symbol === "All" || p.symbol === symbol),
-    [symbol],
+    [positions, symbol],
   );
   const shownOrders = useMemo(
     () => orders.filter((o) => symbol === "All" || o.symbol === symbol),
-    [symbol],
+    [orders, symbol],
   );
 
   return (
@@ -55,7 +62,7 @@ function PositionsOrders() {
         description={t("po.desc")}
         actions={
           <div className="flex flex-wrap gap-1" role="group" aria-label={t("po.filterSymbol")}>
-            {SYMBOLS.map((s) => (
+            {symbols.map((s) => (
               <button
                 key={s}
                 type="button"

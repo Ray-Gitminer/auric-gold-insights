@@ -1,17 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import {
-  account,
-  allocation,
-  performance,
-  performanceSummary,
-  positions,
-  risk,
-} from "@/data/fixtures";
+import { allocation, performance, performanceSummary, risk } from "@/data/fixtures";
 import { money, num, pct, signedMoney, toneFor } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { KpiCard, PageHeader, PanelCard, StatusBadge } from "@/components/auriq/primitives";
 import { useI18n } from "@/contexts/I18nContext";
+import { usePortfolioData } from "@/hooks/use-portfolio-data";
 
 export const Route = createFileRoute("/portfolio")({
   head: () => ({
@@ -34,17 +28,53 @@ export const Route = createFileRoute("/portfolio")({
 
 function Portfolio() {
   const { t } = useI18n();
+  const { data, loading, error } = usePortfolioData();
+  const { account, positions } = data;
+  const liveExposure = positions.reduce((sum, p) => sum + Math.abs(p.lastPrice * p.qty), 0);
+  const effectiveRisk =
+    data.source === "mt5"
+      ? {
+          ...risk,
+          exposure: liveExposure,
+          exposurePct: account.netLiquidation ? (liveExposure / account.netLiquidation) * 100 : 0,
+          marginHeadroom: account.availableCash,
+          dailyLossUsed: Math.max(0, -account.todayPnl),
+          dailyLossLimit: Math.max(account.netLiquidation * 0.02, 0),
+        }
+      : risk;
   const maxPnl = Math.max(...performance.map((p) => Math.abs(p.pnl)));
 
   return (
     <>
       <PageHeader
         title={t("portfolio.title")}
-        description={t("portfolio.desc")}
+        description={
+          data.source === "mt5"
+            ? "ข้อมูลพอร์ต Exness MT5 จริงแบบ Read-only — ไม่มีการส่งคำสั่งซื้อขาย"
+            : t("portfolio.desc")
+        }
+        dataTag={
+          data.source === "mt5" ? (
+            <StatusBadge tone="positive">ข้อมูล MT5 จริง</StatusBadge>
+          ) : undefined
+        }
         actions={
           <StatusBadge tone="gold">{t("portfolio.account", { id: account.accountId })}</StatusBadge>
         }
       />
+
+      {data.source === "mt5" ? (
+        <div className="rounded-md border border-positive/40 bg-positive/10 px-3 py-2 text-xs text-positive">
+          MT5 LIVE · READ-ONLY · {data.accountLabel} ·{" "}
+          {loading ? "กำลังซิงก์" : `อัปเดต ${account.lastSync}`}
+        </div>
+      ) : (
+        <div className="rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-warning">
+          {error
+            ? `เชื่อมข้อมูลจริงไม่สำเร็จ: ${error}`
+            : "ยังไม่มีข้อมูล MT5 จริง — กำลังแสดงข้อมูลตัวอย่าง"}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <KpiCard
@@ -56,13 +86,13 @@ function Portfolio() {
         />
         <KpiCard
           label={t("portfolio.grossExposure")}
-          value={money(risk.exposure)}
-          delta={t("kpi.ofNlv", { pct: risk.exposurePct })}
+          value={money(effectiveRisk.exposure)}
+          delta={t("kpi.ofNlv", { pct: effectiveRisk.exposurePct })}
           deltaTone="neutral"
         />
         <KpiCard
           label={t("risk.marginHeadroom")}
-          value={money(risk.marginHeadroom)}
+          value={money(effectiveRisk.marginHeadroom)}
           delta={t("portfolio.comfortable")}
           deltaTone="positive"
         />
@@ -74,59 +104,61 @@ function Portfolio() {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <PanelCard title={t("portfolio.allocation")} subtitle={t("portfolio.allocationSub")}>
-          <ul className="space-y-3">
-            {allocation.map((a) => (
-              <li key={a.name}>
-                <div className="flex items-center justify-between gap-2 text-xs">
-                  <span className="truncate">{a.name}</span>
-                  <span className="num shrink-0 text-muted-foreground">
-                    {money(a.amount, 0)} · {a.value}%
-                  </span>
-                </div>
-                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-accent">
-                  <div
-                    className="h-full rounded-full bg-primary/80"
-                    style={{ width: `${a.value}%` }}
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </PanelCard>
+      {data.source !== "mt5" ? (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <PanelCard title={t("portfolio.allocation")} subtitle={t("portfolio.allocationSub")}>
+            <ul className="space-y-3">
+              {allocation.map((a) => (
+                <li key={a.name}>
+                  <div className="flex items-center justify-between gap-2 text-xs">
+                    <span className="truncate">{a.name}</span>
+                    <span className="num shrink-0 text-muted-foreground">
+                      {money(a.amount, 0)} · {a.value}%
+                    </span>
+                  </div>
+                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-accent">
+                    <div
+                      className="h-full rounded-full bg-primary/80"
+                      style={{ width: `${a.value}%` }}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </PanelCard>
 
-        <PanelCard title={t("portfolio.performance")} subtitle={t("portfolio.performanceSub")}>
-          <div className="grid grid-cols-3 gap-3">
-            {performanceSummary.map((p) => (
-              <div key={p.label} className="rounded-sm border border-border bg-surface/60 p-3">
-                <p className="text-[11px] tracking-wide text-muted-foreground uppercase">
-                  {p.label}
-                </p>
-                <p className={cn("num mt-1 text-sm font-semibold", toneFor(p.value))}>
-                  {signedMoney(p.value, 0)}
-                </p>
-                <p className={cn("num text-[11px]", toneFor(p.pct))}>{pct(p.pct)}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 flex h-32 items-end gap-3">
-            {performance.map((p) => (
-              <div key={p.period} className="flex flex-1 flex-col items-center gap-1">
-                <span className={cn("num text-[10px]", toneFor(p.pnl))}>{p.pnl}</span>
-                <div
-                  className={cn(
-                    "w-full rounded-sm",
-                    p.pnl >= 0 ? "bg-positive/70" : "bg-negative/70",
-                  )}
-                  style={{ height: `${(Math.abs(p.pnl) / maxPnl) * 88}px` }}
-                />
-                <span className="text-[11px] text-muted-foreground">{p.period}</span>
-              </div>
-            ))}
-          </div>
-        </PanelCard>
-      </div>
+          <PanelCard title={t("portfolio.performance")} subtitle={t("portfolio.performanceSub")}>
+            <div className="grid grid-cols-3 gap-3">
+              {performanceSummary.map((p) => (
+                <div key={p.label} className="rounded-sm border border-border bg-surface/60 p-3">
+                  <p className="text-[11px] tracking-wide text-muted-foreground uppercase">
+                    {p.label}
+                  </p>
+                  <p className={cn("num mt-1 text-sm font-semibold", toneFor(p.value))}>
+                    {signedMoney(p.value, 0)}
+                  </p>
+                  <p className={cn("num text-[11px]", toneFor(p.pct))}>{pct(p.pct)}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex h-32 items-end gap-3">
+              {performance.map((p) => (
+                <div key={p.period} className="flex flex-1 flex-col items-center gap-1">
+                  <span className={cn("num text-[10px]", toneFor(p.pnl))}>{p.pnl}</span>
+                  <div
+                    className={cn(
+                      "w-full rounded-sm",
+                      p.pnl >= 0 ? "bg-positive/70" : "bg-negative/70",
+                    )}
+                    style={{ height: `${(Math.abs(p.pnl) / maxPnl) * 88}px` }}
+                  />
+                  <span className="text-[11px] text-muted-foreground">{p.period}</span>
+                </div>
+              ))}
+            </div>
+          </PanelCard>
+        </div>
+      ) : null}
 
       <PanelCard title={t("portfolio.exposure")} bodyClassName="p-0">
         <div className="overflow-x-auto">
@@ -195,14 +227,18 @@ function Portfolio() {
           {[
             {
               label: t("portfolio.dailyLossLimit"),
-              value: money(risk.dailyLossLimit, 0),
-              sub: t("portfolio.used", { value: money(risk.dailyLossUsed, 0) }),
+              value: money(effectiveRisk.dailyLossLimit, 0),
+              sub: t("portfolio.used", { value: money(effectiveRisk.dailyLossUsed, 0) }),
             },
-            { label: t("risk.var"), value: money(risk.var1d, 0), sub: t("portfolio.historical") },
+            {
+              label: t("portfolio.grossExposure"),
+              value: money(effectiveRisk.exposure, 0),
+              sub: t("kpi.ofNlv", { pct: effectiveRisk.exposurePct }),
+            },
             {
               label: t("risk.maxPositionRisk"),
-              value: `${risk.maxPositionRisk}%`,
-              sub: t("portfolio.limitTwo"),
+              value: data.source === "mt5" ? "รอตั้งค่า" : `${effectiveRisk.maxPositionRisk}%`,
+              sub: data.source === "mt5" ? "ยังไม่เปิด Auto Trade" : t("portfolio.limitTwo"),
             },
             {
               label: t("kpi.marginUsed"),

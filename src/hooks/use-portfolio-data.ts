@@ -12,7 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type PortfolioData = {
-  source: "demo" | "supabase";
+  source: "demo" | "supabase" | "mt5";
   account: AccountSnapshot;
   positions: Position[];
   orders: Order[];
@@ -61,6 +61,94 @@ function timeInBangkok(timestamp: string): string {
 async function fetchPortfolioData(): Promise<PortfolioData> {
   const client = getSupabaseBrowserClient();
   if (!client) return demoData;
+
+  const { data: mt5Account, error: mt5AccountError } = await client
+    .from("mt5_accounts")
+    .select("id, login, display_name, currency, status, last_sync_at")
+    .eq("status", "connected")
+    .order("last_sync_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (mt5AccountError) throw mt5AccountError;
+  if (mt5Account) {
+    const bangkokNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
+    bangkokNow.setHours(0, 0, 0, 0);
+    const startUtc = new Date(bangkokNow.getTime() - 7 * 60 * 60 * 1000).toISOString();
+    const [snapshotResult, positionsResult, dealsResult] = await Promise.all([
+      client
+        .from("account_snapshots")
+        .select(
+          "balance, equity, floating_pnl, drawdown_pct, margin, free_margin, margin_level, captured_at",
+        )
+        .eq("account_id", mt5Account.id)
+        .order("captured_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      client
+        .from("positions")
+        .select(
+          "id, symbol, side, volume, open_price, current_price, stop_loss, take_profit, profit",
+        )
+        .eq("account_id", mt5Account.id)
+        .order("symbol"),
+      client
+        .from("deals")
+        .select("profit, commission, swap")
+        .eq("account_id", mt5Account.id)
+        .gte("executed_at", startUtc),
+    ]);
+    if (snapshotResult.error) throw snapshotResult.error;
+    if (positionsResult.error) throw positionsResult.error;
+    if (dealsResult.error) throw dealsResult.error;
+
+    const snapshot = snapshotResult.data;
+    if (snapshot) {
+      const todayPnl = (dealsResult.data ?? []).reduce(
+        (sum, deal) => sum + deal.profit + deal.commission + deal.swap,
+        0,
+      );
+      const equity = snapshot.equity;
+      const floating = snapshot.floating_pnl;
+      const margin = snapshot.margin ?? 0;
+      return {
+        source: "mt5",
+        accountLabel: mt5Account.display_name,
+        account: {
+          accountId: `••••${mt5Account.login.slice(-4)}`,
+          mode: "LIVE",
+          netLiquidation: equity,
+          availableCash: snapshot.free_margin ?? 0,
+          todayPnl,
+          todayPnlPct: equity ? (todayPnl / equity) * 100 : 0,
+          unrealisedPnl: floating,
+          unrealisedPnlPct: equity ? (floating / equity) * 100 : 0,
+          marginUsed: margin,
+          marginUsedPct: equity ? (margin / equity) * 100 : 0,
+          drawdownPct: snapshot.drawdown_pct,
+          drawdownValue: equity * (snapshot.drawdown_pct / 100),
+          lastSync: timeInBangkok(snapshot.captured_at),
+        },
+        positions: (positionsResult.data ?? []).map((row) => {
+          const basis = Math.abs(row.open_price * row.volume);
+          return {
+            id: String(row.id),
+            symbol: row.symbol,
+            name: "MT5 Spot / CFD",
+            side: row.side === "SELL" ? "SHORT" : "LONG",
+            qty: row.volume,
+            avgPrice: row.open_price,
+            lastPrice: row.current_price,
+            unrealisedPnl: row.profit,
+            pnlPct: basis ? (row.profit / basis) * 100 : 0,
+            stopLoss: row.stop_loss,
+            takeProfit: row.take_profit,
+          };
+        }),
+        orders: [],
+      };
+    }
+  }
 
   const { data: brokerAccount, error: accountError } = await client
     .from("broker_accounts")

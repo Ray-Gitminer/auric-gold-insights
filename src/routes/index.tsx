@@ -13,23 +13,14 @@ import {
   Wallet,
 } from "lucide-react";
 
-import {
-  account,
-  alerts,
-  bias,
-  instrument,
-  journal,
-  orders,
-  positions,
-  risk,
-  strategy,
-} from "@/data/fixtures";
+import { alerts, bias, instrument, journal, risk, strategy } from "@/data/fixtures";
 import { money, num, pct, signedMoney, toneFor } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { GoldChart, type Timeframe } from "@/components/auriq/GoldChart";
 import { useI18n } from "@/contexts/I18nContext";
 import { useEconomicCalendar } from "@/hooks/use-economic-calendar";
 import { useNewsIntelligence } from "@/hooks/use-news-intelligence";
+import { usePortfolioData } from "@/hooks/use-portfolio-data";
 import {
   ActualBadge,
   ForecastBadge,
@@ -75,6 +66,8 @@ const setupTone: Record<string, "gold" | "positive" | "negative" | "info"> = {
 
 function Overview() {
   const { t, tx } = useI18n();
+  const { data: portfolioData } = usePortfolioData();
+  const { account, positions, orders } = portfolioData;
   const { impact: goldImpact, isLoading: newsLoading } = useNewsIntelligence();
 
   const [timeframe, setTimeframe] = useState<Timeframe>("1D");

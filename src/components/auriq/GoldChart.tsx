@@ -31,13 +31,20 @@ export function GoldChart({
   timeframe,
   onTimeframeChange,
   compact = false,
+  candlesOverride,
+  live = false,
 }: {
   timeframe: Timeframe;
   onTimeframeChange?: (tf: Timeframe) => void;
   compact?: boolean;
+  candlesOverride?: Candle[];
+  live?: boolean;
 }) {
   const { t } = useI18n();
-  const candles = candlesByTimeframe[timeframe] ?? candlesByTimeframe["1D"]!;
+  const candles =
+    candlesOverride && candlesOverride.length > 1
+      ? candlesOverride
+      : (candlesByTimeframe[timeframe] ?? candlesByTimeframe["1D"]!);
   const { y, x, slot } = useScale(candles);
   const last = candles[candles.length - 1]!;
   const priceTicks = useMemo(() => {
@@ -74,7 +81,7 @@ export function GoldChart({
             </button>
           ))}
           <span className="ml-auto pr-2 text-[10px] tracking-[0.12em] text-muted-foreground uppercase">
-            {t("chart.staticDemo")}
+            {live && candlesOverride?.length ? "MT5 LIVE · READ-ONLY" : t("chart.staticDemo")}
           </span>
         </div>
       ) : null}
@@ -133,52 +140,56 @@ export function GoldChart({
           ))}
 
           {/* support / resistance */}
-          {instrument.resistance.map((r) => (
-            <g key={r.label}>
-              <line
-                x1={(W - PAD_R) * 0.55}
-                x2={W - PAD_R}
-                y1={y(r.value)}
-                y2={y(r.value)}
-                stroke="var(--color-negative)"
-                strokeWidth={1}
-                strokeDasharray="5 4"
-                opacity={0.8}
-              />
-              <text
-                x={(W - PAD_R) * 0.55 + 4}
-                y={y(r.value) - 4}
-                fontSize={10}
-                fill="var(--color-negative)"
-                fontFamily="var(--font-mono)"
-              >
-                {r.label} {num(r.value, 1)}
-              </text>
-            </g>
-          ))}
-          {instrument.support.map((s) => (
-            <g key={s.label}>
-              <line
-                x1={(W - PAD_R) * 0.55}
-                x2={W - PAD_R}
-                y1={y(s.value)}
-                y2={y(s.value)}
-                stroke="var(--color-positive)"
-                strokeWidth={1}
-                strokeDasharray="5 4"
-                opacity={0.8}
-              />
-              <text
-                x={(W - PAD_R) * 0.55 + 4}
-                y={y(s.value) - 4}
-                fontSize={10}
-                fill="var(--color-positive)"
-                fontFamily="var(--font-mono)"
-              >
-                {s.label} {num(s.value, 1)}
-              </text>
-            </g>
-          ))}
+          {!live
+            ? instrument.resistance.map((r) => (
+                <g key={r.label}>
+                  <line
+                    x1={(W - PAD_R) * 0.55}
+                    x2={W - PAD_R}
+                    y1={y(r.value)}
+                    y2={y(r.value)}
+                    stroke="var(--color-negative)"
+                    strokeWidth={1}
+                    strokeDasharray="5 4"
+                    opacity={0.8}
+                  />
+                  <text
+                    x={(W - PAD_R) * 0.55 + 4}
+                    y={y(r.value) - 4}
+                    fontSize={10}
+                    fill="var(--color-negative)"
+                    fontFamily="var(--font-mono)"
+                  >
+                    {r.label} {num(r.value, 1)}
+                  </text>
+                </g>
+              ))
+            : null}
+          {!live
+            ? instrument.support.map((s) => (
+                <g key={s.label}>
+                  <line
+                    x1={(W - PAD_R) * 0.55}
+                    x2={W - PAD_R}
+                    y1={y(s.value)}
+                    y2={y(s.value)}
+                    stroke="var(--color-positive)"
+                    strokeWidth={1}
+                    strokeDasharray="5 4"
+                    opacity={0.8}
+                  />
+                  <text
+                    x={(W - PAD_R) * 0.55 + 4}
+                    y={y(s.value) - 4}
+                    fontSize={10}
+                    fill="var(--color-positive)"
+                    fontFamily="var(--font-mono)"
+                  >
+                    {s.label} {num(s.value, 1)}
+                  </text>
+                </g>
+              ))
+            : null}
 
           {/* candles */}
           {candles.map((c, i) => {
