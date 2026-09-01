@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarClock, ExternalLink, Loader2, RefreshCw, Send } from "lucide-react";
+import { CalendarClock, ExternalLink, Loader2, RefreshCw, Send, Upload } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/contexts/I18nContext";
@@ -16,6 +16,10 @@ import type {
 } from "@/lib/news/analysis-types";
 import { listAnalysisRuns, newRunId, saveAnalysisRun } from "@/lib/news/analysis-audit";
 import { ANALYSIS_MODEL, runWeeklyAnalysis } from "@/lib/news/weekly-analysis";
+import {
+  extractCalendarScreenshot,
+  type ImportedCalendarRow,
+} from "@/lib/news/calendar-image-import";
 import { AdvisoryTag, PageHeader, PanelCard, StatusBadge } from "@/components/auriq/primitives";
 import { ExportImageButton } from "@/components/auriq/ExportImageButton";
 import {
@@ -89,6 +93,28 @@ function bkkDateTime(iso: string) {
     minute: "2-digit",
     hour12: false,
   }).format(new Date(iso));
+}
+
+function isoToBkkLocalInput(iso: string) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: BKK_TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date(iso));
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((item) => item.type === type)?.value ?? "";
+  return `${part("year")}-${part("month")}-${part("day")}T${part("hour")}:${part("minute")}`;
+}
+
+function bkkLocalInputToIso(value: string) {
+  const [date, time] = value.split("T");
+  const [year, month, day] = date.split("-").map(Number);
+  const [hour, minute] = time.split(":").map(Number);
+  return new Date(Date.UTC(year, month - 1, day, hour - 7, minute)).toISOString();
 }
 
 function addDays(isoDate: string, days: number) {
@@ -188,6 +214,11 @@ function EconomicNewsWorkspace() {
   const [failed, setFailed] = useState(false);
   const [result, setResult] = useState<WeeklyAnalysisResult | null>(null);
   const [runs, setRuns] = useState<AnalysisRunRecord[]>([]);
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState(false);
+  const [importedRows, setImportedRows] = useState<ImportedCalendarRow[]>([]);
+  const [confirmSnapshots, setConfirmSnapshots] = useState<EventSnapshot[]>([]);
+  const [lastAnalysisEvents, setLastAnalysisEvents] = useState<EventSnapshot[]>([]);
 
   const [category, setCategory] = useState<NewsCategory | "All">("All");
   const [impact, setImpact] = useState<NewsImpactLevel | "All">("All");
@@ -246,12 +277,13 @@ function EconomicNewsWorkspace() {
   );
 
   async function submitAnalysis() {
-    const snapshot = selectedEvents.map(snapshotOf);
+    const snapshot = confirmSnapshots;
     const requestedAt = new Date().toISOString();
     setConfirmOpen(false);
     setRunning(true);
     setFailed(false);
     setTab("weekly");
+    setLastAnalysisEvents(snapshot);
     try {
       const analysis = await runWeeklyAnalysis({
         data: {
@@ -299,6 +331,32 @@ function EconomicNewsWorkspace() {
     } finally {
       setRunning(false);
     }
+  }
+
+  async function importScreenshot(file: File | null) {
+    if (!file) return;
+    setImporting(true);
+    setImportError(false);
+    try {
+      const imageDataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+      const rows = await extractCalendarScreenshot({ data: { imageDataUrl } });
+      setImportedRows(rows);
+      setImportError(rows.length === 0);
+    } catch {
+      setImportedRows([]);
+      setImportError(true);
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  function updateImported(index: number, patch: Partial<ImportedCalendarRow>) {
+    setImportedRows((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
   }
 
   const tabs: { id: Tab; label: string }[] = [
@@ -391,6 +449,161 @@ function EconomicNewsWorkspace() {
             />
           </div>
 
+          <PanelCard
+            title={lang === "th" ? "นำเข้าปฏิทินจากภาพ" : "Import calendar screenshot"}
+            subtitle={
+              lang === "th"
+                ? "เปิดปฏิทินต้นทาง บันทึกภาพ แล้วให้ AURIQ อ่านค่าเพื่อให้คุณตรวจสอบก่อนวิเคราะห์"
+                : "Open the source calendar, capture it, then review AURIQ's extraction before analysis."
+            }
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <a
+                href="https://www.forexfactory.com/calendar"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 rounded-sm border border-border px-3 py-1.5 text-xs text-info hover:underline"
+              >
+                <ExternalLink className="size-3" aria-hidden />
+                {lang === "th" ? "เปิด Forex Factory" : "Open Forex Factory"}
+              </a>
+              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm border border-primary/50 bg-primary/12 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20">
+                {importing ? (
+                  <Loader2 className="size-3 animate-spin" aria-hidden />
+                ) : (
+                  <Upload className="size-3" aria-hidden />
+                )}
+                {lang === "th" ? "อัปโหลด Screenshot" : "Upload screenshot"}
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  disabled={importing}
+                  onChange={(event) => void importScreenshot(event.target.files?.[0] ?? null)}
+                  className="sr-only"
+                />
+              </label>
+              <span className="text-[11px] text-muted-foreground">
+                {lang === "th"
+                  ? "รองรับ PNG/JPG/WebP · AI จะไม่เดาตัวเลขที่อ่านไม่ชัด"
+                  : "PNG/JPG/WebP · unreadable values are never guessed"}
+              </span>
+            </div>
+            {importError ? (
+              <p className="mt-3 text-xs text-negative">
+                {lang === "th"
+                  ? "อ่านภาพไม่สำเร็จ กรุณาใช้ภาพที่เห็นหัวตาราง วันที่ และตัวเลขชัดเจน"
+                  : "The screenshot could not be read. Include clear headers, dates and values."}
+              </p>
+            ) : null}
+            {importedRows.length ? (
+              <div className="mt-4 space-y-3">
+                <p className="text-xs font-medium">
+                  {lang === "th"
+                    ? "ตรวจทุกช่องก่อนยืนยัน โดยเฉพาะเครื่องหมายลบและหน่วย K/M/%"
+                    : "Verify every field, especially minus signs and K/M/% units."}
+                </p>
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[880px] border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-border text-left text-muted-foreground">
+                        <th className="p-2">✓</th>
+                        <th className="p-2">{t("ec.colDate")} (ICT)</th>
+                        <th className="p-2">{t("ec.colEvent")}</th>
+                        <th className="p-2">{t("ec.colImpact")}</th>
+                        <th className="p-2">{t("ec.actual")}</th>
+                        <th className="p-2">{t("ec.marketForecast")}</th>
+                        <th className="p-2">{t("ec.previous")}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {importedRows.map((row, index) => (
+                        <tr key={row.releaseId} className="border-b border-border/60">
+                          <td className="p-2">
+                            <input
+                              type="checkbox"
+                              checked={row.include}
+                              onChange={(event) =>
+                                updateImported(index, { include: event.target.checked })
+                              }
+                              className="accent-[color:var(--color-primary)]"
+                            />
+                          </td>
+                          <td className="p-2">
+                            <input
+                              type="datetime-local"
+                              value={isoToBkkLocalInput(row.nextReleaseUtc)}
+                              onChange={(event) =>
+                                updateImported(index, {
+                                  nextReleaseUtc: bkkLocalInputToIso(event.target.value),
+                                })
+                              }
+                              className="rounded-sm border border-border bg-surface px-2 py-1"
+                            />
+                          </td>
+                          <td className="p-2">
+                            <input
+                              value={row.event}
+                              onChange={(event) =>
+                                updateImported(index, { event: event.target.value })
+                              }
+                              className="w-full rounded-sm border border-border bg-surface px-2 py-1"
+                            />
+                          </td>
+                          <td className="p-2">
+                            <select
+                              value={row.impact}
+                              onChange={(event) =>
+                                updateImported(index, {
+                                  impact: event.target.value as EventSnapshot["impact"],
+                                })
+                              }
+                              className="rounded-sm border border-border bg-surface px-2 py-1"
+                            >
+                              <option>High</option>
+                              <option>Medium</option>
+                              <option>Low</option>
+                            </select>
+                          </td>
+                          {(["actual", "marketForecast", "previous"] as const).map((field) => (
+                            <td key={field} className="p-2">
+                              <input
+                                value={row[field] ?? ""}
+                                placeholder="—"
+                                onChange={(event) =>
+                                  updateImported(index, { [field]: clean(event.target.value) })
+                                }
+                                className="w-24 rounded-sm border border-border bg-surface px-2 py-1 text-right"
+                              />
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <button
+                  type="button"
+                  disabled={!importedRows.some((row) => row.include)}
+                  onClick={() => {
+                    setConfirmSnapshots(
+                      importedRows
+                        .filter((row) => row.include)
+                        .map(({ include: _include, ...row }) => ({
+                          ...row,
+                          source: "Calendar screenshot · verified by user",
+                        })),
+                    );
+                    setConfirmOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-sm border border-primary/50 bg-primary/12 px-3 py-1.5 text-xs font-medium text-primary disabled:opacity-50"
+                >
+                  <Send className="size-3" aria-hidden />
+                  {lang === "th" ? "ตรวจยืนยันและส่งวิเคราะห์" : "Confirm and analyse"}
+                </button>
+              </div>
+            ) : null}
+          </PanelCard>
+
           <div className="flex flex-col gap-3 rounded-md border border-border bg-card p-3">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs text-muted-foreground">{t("sel.title")}</span>
@@ -447,7 +660,10 @@ function EconomicNewsWorkspace() {
               <button
                 type="button"
                 disabled={selected.length === 0}
-                onClick={() => setConfirmOpen(true)}
+                onClick={() => {
+                  setConfirmSnapshots(selectedEvents.map(snapshotOf));
+                  setConfirmOpen(true);
+                }}
                 className="inline-flex items-center gap-1.5 rounded-sm border border-primary/50 bg-primary/12 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Send className="size-3" aria-hidden />
@@ -466,106 +682,105 @@ function EconomicNewsWorkspace() {
                 <p className="text-sm text-muted-foreground">{t("ec.loading")}</p>
               ) : (
                 <>
-                <div
-                  role="row"
-                  className="sticky top-0 z-10 -mx-0 hidden gap-2 rounded-md border border-border bg-surface px-2.5 py-2 text-[11px] font-medium tracking-wide text-muted-foreground uppercase md:grid md:grid-cols-[auto_5rem_3rem_2rem_1fr_repeat(4,6rem)] md:items-center"
-                >
-                  <span className="size-3.5" aria-hidden />
-                  <span>{t("ec.colTime")}</span>
-                  <span>{t("ec.colCurrency")}</span>
-                  <span>{t("ec.colImpact")}</span>
-                  <span>{t("ec.colEvent")}</span>
-                  <span className="text-right">{t("ec.actual")}</span>
-                  <span className="text-right">{t("ec.marketForecast")}</span>
-                  <span className="text-right">{t("ec.auriqEstimateCol")}</span>
-                  <span className="text-right">{t("ec.previous")}</span>
-                </div>
-                {days.map(([day, list]) => (
-
-                  <section key={day} className="min-w-0 space-y-2">
-                    <h3 className="text-xs font-semibold text-muted-foreground">
-                      {dayLabel(day, lang)}
-                      {list.length ? (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            selectIds([...selected, ...list.map((e) => e.release.releaseId)])
-                          }
-                          className="ml-2 text-[11px] font-normal text-info hover:underline"
-                        >
-                          {t("sel.byDate")}
-                        </button>
-                      ) : null}
-                    </h3>
-                    {list.length === 0 ? (
-                      <p className="rounded-md border border-dashed border-border px-3 py-3 text-center text-[11px] text-muted-foreground">
-                        {t("ec.noEventsDay")}
-                      </p>
-                    ) : (
-                      <ul className="space-y-1.5">
-                        {list.map((item) => {
-                          const s = snapshotOf(item);
-                          const checked = selected.includes(s.releaseId);
-                          return (
-                            <li
-                              key={s.releaseId}
-                              className={cn(
-                                "grid min-w-0 gap-2 rounded-md border border-border bg-surface p-2.5 text-xs md:grid-cols-[auto_5rem_3rem_2rem_1fr_repeat(4,6rem)] md:items-center",
-                                checked && "border-primary/50 bg-primary/5",
-                              )}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => toggle(s.releaseId)}
-                                aria-label={t("sel.rowAria", {
-                                  event: eventLabel(s.event, lang),
-                                })}
-                                className="size-3.5 accent-[color:var(--color-primary)]"
-                              />
-                              <span className="num text-muted-foreground">
-                                {bkkTime(s.nextReleaseUtc)} {t("ec.tz")}
-                              </span>
-                              <span className="num">{s.currency}</span>
-                              <ImpactSquare impact={s.impact} />
-                              <span className="min-w-0 font-medium">
-                                {eventLabel(s.event, lang)}
-                              </span>
-                              <span className="num md:text-right">
-                                <span className="text-muted-foreground md:hidden">
-                                  {t("ec.actual")}:{" "}
-                                </span>
-                                {s.actual ?? "—"}
-                              </span>
-                              <span className="num md:text-right">
-                                <span className="text-muted-foreground md:hidden">
-                                  {t("ec.marketForecast")}:{" "}
-                                </span>
-                                {s.marketForecast ?? (
-                                  <span className="text-muted-foreground">
-                                    {t("ec.noConsensusYet")}
-                                  </span>
+                  <div
+                    role="row"
+                    className="sticky top-0 z-10 -mx-0 hidden gap-2 rounded-md border border-border bg-surface px-2.5 py-2 text-[11px] font-medium tracking-wide text-muted-foreground uppercase md:grid md:grid-cols-[auto_5rem_3rem_2rem_1fr_repeat(4,6rem)] md:items-center"
+                  >
+                    <span className="size-3.5" aria-hidden />
+                    <span>{t("ec.colTime")}</span>
+                    <span>{t("ec.colCurrency")}</span>
+                    <span>{t("ec.colImpact")}</span>
+                    <span>{t("ec.colEvent")}</span>
+                    <span className="text-right">{t("ec.actual")}</span>
+                    <span className="text-right">{t("ec.marketForecast")}</span>
+                    <span className="text-right">{t("ec.auriqEstimateCol")}</span>
+                    <span className="text-right">{t("ec.previous")}</span>
+                  </div>
+                  {days.map(([day, list]) => (
+                    <section key={day} className="min-w-0 space-y-2">
+                      <h3 className="text-xs font-semibold text-muted-foreground">
+                        {dayLabel(day, lang)}
+                        {list.length ? (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              selectIds([...selected, ...list.map((e) => e.release.releaseId)])
+                            }
+                            className="ml-2 text-[11px] font-normal text-info hover:underline"
+                          >
+                            {t("sel.byDate")}
+                          </button>
+                        ) : null}
+                      </h3>
+                      {list.length === 0 ? (
+                        <p className="rounded-md border border-dashed border-border px-3 py-3 text-center text-[11px] text-muted-foreground">
+                          {t("ec.noEventsDay")}
+                        </p>
+                      ) : (
+                        <ul className="space-y-1.5">
+                          {list.map((item) => {
+                            const s = snapshotOf(item);
+                            const checked = selected.includes(s.releaseId);
+                            return (
+                              <li
+                                key={s.releaseId}
+                                className={cn(
+                                  "grid min-w-0 gap-2 rounded-md border border-border bg-surface p-2.5 text-xs md:grid-cols-[auto_5rem_3rem_2rem_1fr_repeat(4,6rem)] md:items-center",
+                                  checked && "border-primary/50 bg-primary/5",
                                 )}
-                              </span>
-                              <span className="num text-muted-foreground md:text-right">
-                                <span className="md:hidden">{t("ec.auriqEstimateCol")}: </span>
-                                {s.auriqEstimate ?? "—"}
-                              </span>
-                              <span className="num text-muted-foreground md:text-right">
-                                <span className="md:hidden">{t("ec.previous")}: </span>
-                                {s.previous ?? "—"}
-                              </span>
-                              <span className="num col-span-full text-[10px] break-words text-muted-foreground">
-                                {t("ec.colSource")}: {s.source}
-                                {s.marketForecastSource ? ` · ${s.marketForecastSource}` : ""}
-                              </span>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    )}
-                  </section>
-                ))}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={() => toggle(s.releaseId)}
+                                  aria-label={t("sel.rowAria", {
+                                    event: eventLabel(s.event, lang),
+                                  })}
+                                  className="size-3.5 accent-[color:var(--color-primary)]"
+                                />
+                                <span className="num text-muted-foreground">
+                                  {bkkTime(s.nextReleaseUtc)} {t("ec.tz")}
+                                </span>
+                                <span className="num">{s.currency}</span>
+                                <ImpactSquare impact={s.impact} />
+                                <span className="min-w-0 font-medium">
+                                  {eventLabel(s.event, lang)}
+                                </span>
+                                <span className="num md:text-right">
+                                  <span className="text-muted-foreground md:hidden">
+                                    {t("ec.actual")}:{" "}
+                                  </span>
+                                  {s.actual ?? "—"}
+                                </span>
+                                <span className="num md:text-right">
+                                  <span className="text-muted-foreground md:hidden">
+                                    {t("ec.marketForecast")}:{" "}
+                                  </span>
+                                  {s.marketForecast ?? (
+                                    <span className="text-muted-foreground">
+                                      {t("ec.noConsensusYet")}
+                                    </span>
+                                  )}
+                                </span>
+                                <span className="num text-muted-foreground md:text-right">
+                                  <span className="md:hidden">{t("ec.auriqEstimateCol")}: </span>
+                                  {s.auriqEstimate ?? "—"}
+                                </span>
+                                <span className="num text-muted-foreground md:text-right">
+                                  <span className="md:hidden">{t("ec.previous")}: </span>
+                                  {s.previous ?? "—"}
+                                </span>
+                                <span className="num col-span-full text-[10px] break-words text-muted-foreground">
+                                  {t("ec.colSource")}: {s.source}
+                                  {s.marketForecastSource ? ` · ${s.marketForecastSource}` : ""}
+                                </span>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+                    </section>
+                  ))}
                 </>
               )}
 
@@ -598,7 +813,7 @@ function EconomicNewsWorkspace() {
                 <p className="text-sm text-negative">{t("an.failed")}</p>
               </PanelCard>
             ) : result ? (
-              <AnalysisResultView result={result} events={selectedEvents.map(snapshotOf)} />
+              <AnalysisResultView result={result} events={lastAnalysisEvents} />
             ) : (
               <PanelCard>
                 <p className="text-sm text-muted-foreground">{t("an.empty")}</p>
@@ -860,7 +1075,7 @@ function EconomicNewsWorkspace() {
                 </tr>
               </thead>
               <tbody>
-                {selectedEvents.map(snapshotOf).map((s) => (
+                {confirmSnapshots.map((s) => (
                   <tr key={s.releaseId} className="border-b border-border/60">
                     <td className="num px-2 py-1.5 whitespace-nowrap">
                       {bkkDateTime(s.nextReleaseUtc)} {t("ec.tz")}
