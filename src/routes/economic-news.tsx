@@ -565,8 +565,10 @@ function EconomicNewsWorkspace() {
                       </ul>
                     )}
                   </section>
-                ))
+                ))}
+                </>
               )}
+
               <p className="text-[11px] text-muted-foreground">{t("ec.estimateNote")}</p>
             </PanelCard>
           </div>
