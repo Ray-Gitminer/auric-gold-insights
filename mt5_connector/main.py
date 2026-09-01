@@ -165,10 +165,16 @@ def sync_deals(db: Client, settings: Settings, account_id: int, rows: list[dict[
         ).execute()
 
 
-def sync_candles(db: Client, settings: Settings, account_id: int, terminal: ReadOnlyTerminal) -> None:
+def sync_candles(
+    db: Client,
+    settings: Settings,
+    account_id: int,
+    terminal: ReadOnlyTerminal,
+    bar_count: int | None = None,
+) -> None:
     for symbol in settings.symbols:
         for timeframe in settings.timeframes:
-            rows = terminal.candles(symbol, timeframe)
+            rows = terminal.candles(symbol, timeframe, bar_count)
             payload = [
                 {**row, "user_id": settings.user_id, "account_id": account_id, "symbol": symbol, "timeframe": timeframe}
                 for row in rows
@@ -192,14 +198,26 @@ def main() -> None:
             float(connected["balance"]),
         )
         agent_id, account_id = ensure_records(db, settings)
+        first_cycle = True
         while running:
             info = terminal.account()
             positions = terminal.positions()
             sync_snapshot(db, settings, account_id, info, positions)
             sync_positions(db, settings, account_id, positions)
-            sync_deals(db, settings, account_id, terminal.deals())
+            sync_deals(
+                db,
+                settings,
+                account_id,
+                terminal.deals(None if first_cycle else 2),
+            )
             try:
-                sync_candles(db, settings, account_id, terminal)
+                sync_candles(
+                    db,
+                    settings,
+                    account_id,
+                    terminal,
+                    None if first_cycle else 3,
+                )
             except Exception as exc:
                 log.warning("Candle sync unavailable; portfolio sync continues: %s", exc)
             now = datetime.now(UTC).isoformat()
@@ -212,6 +230,7 @@ def main() -> None:
             log.info("Synced ...%s | positions=%d", str(settings.expected_login)[-4:], len(positions))
             if settings.run_once:
                 break
+            first_cycle = False
             time.sleep(settings.sync_interval_seconds)
     finally:
         terminal.close()

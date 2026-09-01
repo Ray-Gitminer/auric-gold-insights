@@ -74,22 +74,24 @@ class ReadOnlyTerminal:
             raise RuntimeError(f"MT5 positions_get failed: {mt5.last_error()}")
         return [item._asdict() for item in values]
 
-    def deals(self) -> list[dict[str, Any]]:
+    def deals(self, history_days: int | None = None) -> list[dict[str, Any]]:
         end = datetime.now(UTC)
-        start = end - timedelta(days=self.settings.deal_history_days)
+        start = end - timedelta(days=history_days or self.settings.deal_history_days)
         values = mt5.history_deals_get(start, end)
         if values is None:
             raise RuntimeError(f"MT5 history_deals_get failed: {mt5.last_error()}")
         return [item._asdict() for item in values]
 
-    def candles(self, symbol: str, timeframe: str) -> list[dict[str, Any]]:
+    def candles(
+        self, symbol: str, timeframe: str, bar_count: int | None = None
+    ) -> list[dict[str, Any]]:
         mt5_timeframe = TIMEFRAMES.get(timeframe)
         if mt5_timeframe is None:
             raise RuntimeError(f"Unsupported timeframe: {timeframe}")
         if not mt5.symbol_select(symbol, True):
             raise RuntimeError(f"MT5 cannot select symbol {symbol}: {mt5.last_error()}")
         values = mt5.copy_rates_from_pos(
-            symbol, mt5_timeframe, 0, self.settings.bars_per_timeframe
+            symbol, mt5_timeframe, 0, bar_count or self.settings.bars_per_timeframe
         )
         if values is None:
             raise RuntimeError(
