@@ -1,7 +1,12 @@
 import { canonicalEconomicEventId } from "./canonical-event";
 import { formatValue } from "./schedule";
-import type { OfficialRelease, OfficialReleasePayload } from "./types";
+import type { HistoricalPoint, OfficialRelease, OfficialReleasePayload } from "./types";
 import type { ScheduledRelease } from "./us-release-calendar";
+
+/** Number as first published by the agency; falls back to the revised value. */
+function published(point: HistoricalPoint): number {
+  return point.firstValue ?? point.value;
+}
 
 /** Join official observations to dated schedule rows without relying on display names. */
 export function mergeScheduledReleases(
