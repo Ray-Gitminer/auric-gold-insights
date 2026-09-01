@@ -25,6 +25,7 @@ class Settings:
     terminal_path: Path | None
     expected_login: int
     expected_server: str
+    investor_password: str | None
     display_name: str
     broker: str
     account_type: str
@@ -46,6 +47,7 @@ class Settings:
             terminal_path=Path(raw_path) if raw_path else None,
             expected_login=int(required("MT5_EXPECTED_LOGIN")),
             expected_server=required("MT5_EXPECTED_SERVER"),
+            investor_password=os.getenv("MT5_INVESTOR_PASSWORD", "").strip() or None,
             display_name=os.getenv("MT5_DISPLAY_NAME", "MT5 account").strip(),
             broker=os.getenv("MT5_BROKER", "Unknown broker").strip(),
             account_type=os.getenv("MT5_ACCOUNT_TYPE", "unknown").strip(),

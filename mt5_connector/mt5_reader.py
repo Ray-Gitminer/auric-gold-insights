@@ -33,6 +33,12 @@ class ReadOnlyTerminal:
         kwargs = {"path": str(self.settings.terminal_path)} if self.settings.terminal_path else {}
         if not mt5.initialize(**kwargs):
             raise RuntimeError(f"MT5 initialize failed: {mt5.last_error()}")
+        if self.settings.investor_password and not mt5.login(
+            self.settings.expected_login,
+            password=self.settings.investor_password,
+            server=self.settings.expected_server,
+        ):
+            raise RuntimeError(f"MT5 investor login failed: {mt5.last_error()}")
         terminal = mt5.terminal_info()
         account = mt5.account_info()
         if terminal is None or account is None:
@@ -45,6 +51,11 @@ class ReadOnlyTerminal:
         if account.server.casefold() != self.settings.expected_server.casefold():
             raise RuntimeError(
                 f"Wrong MT5 server: expected {self.settings.expected_server}, received {account.server}"
+            )
+        if bool(account.trade_allowed):
+            mt5.shutdown()
+            raise RuntimeError(
+                "Refusing trading-enabled MT5 credential; use an Investor/read-only password only"
             )
         return {**account._asdict(), "terminal_connected": bool(terminal.connected)}
 
@@ -81,7 +92,9 @@ class ReadOnlyTerminal:
             symbol, mt5_timeframe, 0, self.settings.bars_per_timeframe
         )
         if values is None:
-            raise RuntimeError(f"MT5 copy_rates_from_pos failed for {symbol}/{timeframe}")
+            raise RuntimeError(
+                f"MT5 copy_rates_from_pos failed for {symbol}/{timeframe}: {mt5.last_error()}"
+            )
         return [
             {
                 "open_time": iso_from_epoch(int(item["time"])),
@@ -94,4 +107,3 @@ class ReadOnlyTerminal:
             }
             for item in values
         ]
-
