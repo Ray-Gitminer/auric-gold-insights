@@ -1,5 +1,10 @@
 import type { HistoricalPoint, IndicatorSpec, OfficialRelease } from "./types";
 
+/** Number as first published by the agency; falls back to the revised value. */
+function pub(point: HistoricalPoint): number {
+  return point.firstValue ?? point.value;
+}
+
 /** Format a model/actual number using the indicator unit. */
 export function formatValue(value: number, unit: string): string {
   if (unit === "K") return `${Math.round(value).toLocaleString("en-US")}K`;
