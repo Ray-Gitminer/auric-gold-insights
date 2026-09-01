@@ -50,12 +50,12 @@ export function mergeScheduledReleases(
       history: points,
       agency: live.agency,
       actualSource: `${row.provider} · ${live.actualSource}`,
-      actualValue: actualPoint?.value ?? null,
+      actualValue: actualPoint ? published(actualPoint) : null,
       actualPeriodIso: actualPoint?.periodIso ?? null,
-      actual: actualPoint ? formatValue(actualPoint.value, live.unit) : "—",
-      previousValue: previousPoint?.value ?? null,
+      actual: actualPoint ? formatValue(published(actualPoint), live.unit) : "—",
+      previousValue: previousPoint ? published(previousPoint) : null,
       previousPeriodIso: previousPoint?.periodIso ?? null,
-      previous: previousPoint ? formatValue(previousPoint.value, live.unit) : "—",
+      previous: previousPoint ? formatValue(published(previousPoint), live.unit) : "—",
     };
   });
 
