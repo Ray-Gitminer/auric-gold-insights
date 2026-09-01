@@ -140,7 +140,7 @@ export const fetchFredReleases = createServerFn({ method: "GET" }).handler(
         if (points.length < 3) continue;
         // Server-only diagnostics: shape of the normalized series, no secrets.
         console.info(
-          `[calendar] FRED series ${spec.seriesId} → ${points.length} obs · latest ${points.at(-1)?.periodIso} = ${points.at(-1)?.value}`,
+          `[calendar] FRED series ${spec.seriesId} → ${points.length} obs · ${firstPrint.size} first-print vintages · latest ${points.at(-1)?.periodIso} = ${points.at(-1)?.value} (first ${points.at(-1)?.firstValue ?? "n/a"})`,
         );
         releases.push(buildRelease(spec, points, fetchedAt, now));
       }
