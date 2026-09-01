@@ -6,15 +6,11 @@ import { fetchBeaReleases } from "@/lib/economic-calendar/bea-api";
 import { fetchFredReleases } from "@/lib/economic-calendar/fred-api";
 import { fetchCensusReleases } from "@/lib/economic-calendar/census-api";
 import { fetchUsReleaseSchedule } from "@/lib/economic-calendar/us-release-calendar";
+import { mergeScheduledReleases } from "@/lib/economic-calendar/merge-releases";
 import { computeAuriqEstimate } from "@/lib/economic-calendar/auriq-model";
 import { assessImpact } from "@/lib/economic-calendar/impact-engine";
 import { searchConsensus } from "@/lib/economic-calendar/consensus-search";
-import {
-  formatValue,
-  isReleaseDay,
-  isWithinHours,
-  parseValue,
-} from "@/lib/economic-calendar/schedule";
+import { isReleaseDay, isWithinHours, parseValue } from "@/lib/economic-calendar/schedule";
 import type {
   CalendarEvent,
   ConsensusResult,
@@ -34,72 +30,10 @@ async function loadReleases(): Promise<{ releases: OfficialRelease[]; statuses: 
     fetchCensusReleases(),
   ]);
 
-  // Historical layer: published actuals per indicator, keyed by event name.
-  const history = new Map<string, OfficialRelease>();
-  for (const payload of historical) {
-    for (const release of payload.releases) history.set(release.event, release);
-  }
-
-  const nowMs = Date.now();
-
-  // Schedule layer drives the grid: every row carries a real, source-published
-  // release date/time. Actuals are joined per OCCURRENCE — the observation whose
-  // reference period belongs to that specific release — so two CPI rows in
-  // different months never share the same number.
-  const ordered = [...schedule.releases].sort((a, b) =>
-    a.nextReleaseUtc.localeCompare(b.nextReleaseUtc),
-  );
-  const futureSeen = new Set<string>();
-
-  const releases = ordered.map<OfficialRelease>((row) => {
-    const live = history.get(row.event);
-    if (!live) return row;
-
-    const unit = live.unit;
-    const points = live.history;
-    const releaseMs = Date.parse(row.nextReleaseUtc);
-    const maxLagMs = row.maxLagDays * 86_400_000;
-
-    // Newest observation whose reference period is covered by THIS release.
-    let idx = -1;
-    for (let i = 0; i < points.length; i++) {
-      const periodMs = Date.parse(points[i]!.periodIso);
-      if (periodMs <= releaseMs && releaseMs - periodMs <= maxLagMs) idx = i;
-    }
-
-    const isPast = releaseMs <= nowMs;
-    const actualPoint = isPast && idx >= 0 ? points[idx]! : null;
-
-    let previousPoint = null as (typeof points)[number] | null;
-    if (actualPoint) {
-      previousPoint = points[idx - 1] ?? null;
-    } else if (!isPast && !futureSeen.has(row.event)) {
-      // For the next upcoming occurrence, "previous" is the last published value.
-      previousPoint = points.at(-1) ?? null;
-    }
-    if (!isPast) futureSeen.add(row.event);
-
-    return {
-      ...row,
-      unit,
-      history: points,
-      agency: live.agency,
-      actualSource: `${row.provider} · ${live.actualSource}`,
-      actualValue: actualPoint ? actualPoint.value : null,
-      actualPeriodIso: actualPoint ? actualPoint.periodIso : null,
-      actual: actualPoint ? formatValue(actualPoint.value, unit) : "—",
-      previousValue: previousPoint ? previousPoint.value : null,
-      previousPeriodIso: previousPoint ? previousPoint.periodIso : null,
-      previous: previousPoint ? formatValue(previousPoint.value, unit) : "—",
-    };
-  });
+  const { releases, uncovered } = mergeScheduledReleases(schedule.releases, historical);
 
   // Honest coverage report: which scheduled indicators still have no licensed
   // numeric feed (ISM and ADP are not redistributed). Never fabricate values.
-  const uncovered = Array.from(
-    new Set(schedule.releases.filter((r) => !history.has(r.event)).map((r) => r.event)),
-  ).sort();
-
   const coverage: LayerStatus = {
     agency: "Other",
     ok: uncovered.length === 0,

@@ -117,7 +117,7 @@ export const fetchBlsReleases = createServerFn({ method: "GET" }).handler(
     const endyear = now.getUTCFullYear();
     const startyear = endyear - 3;
 
-    try {
+    async function request(registrationKey?: string) {
       const res = await fetch("https://api.bls.gov/publicAPI/v2/timeseries/data/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -125,15 +125,23 @@ export const fetchBlsReleases = createServerFn({ method: "GET" }).handler(
           seriesid: BLS_INDICATORS.map((i) => i.seriesId),
           startyear: String(startyear),
           endyear: String(endyear),
-          ...(key ? { registrationkey: key } : {}),
+          ...(registrationKey ? { registrationkey: registrationKey } : {}),
         }),
       });
       if (!res.ok) throw new Error(`BLS responded ${res.status}`);
-      const json = (await res.json()) as {
+      return (await res.json()) as {
         status?: string;
         message?: string[];
         Results?: { series?: { seriesID: string; data?: BlsSeriesRow[] }[] };
       };
+    }
+
+    try {
+      let json = await request(key);
+      // A stale/invalid optional key must not take down public BLS data. The
+      // current request is below BLS's unauthenticated series limit, so retry
+      // once without the key and keep secrets out of logs.
+      if (json.status !== "REQUEST_SUCCEEDED" && key) json = await request();
       if (json.status !== "REQUEST_SUCCEEDED") {
         throw new Error(json.message?.join(" · ") || "BLS request not succeeded");
       }
