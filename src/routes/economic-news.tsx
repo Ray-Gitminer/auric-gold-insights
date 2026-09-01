@@ -465,7 +465,23 @@ function EconomicNewsWorkspace() {
               {isLoading ? (
                 <p className="text-sm text-muted-foreground">{t("ec.loading")}</p>
               ) : (
-                days.map(([day, list]) => (
+                <>
+                <div
+                  role="row"
+                  className="sticky top-0 z-10 -mx-0 hidden gap-2 rounded-md border border-border bg-surface px-2.5 py-2 text-[11px] font-medium tracking-wide text-muted-foreground uppercase md:grid md:grid-cols-[auto_5rem_3rem_2rem_1fr_repeat(4,6rem)] md:items-center"
+                >
+                  <span className="size-3.5" aria-hidden />
+                  <span>{t("ec.colTime")}</span>
+                  <span>{t("ec.colCurrency")}</span>
+                  <span>{t("ec.colImpact")}</span>
+                  <span>{t("ec.colEvent")}</span>
+                  <span className="text-right">{t("ec.actual")}</span>
+                  <span className="text-right">{t("ec.marketForecast")}</span>
+                  <span className="text-right">{t("ec.auriqEstimateCol")}</span>
+                  <span className="text-right">{t("ec.previous")}</span>
+                </div>
+                {days.map(([day, list]) => (
+
                   <section key={day} className="min-w-0 space-y-2">
                     <h3 className="text-xs font-semibold text-muted-foreground">
                       {dayLabel(day, lang)}
@@ -549,8 +565,10 @@ function EconomicNewsWorkspace() {
                       </ul>
                     )}
                   </section>
-                ))
+                ))}
+                </>
               )}
+
               <p className="text-[11px] text-muted-foreground">{t("ec.estimateNote")}</p>
             </PanelCard>
           </div>
