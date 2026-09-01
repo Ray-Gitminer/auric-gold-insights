@@ -99,14 +99,14 @@ export function buildRelease(
     actualLabel: "Actual",
     actualSource: `${spec.agency} API · fetched ${fetchedAt}`,
     time: timeLabel(next),
-    actualValue: releasedToday && latest ? latest.value : null,
-    previousValue: latest ? latest.value : null,
-    actual: releasedToday && latest ? formatValue(latest.value, spec.unit) : "—",
+    actualValue: releasedToday && latest ? pub(latest) : null,
+    previousValue: latest ? pub(latest) : null,
+    actual: releasedToday && latest ? formatValue(pub(latest), spec.unit) : "—",
     forecast: "—",
     previous: latest
-      ? formatValue(latest.value, spec.unit)
+      ? formatValue(pub(latest), spec.unit)
       : prior
-        ? formatValue(prior.value, spec.unit)
+        ? formatValue(pub(prior), spec.unit)
         : "—",
     history: history.slice(-24),
   };
