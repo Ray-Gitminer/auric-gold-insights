@@ -111,7 +111,7 @@ function isoToBkkLocalInput(iso: string) {
 }
 
 function bkkLocalInputToIso(value: string) {
-  const [date, time] = value.split("T");
+  const [date = "", time = ""] = value.split("T");
   const [year = 0, month = 1, day = 1] = date.split("-").map(Number);
   const [hour = 0, minute = 0] = time.split(":").map(Number);
   return new Date(Date.UTC(year, month - 1, day, hour - 7, minute)).toISOString();
