@@ -506,8 +506,8 @@ function EconomicNewsWorkspace() {
               </label>
               <span className="text-[11px] text-muted-foreground">
                 {lang === "th"
-                  ? "รองรับ PNG/JPG/WebP · AI จะไม่เดาตัวเลขที่อ่านไม่ชัด"
-                  : "PNG/JPG/WebP · unreadable values are never guessed"}
+                  ? "รองรับ PNG/JPG/WebP · หรือก๊อปปี้ภาพแล้วกด Ctrl+V วางได้เลย · AI จะไม่เดาตัวเลขที่อ่านไม่ชัด"
+                  : "PNG/JPG/WebP · or copy an image and press Ctrl+V to paste · unreadable values are never guessed"}
               </span>
             </div>
             {importError ? (
