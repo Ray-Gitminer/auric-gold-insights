@@ -47,6 +47,7 @@ async function fetchCandles(timeframe: Timeframe): Promise<Candle[]> {
     h: row.high,
     l: row.low,
     c: row.close,
+    v: 0,
   }));
 }
 
