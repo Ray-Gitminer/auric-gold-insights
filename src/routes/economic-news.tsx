@@ -112,8 +112,8 @@ function isoToBkkLocalInput(iso: string) {
 
 function bkkLocalInputToIso(value: string) {
   const [date, time] = value.split("T");
-  const [year, month, day] = date.split("-").map(Number);
-  const [hour, minute] = time.split(":").map(Number);
+  const [year = 0, month = 1, day = 1] = date.split("-").map(Number);
+  const [hour = 0, minute = 0] = time.split(":").map(Number);
   return new Date(Date.UTC(year, month - 1, day, hour - 7, minute)).toISOString();
 }
 
@@ -1295,7 +1295,7 @@ const WeeklyVisualSummary = function WeeklyVisualSummary({
   const visualRows = result.visualSummary?.rows ?? [];
   const findVisual = (releaseId: string) => visualRows.find((row) => row.releaseId === releaseId);
   const dateRange = events.length
-    ? `${bkkDateTime(events[0].nextReleaseUtc)} – ${bkkDateTime(events.at(-1)!.nextReleaseUtc)}`
+    ? `${bkkDateTime(events[0]!.nextReleaseUtc)} – ${bkkDateTime(events.at(-1)!.nextReleaseUtc)}`
     : "";
   const impactText = (impact: EventSnapshot["impact"]) =>
     impact === "High"
