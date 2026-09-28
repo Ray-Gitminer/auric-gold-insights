@@ -111,9 +111,9 @@ function isoToBkkLocalInput(iso: string) {
 }
 
 function bkkLocalInputToIso(value: string) {
-  const [date, time] = value.split("T");
-  const [year, month, day] = date.split("-").map(Number);
-  const [hour, minute] = time.split(":").map(Number);
+  const [date = "", time = ""] = value.split("T");
+  const [year = 0, month = 1, day = 1] = date.split("-").map(Number);
+  const [hour = 0, minute = 0] = time.split(":").map(Number);
   return new Date(Date.UTC(year, month - 1, day, hour - 7, minute)).toISOString();
 }
 
@@ -359,6 +359,28 @@ function EconomicNewsWorkspace() {
     setImportedRows((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
   }
 
+  // Allow pasting a copied screenshot (Ctrl+V / Cmd+V) anywhere on this tab.
+  useEffect(() => {
+    if (tab !== "calendar") return;
+    const onPaste = (event: ClipboardEvent) => {
+      const items = event.clipboardData?.items;
+      if (!items) return;
+      for (const item of Array.from(items)) {
+        if (item.kind === "file" && item.type.startsWith("image/")) {
+          const file = item.getAsFile();
+          if (file) {
+            event.preventDefault();
+            void importScreenshot(file);
+          }
+          return;
+        }
+      }
+    };
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, importing]);
+
   const tabs: { id: Tab; label: string }[] = [
     { id: "calendar", label: t("enews.tab.calendar") },
     { id: "weekly", label: t("enews.tab.weekly") },
@@ -484,8 +506,8 @@ function EconomicNewsWorkspace() {
               </label>
               <span className="text-[11px] text-muted-foreground">
                 {lang === "th"
-                  ? "รองรับ PNG/JPG/WebP · AI จะไม่เดาตัวเลขที่อ่านไม่ชัด"
-                  : "PNG/JPG/WebP · unreadable values are never guessed"}
+                  ? "รองรับ PNG/JPG/WebP · หรือก๊อปปี้ภาพแล้วกด Ctrl+V วางได้เลย · AI จะไม่เดาตัวเลขที่อ่านไม่ชัด"
+                  : "PNG/JPG/WebP · or copy an image and press Ctrl+V to paste · unreadable values are never guessed"}
               </span>
             </div>
             {importError ? (
@@ -1273,7 +1295,7 @@ const WeeklyVisualSummary = function WeeklyVisualSummary({
   const visualRows = result.visualSummary?.rows ?? [];
   const findVisual = (releaseId: string) => visualRows.find((row) => row.releaseId === releaseId);
   const dateRange = events.length
-    ? `${bkkDateTime(events[0].nextReleaseUtc)} – ${bkkDateTime(events.at(-1)!.nextReleaseUtc)}`
+    ? `${bkkDateTime(events[0]!.nextReleaseUtc)} – ${bkkDateTime(events.at(-1)!.nextReleaseUtc)}`
     : "";
   const impactText = (impact: EventSnapshot["impact"]) =>
     impact === "High"
