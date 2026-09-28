@@ -359,6 +359,28 @@ function EconomicNewsWorkspace() {
     setImportedRows((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
   }
 
+  // Allow pasting a copied screenshot (Ctrl+V / Cmd+V) anywhere on this tab.
+  useEffect(() => {
+    if (tab !== "calendar") return;
+    const onPaste = (event: ClipboardEvent) => {
+      const items = event.clipboardData?.items;
+      if (!items) return;
+      for (const item of Array.from(items)) {
+        if (item.kind === "file" && item.type.startsWith("image/")) {
+          const file = item.getAsFile();
+          if (file) {
+            event.preventDefault();
+            void importScreenshot(file);
+          }
+          return;
+        }
+      }
+    };
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, importing]);
+
   const tabs: { id: Tab; label: string }[] = [
     { id: "calendar", label: t("enews.tab.calendar") },
     { id: "weekly", label: t("enews.tab.weekly") },
