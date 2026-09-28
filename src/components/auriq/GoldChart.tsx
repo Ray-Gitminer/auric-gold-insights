@@ -37,7 +37,7 @@ export function GoldChart({
   timeframe: Timeframe;
   onTimeframeChange?: (tf: Timeframe) => void;
   compact?: boolean;
-  candlesOverride?: Candle[];
+  candlesOverride?: Candle[] | undefined;
   live?: boolean;
 }) {
   const { t } = useI18n();
