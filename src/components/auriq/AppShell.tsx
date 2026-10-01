@@ -284,6 +284,7 @@ function DashboardHeader({ onOpenMobile }: { onOpenMobile: ReactNode }) {
     { to: "/economic-news" as const, label: "News" },
     { to: "/chart-strategy" as const, label: "Strategy" },
   ];
+  const comingSoonLinks = ["AURIQ Flow", "Pricing"];
 
   return (
     <header className="sticky top-0 z-40 border-b border-info/30 bg-background/90 shadow-[0_12px_34px_-22px_var(--color-info)] backdrop-blur-xl">
@@ -322,6 +323,9 @@ function DashboardHeader({ onOpenMobile }: { onOpenMobile: ReactNode }) {
               </Link>
             );
           })}
+          {comingSoonLinks.map((label) => (
+            <span key={label} className="flex items-center text-xs font-semibold text-muted-foreground/55" title={t("dashboard.comingSoon")}>{label}</span>
+          ))}
         </nav>
 
         <div className="flex shrink-0 items-center justify-end gap-2">
