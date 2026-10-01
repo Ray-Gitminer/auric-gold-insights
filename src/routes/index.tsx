@@ -53,20 +53,20 @@ const TF: { label: string; value: Timeframe }[] = [
   { label: "D1", value: "1D" },
 ];
 
-const PENDING = "รอเชื่อมข้อมูล";
-
 function SampleTag() {
+  const { t } = useI18n();
   return (
     <span className="shrink-0 rounded-sm border border-primary/40 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-primary">
-      ข้อมูลตัวอย่าง
+      {t("dashboard.sampleData")}
     </span>
   );
 }
 
 function SoonTag() {
+  const { t } = useI18n();
   return (
     <span className="shrink-0 rounded-sm border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
-      เร็ว ๆ นี้
+      {t("dashboard.comingSoon")}
     </span>
   );
 }
@@ -103,8 +103,7 @@ function Card({
   );
 }
 
-function Row({ label, value, tone }: { label: string; value: ReactNode; tone?: string }) {
-  const pending = value === PENDING;
+function Row({ label, value, tone, pending = false }: { label: string; value: ReactNode; tone?: string; pending?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-3 border-b border-border/50 py-2 text-sm last:border-0">
       <span className="text-muted-foreground">{label}</span>
@@ -121,39 +120,39 @@ function Row({ label, value, tone }: { label: string; value: ReactNode; tone?: s
 }
 
 function BiasValue({ dir }: { dir: "Bullish" | "Bearish" | "Neutral" }) {
+  const { tx } = useI18n();
   const Icon = dir === "Bullish" ? ArrowUp : dir === "Bearish" ? ArrowDown : ArrowRight;
   const tone =
     dir === "Bullish" ? "text-positive" : dir === "Bearish" ? "text-negative" : "text-muted-foreground";
   return (
     <span className={cn("inline-flex items-center gap-1 font-semibold", tone)}>
-      <Icon className="size-3.5" aria-hidden /> {dir}
+      <Icon className="size-3.5" aria-hidden /> {tx(dir)}
     </span>
   );
 }
 
-const FEATURES = [
-  { icon: LineChart, title: "MTF Analysis", desc: "วิเคราะห์หลาย Timeframe มองภาพใหญ่และจุดเข้า", to: "/chart-strategy" as const },
-  { icon: Network, title: "Rayny Nexora Signals", desc: "สัญญาณพร้อมเงื่อนไขยืนยัน" },
-  { icon: Boxes, title: "MPGP Context", desc: "ระบุโซนสำคัญ Premium / Discount" },
-  { icon: Waves, title: "AURIQ Flow", desc: "อ่านแรงซื้อขายและ Volume context" },
-  { icon: Bell, title: "Smart Alerts", desc: "แจ้งสัญญาณและเหตุการณ์สำคัญ", to: "/alerts" as const },
-];
-
-const MODULES = [
-  { icon: Network, title: "Rayny Nexora Engine", points: ["วิเคราะห์สัญญาณเชิงโครงสร้าง", "ตรวจจับโซนสำคัญ", "กรองสัญญาณตามเงื่อนไข"] },
-  { icon: Boxes, title: "MPGP Framework", points: ["ระบุ Premium / Discount", "วิเคราะห์โครงสร้างตลาด", "มองโอกาสตาม Context"] },
-  { icon: Bell, title: "Smart Alert System", points: ["แจ้งเตือนสัญญาณ", "เตือนเหตุการณ์สำคัญ", "ปรับตามความเสี่ยง"], to: "/alerts" as const },
-  { icon: CalendarDays, title: "Economic Event Filter", points: ["ติดตามปฏิทินเศรษฐกิจ USD", "ระดับผลกระทบ สูง / กลาง / ต่ำ", "เตือนก่อนประกาศ"], to: "/economic-news" as const, impact: true },
-];
-
-const STEPS = ["Context", "Confirmation", "Execution", "Review"];
-
 function Dashboard() {
-  const { tx } = useI18n();
+  const { t, tx } = useI18n();
   const { data: portfolio } = usePortfolioData();
   const live = portfolio.source === "mt5";
   const [timeframe, setTimeframe] = useState<Timeframe>("1h");
   const candles = useMt5Candles(timeframe);
+  const chartLive = live && Boolean(candles.data && candles.data.length > 1);
+  const pending = t("dashboard.awaitingData");
+  const features = [
+    { icon: LineChart, title: "MTF Analysis", desc: t("dashboard.featureMtf"), to: "/chart-strategy" as const },
+    { icon: Network, title: "Rayny Nexora Signals", desc: t("dashboard.featureSignals") },
+    { icon: Boxes, title: "MPGP Context", desc: t("dashboard.featureMpgp") },
+    { icon: Waves, title: "AURIQ Flow", desc: t("dashboard.featureFlow") },
+    { icon: Bell, title: "Smart Alerts", desc: t("dashboard.featureAlerts"), to: "/alerts" as const },
+  ];
+  const modules = [
+    { icon: Network, title: "Rayny Nexora Engine", points: [t("dashboard.enginePoint1"), t("dashboard.enginePoint2"), t("dashboard.enginePoint3")] },
+    { icon: Boxes, title: "MPGP Framework", points: [t("dashboard.mpgpPoint1"), t("dashboard.mpgpPoint2"), t("dashboard.mpgpPoint3")] },
+    { icon: Bell, title: "Smart Alert System", points: [t("dashboard.alertPoint1"), t("dashboard.alertPoint2"), t("dashboard.alertPoint3")], to: "/alerts" as const },
+    { icon: CalendarDays, title: "Economic Event Filter", points: [t("dashboard.eventPoint1"), t("dashboard.eventPoint2"), t("dashboard.eventPoint3")], to: "/economic-news" as const, impact: true },
+  ];
+  const steps = [t("dashboard.stepContext"), t("dashboard.stepConfirmation"), t("dashboard.stepExecution"), t("dashboard.stepReview")];
   const passed = strategy.conditions.filter((c) => c.pass).length;
   const up = instrument.change >= 0;
 
@@ -165,16 +164,16 @@ function Dashboard() {
           <div className="py-2">
             <p className="text-[11px] font-semibold tracking-[0.24em] text-primary">AURIQ GOLD INSIGHTS</p>
             <h1 className="mt-2 text-2xl leading-tight font-bold sm:text-3xl">
-              วิเคราะห์ทองให้คมขึ้น
+              {t("dashboard.heroTitle")}
               <span className="mt-1 block bg-gradient-to-r from-gold-bright to-info bg-clip-text text-transparent">
-                ด้วย AI + Context + Confirmation
+                {t("dashboard.heroAccent")}
               </span>
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              อ่านบริบทตลาด XAUUSD ด้วยการวิเคราะห์หลายกรอบเวลา โครงสร้างราคา และการยืนยันจากระบบ AURIQ
+              {t("dashboard.heroDescription")}
             </p>
           </div>
-          {FEATURES.map((f) => {
+           {features.map((f) => {
             const inner = (
               <>
                 <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
@@ -205,9 +204,9 @@ function Dashboard() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-bold">XAUUSD</span>
-                  {!live && <SampleTag />}
+                   <SampleTag />
                 </div>
-                <p className="text-xs text-muted-foreground">Gold Spot / U.S. Dollar</p>
+                <p className="text-xs text-muted-foreground">{t("dashboard.instrumentName")}</p>
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="num text-2xl font-semibold">{num(instrument.last)}</span>
@@ -216,9 +215,9 @@ function Dashboard() {
                 </span>
               </div>
               <dl className="num flex gap-5 text-xs">
-                <div><dt className="text-muted-foreground">High</dt><dd>{num(instrument.high)}</dd></div>
-                <div><dt className="text-muted-foreground">Low</dt><dd>{num(instrument.low)}</dd></div>
-                <div><dt className="text-muted-foreground">Open</dt><dd className="text-muted-foreground/70">—</dd></div>
+                <div><dt className="text-muted-foreground">{t("common.high")}</dt><dd>{num(instrument.high)}</dd></div>
+                <div><dt className="text-muted-foreground">{t("common.low")}</dt><dd>{num(instrument.low)}</dd></div>
+                <div><dt className="text-muted-foreground">{t("dashboard.open")}</dt><dd className="text-muted-foreground/70">—</dd></div>
               </dl>
             </div>
             <div className="mt-3 flex flex-wrap gap-1" role="group" aria-label="Timeframe">
@@ -238,28 +237,31 @@ function Dashboard() {
                   {tf.label}
                 </button>
               ))}
+              <span className="ml-auto self-center text-[10px] tracking-wide text-muted-foreground">
+                {chartLive ? t("dashboard.mt5ChartLive") : t("chart.staticDemo")}
+              </span>
             </div>
             <div className="mt-3 min-w-0">
-              <GoldChart timeframe={timeframe} candlesOverride={live ? candles.data : undefined} live={live} />
+               <GoldChart timeframe={timeframe} candlesOverride={chartLive ? candles.data : undefined} live={chartLive} />
             </div>
           </section>
 
           <Card title="AURIQ AI Insight" icon={<Sparkles className="size-4" />} tag={<SampleTag />}>
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="rounded-lg border border-border/60 bg-background/40 p-3">
-                <p className="text-[11px] font-semibold tracking-wide text-info">Market Context</p>
+                 <p className="text-[11px] font-semibold tracking-wide text-info">{t("dashboard.marketContext")}</p>
                 <p className="mt-1 line-clamp-4 text-xs leading-relaxed text-muted-foreground">{tx(bias.rationale)}</p>
               </div>
               <div className="rounded-lg border border-border/60 bg-background/40 p-3">
-                <p className="text-[11px] font-semibold tracking-wide text-info">Confirmation</p>
+                 <p className="text-[11px] font-semibold tracking-wide text-info">{t("dashboard.confirmation")}</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  เงื่อนไขผ่าน <span className="num text-foreground">{passed}/{strategy.conditions.length}</span> · สถานะ {strategy.state}
+                   {t("dashboard.conditionsPassed", { passed, total: strategy.conditions.length, state: tx(strategy.state) })}
                 </p>
               </div>
               <div className="rounded-lg border border-border/60 bg-background/40 p-3">
-                <p className="text-[11px] font-semibold tracking-wide text-info">Suggested Bias</p>
+                 <p className="text-[11px] font-semibold tracking-wide text-info">{t("dashboard.suggestedBias")}</p>
                 <p className="mt-1 text-sm"><BiasValue dir={bias.direction} /></p>
-                <p className="mt-1 text-[10px] text-muted-foreground">ตีความจาก output ของระบบ · ไม่ใช่คำแนะนำการลงทุน</p>
+                 <p className="mt-1 text-[10px] text-muted-foreground">{t("dashboard.advisoryNote")}</p>
               </div>
             </div>
           </Card>
@@ -267,32 +269,32 @@ function Dashboard() {
 
         {/* Right: summaries */}
         <div className="order-2 flex min-w-0 flex-col gap-4 lg:order-3">
-          <Card title="Signal Summary" icon={<Target className="size-4" />} tag={<SampleTag />}>
-            <Row label="Bias" value={<BiasValue dir={bias.direction} />} />
-            <Row label="Entry Zone" value={PENDING} />
-            <Row label="Stop Loss" value={PENDING} />
-            <Row label="Targets" value={PENDING} />
-            <Row label="อัปเดตล่าสุด" value={portfolio.account.lastSync || PENDING} />
+           <Card title={t("dashboard.signalSummary")} icon={<Target className="size-4" />} tag={<SampleTag />}>
+             <Row label={t("dashboard.bias")} value={<BiasValue dir={bias.direction} />} />
+             <Row label={t("dashboard.entryZone")} value={pending} pending />
+             <Row label={t("dashboard.stopLoss")} value={pending} pending />
+             <Row label={t("dashboard.targets")} value={pending} pending />
+             <Row label={t("dashboard.lastUpdated")} value={portfolio.account.lastSync || pending} pending={!portfolio.account.lastSync} />
           </Card>
-          <Card title="Market Context" icon={<Layers className="size-4" />} tag={<SampleTag />}>
-            <Row label="Trend" value={<BiasValue dir={bias.direction} />} />
-            <Row label="Structure" value={PENDING} />
-            <Row label="Liquidity" value={PENDING} />
-            <Row label="Premium / Discount" value={PENDING} />
-            <Row label="Confirmation" value={strategy.state} tone="text-primary" />
+           <Card title={t("dashboard.marketContext")} icon={<Layers className="size-4" />} tag={<SampleTag />}>
+             <Row label={t("dashboard.trend")} value={<BiasValue dir={bias.direction} />} />
+             <Row label={t("dashboard.structure")} value={pending} pending />
+             <Row label={t("dashboard.liquidity")} value={pending} pending />
+             <Row label="Premium / Discount" value={pending} pending />
+             <Row label={t("dashboard.confirmation")} value={tx(strategy.state)} tone="text-primary" />
           </Card>
           <Card title="AURIQ Flow" icon={<Waves className="size-4" />} tag={<SoonTag />}>
-            <Row label="Delta" value={PENDING} />
-            <Row label="CVD" value={PENDING} />
-            <Row label="Buyer Pressure" value={PENDING} />
-            <Row label="Seller Pressure" value={PENDING} />
+             <Row label="Delta" value={pending} pending />
+             <Row label="CVD" value={pending} pending />
+             <Row label={t("dashboard.buyerPressure")} value={pending} pending />
+             <Row label={t("dashboard.sellerPressure")} value={pending} pending />
           </Card>
         </div>
       </div>
 
       {/* Modules */}
       <div className="mt-4 grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {MODULES.map((m) => {
+         {modules.map((m) => {
           const body = (
             <>
               <div className="flex items-center gap-2">
@@ -309,9 +311,9 @@ function Dashboard() {
               </ul>
               {m.impact && (
                 <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
-                  <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-negative" />สูง</span>
-                  <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-warning" />กลาง</span>
-                  <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-gold-bright" />ต่ำ</span>
+                   <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-negative" />{t("dashboard.impactHigh")}</span>
+                   <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-warning" />{t("dashboard.impactMedium")}</span>
+                   <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-gold-bright" />{t("dashboard.impactLow")}</span>
                 </div>
               )}
             </>
@@ -327,16 +329,16 @@ function Dashboard() {
 
       {/* How AURIQ works */}
       <section className="mt-4 rounded-xl border border-border bg-card/50 p-4">
-        <h2 className="text-sm font-semibold">How AURIQ Works</h2>
-        <p className="text-xs text-muted-foreground">อธิบายกระบวนการวิเคราะห์ · ไม่ใช่ระบบส่งคำสั่งซื้อขาย</p>
+         <h2 className="text-sm font-semibold">{t("dashboard.howTitle")}</h2>
+         <p className="text-xs text-muted-foreground">{t("dashboard.howDescription")}</p>
         <ol className="mt-3 flex flex-wrap items-center gap-3">
-          {STEPS.map((s, i) => (
+           {steps.map((s, i) => (
             <li key={s} className="flex items-center gap-3">
               <span className="flex items-center gap-2">
                 <span className="num grid size-8 place-items-center rounded-full border border-primary/60 text-sm font-semibold text-primary">{i + 1}</span>
                 <span className="text-sm">{s}</span>
               </span>
-              {i < STEPS.length - 1 && <ArrowRight className="size-4 text-muted-foreground" aria-hidden />}
+               {i < steps.length - 1 && <ArrowRight className="size-4 text-muted-foreground" aria-hidden />}
             </li>
           ))}
         </ol>
