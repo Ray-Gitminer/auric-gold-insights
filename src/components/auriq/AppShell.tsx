@@ -4,7 +4,6 @@ import {
   Activity,
   BarChart3,
   Bell,
-  BookOpen,
   ChevronLeft,
   ChevronRight,
   Clock,
@@ -12,7 +11,6 @@ import {
   LayoutDashboard,
   Menu,
   Newspaper,
-  PieChart,
   RefreshCw,
   Settings as SettingsIcon,
   ShieldCheck,
@@ -36,10 +34,8 @@ import { usePortfolioData } from "@/hooks/use-portfolio-data";
 
 const NAV = [
   { to: "/", key: "nav.overview", icon: LayoutDashboard },
-  { to: "/portfolio", key: "nav.portfolio", icon: PieChart },
   { to: "/positions-orders", key: "nav.positionsOrders", icon: BarChart3 },
   { to: "/trade-history", key: "nav.tradeHistory", icon: Clock },
-  { to: "/journal", key: "nav.journal", icon: BookOpen },
   // News, weekly analysis and the economic calendar live as tabs inside /economic-news.
   { to: "/economic-news", key: "nav.economicNews", icon: Newspaper },
 
