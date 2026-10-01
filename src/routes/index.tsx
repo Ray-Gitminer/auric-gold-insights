@@ -123,13 +123,13 @@ function Dashboard() {
 
           <div className="order-1 min-w-0 xl:order-2">
             <section className="min-w-0 overflow-hidden rounded-lg border border-info/35 bg-card/85 shadow-[var(--shadow-glow)] backdrop-blur-md">
-              <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 border-b border-border/60 px-3 py-3 sm:flex sm:flex-wrap sm:items-center">
+              <div className="grid min-w-0 grid-cols-1 gap-2 border-b border-border/60 px-3 py-3 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2"><span className="text-xl font-extrabold">XAUUSD</span><SampleTag /></div>
                   <p className="truncate text-[10px] text-muted-foreground">{t("dashboard.instrumentName")}</p>
                 </div>
-                <div className="text-right sm:text-left"><span className="num text-2xl font-bold">{num(instrument.last)}</span><span className={cn("num ml-2 text-xs", up ? "text-positive" : "text-negative")}>{up ? "+" : ""}{num(instrument.change)} · {pct(instrument.changePct)}</span></div>
-                <dl className="col-span-2 flex gap-5 text-[10px] sm:col-span-1 sm:ml-auto">
+                <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 text-left"><span className="num text-2xl font-bold">{num(instrument.last)}</span><span className={cn("num text-xs", up ? "text-positive" : "text-negative")}>{up ? "+" : ""}{num(instrument.change)} · {pct(instrument.changePct)}</span></div>
+                <dl className="flex gap-5 text-[10px] sm:ml-auto">
                   <div><dt className="text-muted-foreground">{t("common.high")}</dt><dd className="num">{num(instrument.high)}</dd></div>
                   <div><dt className="text-muted-foreground">{t("common.low")}</dt><dd className="num">{num(instrument.low)}</dd></div>
                   <div><dt className="text-muted-foreground">{t("dashboard.open")}</dt><dd className="num text-muted-foreground">—</dd></div>
