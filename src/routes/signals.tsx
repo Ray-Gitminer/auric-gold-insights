@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Activity, ArrowDown, ArrowRight, ArrowUp, BarChart3, CalendarClock,
@@ -59,7 +59,7 @@ function DirectionLabel({ direction }: { direction: Direction }) {
   );
 }
 
-function SignalPanel({ title, icon, children, className }: { title: string; icon: React.ReactNode; children: React.ReactNode; className?: string }) {
+function SignalPanel({ title, icon, children, className }: { title: string; icon: ReactNode; children: ReactNode; className?: string }) {
   return (
     <section className={cn("auric-glass min-w-0 overflow-hidden rounded-lg p-3", className)}>
       <header className="mb-3 flex items-center gap-2 border-b border-border/60 pb-2">
