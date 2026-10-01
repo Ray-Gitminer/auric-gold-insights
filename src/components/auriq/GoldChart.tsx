@@ -35,6 +35,7 @@ export function GoldChart({
   live = false,
   allowFallback = true,
   emptyLabel,
+  statusLabel,
 }: {
   timeframe: Timeframe;
   onTimeframeChange?: (tf: Timeframe) => void;
@@ -43,6 +44,7 @@ export function GoldChart({
   live?: boolean;
   allowFallback?: boolean;
   emptyLabel?: string;
+  statusLabel?: string | undefined;
 }) {
   const { t } = useI18n();
   const fallbackCandles = candlesByTimeframe[timeframe] ?? candlesByTimeframe["1D"] ?? [];
@@ -95,7 +97,7 @@ export function GoldChart({
             </button>
           ))}
           <span className="ml-auto pr-2 text-[10px] tracking-[0.12em] text-muted-foreground uppercase">
-            {live && candlesOverride?.length ? "MT5 LIVE · READ-ONLY" : t("chart.staticDemo")}
+            {statusLabel ?? (live && candlesOverride?.length ? "MT5 LIVE · READ-ONLY" : t("chart.staticDemo"))}
           </span>
         </div>
       ) : null}

@@ -36,7 +36,7 @@ function ChartStrategy() {
   const [primary, setPrimary] = useState<Timeframe>("1D");
   const { t, tx } = useI18n();
   const primaryCandles = useMt5Candles(primary);
-  const live = Boolean(primaryCandles.data?.length);
+  const live = Boolean(primaryCandles.data?.candles.length);
 
   const STATES = STATE_KEYS.map((state) => ({
     state,
@@ -70,7 +70,7 @@ function ChartStrategy() {
             <GoldChart
               timeframe={primary}
               onTimeframeChange={setPrimary}
-              candlesOverride={primaryCandles.data}
+              candlesOverride={primaryCandles.data?.candles}
               live={live}
             />
           </PanelCard>
@@ -163,8 +163,8 @@ function LiveContextChart({ timeframe }: { timeframe: Timeframe }) {
     <GoldChart
       timeframe={timeframe}
       compact
-      candlesOverride={candles.data}
-      live={Boolean(candles.data?.length)}
+      candlesOverride={candles.data?.candles}
+      live={Boolean(candles.data?.candles.length)}
     />
   );
 }

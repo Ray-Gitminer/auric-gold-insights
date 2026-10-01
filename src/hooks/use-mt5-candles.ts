@@ -13,9 +13,17 @@ const MT5_TIMEFRAME: Record<Timeframe, string> = {
   "1D": "D1",
 };
 
-async function fetchCandles(timeframe: Timeframe): Promise<Candle[]> {
+export type Mt5CandleFeed = { candles: Candle[]; lastSyncAt: number | null };
+
+export const MT5_LIVE_WINDOW_MS = 20_000;
+
+export function isMt5Fresh(feed: Mt5CandleFeed | undefined, now = Date.now()) {
+  return Boolean(feed?.lastSyncAt && now - feed.lastSyncAt <= MT5_LIVE_WINDOW_MS);
+}
+
+async function fetchCandles(timeframe: Timeframe): Promise<Mt5CandleFeed> {
   const client = getSupabaseBrowserClient();
-  if (!client) return [];
+  if (!client) return { candles: [], lastSyncAt: null };
   const { data: account, error: accountError } = await client
     .from("mt5_accounts")
     .select("id, last_sync_at")
@@ -24,9 +32,9 @@ async function fetchCandles(timeframe: Timeframe): Promise<Candle[]> {
     .limit(1)
     .maybeSingle();
   if (accountError) throw accountError;
-  if (!account) return [];
-  const lastSync = account.last_sync_at ? new Date(account.last_sync_at).getTime() : 0;
-  if (!Number.isFinite(lastSync) || Date.now() - lastSync > 20_000) return [];
+  if (!account) return { candles: [], lastSyncAt: null };
+  const parsed = account.last_sync_at ? new Date(account.last_sync_at).getTime() : NaN;
+  const lastSyncAt = Number.isFinite(parsed) ? parsed : null;
 
   const { data, error } = await client
     .from("mt5_candles")
@@ -36,9 +44,9 @@ async function fetchCandles(timeframe: Timeframe): Promise<Candle[]> {
     .eq("timeframe", MT5_TIMEFRAME[timeframe])
     .order("open_time", { ascending: false })
     .limit(160);
-  if (error?.code === "PGRST205") return [];
+  if (error?.code === "PGRST205") return { candles: [], lastSyncAt };
   if (error) throw error;
-  return (data ?? []).reverse().map((row) => ({
+  const candles = (data ?? []).reverse().map((row) => ({
     t: new Intl.DateTimeFormat("en-GB", {
       timeZone: "Asia/Bangkok",
       hour: "2-digit",
@@ -51,6 +59,7 @@ async function fetchCandles(timeframe: Timeframe): Promise<Candle[]> {
     c: row.close,
     v: 0,
   }));
+  return { candles, lastSyncAt };
 }
 
 export function useMt5Candles(timeframe: Timeframe) {
@@ -60,6 +69,7 @@ export function useMt5Candles(timeframe: Timeframe) {
     queryFn: () => fetchCandles(timeframe),
     enabled: Boolean(user),
     staleTime: 900,
+    placeholderData: (previous) => previous,
     refetchInterval: 1_000,
   });
 }
