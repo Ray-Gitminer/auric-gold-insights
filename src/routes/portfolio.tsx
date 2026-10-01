@@ -21,6 +21,8 @@ export const Route = createFileRoute("/portfolio")({
         property: "og:description",
         content: "Allocation, exposure, margin and performance — demo data.",
       },
+       { property: "og:type", content: "website" },
+       { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Portfolio,

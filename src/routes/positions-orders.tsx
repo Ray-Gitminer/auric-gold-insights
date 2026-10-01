@@ -23,6 +23,8 @@ export const Route = createFileRoute("/positions-orders")({
         property: "og:description",
         content: "Filterable positions and orders with confirmation prototypes — demo data.",
       },
+       { property: "og:type", content: "website" },
+       { name: "twitter:card", content: "summary" },
     ],
   }),
   component: PositionsOrders,

@@ -24,6 +24,8 @@ export const Route = createFileRoute("/journal")({
         property: "og:description",
         content: "Thesis, checklist, emotions and discipline scoring — demo data.",
       },
+       { property: "og:type", content: "website" },
+       { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Journal,
