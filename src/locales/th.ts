@@ -159,6 +159,9 @@ export const th: Dictionary = {
   "dashboard.comingSoon": "เร็ว ๆ นี้",
   "dashboard.heroTitle": "วิเคราะห์ทองให้คมขึ้น",
   "dashboard.heroAccent": "ด้วย AI + Context + Confirmation",
+  "dashboard.heroWith": "ด้วย",
+  "dashboard.hideInsight": "ย่อการ์ด",
+  "dashboard.showInsight": "แสดง AI Insight",
   "dashboard.heroDescription":
     "อ่านบริบทตลาด XAUUSD ด้วยการวิเคราะห์หลายกรอบเวลา โครงสร้างราคา และการยืนยันจากระบบ AURIQ",
   "dashboard.featureMtf": "วิเคราะห์หลาย Timeframe มองภาพใหญ่และจุดเข้า",
