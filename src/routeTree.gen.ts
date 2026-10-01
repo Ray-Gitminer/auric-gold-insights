@@ -23,6 +23,7 @@ import { Route as PositionsOrdersRouteImport } from './routes/positions-orders'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignalsRouteImport } from './routes/signals'
 import { Route as TradeHistoryRouteImport } from './routes/trade-history'
+import { Route as ApiPublicMt5CandlesRouteImport } from './routes/api/public/mt5/candles'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -94,6 +95,11 @@ const TradeHistoryRoute = TradeHistoryRouteImport.update({
   path: '/trade-history',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicMt5CandlesRoute = ApiPublicMt5CandlesRouteImport.update({
+  id: '/api/public/mt5/candles',
+  path: '/api/public/mt5/candles',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/signals': typeof SignalsRoute
   '/trade-history': typeof TradeHistoryRoute
+  '/api/public/mt5/candles': typeof ApiPublicMt5CandlesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/signals': typeof SignalsRoute
   '/trade-history': typeof TradeHistoryRoute
+  '/api/public/mt5/candles': typeof ApiPublicMt5CandlesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/signals': typeof SignalsRoute
   '/trade-history': typeof TradeHistoryRoute
+  '/api/public/mt5/candles': typeof ApiPublicMt5CandlesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/signals'
     | '/trade-history'
+    | '/api/public/mt5/candles'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/signals'
     | '/trade-history'
+    | '/api/public/mt5/candles'
   id:
     | '__root__'
     | '/'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/signals'
     | '/trade-history'
+    | '/api/public/mt5/candles'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -210,6 +222,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SignalsRoute: typeof SignalsRoute
   TradeHistoryRoute: typeof TradeHistoryRoute
+  ApiPublicMt5CandlesRoute: typeof ApiPublicMt5CandlesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -312,6 +325,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TradeHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/mt5/candles': {
+      id: '/api/public/mt5/candles'
+      path: '/api/public/mt5/candles'
+      fullPath: '/api/public/mt5/candles'
+      preLoaderRoute: typeof ApiPublicMt5CandlesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -330,6 +350,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SignalsRoute: SignalsRoute,
   TradeHistoryRoute: TradeHistoryRoute,
+  ApiPublicMt5CandlesRoute: ApiPublicMt5CandlesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
