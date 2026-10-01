@@ -154,8 +154,13 @@ function AuthGate() {
     );
   }
 
-  if (configured && !session && pathname !== "/login") return <Navigate to="/login" replace />;
-  if (pathname === "/login") return <Outlet />;
+  // Public surfaces reachable without a session: sign-in and the password
+  // recovery flow (the recovery link lands here before a session exists).
+  const publicPaths = ["/login", "/reset-password"];
+  if (configured && !session && !publicPaths.includes(pathname)) {
+    return <Navigate to="/login" replace />;
+  }
+  if (publicPaths.includes(pathname)) return <Outlet />;
 
   return (
     <AppShell>
