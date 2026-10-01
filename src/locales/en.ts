@@ -156,6 +156,9 @@ export const en = {
   "dashboard.comingSoon": "Coming soon",
   "dashboard.heroTitle": "Sharpen your gold analysis",
   "dashboard.heroAccent": "with AI + Context + Confirmation",
+  "dashboard.heroWith": "with",
+  "dashboard.hideInsight": "Hide insight",
+  "dashboard.showInsight": "Show AI Insight",
   "dashboard.heroDescription":
     "Read XAUUSD market context through multi-timeframe analysis, price structure, and AURIQ confirmation.",
   "dashboard.featureMtf": "Analyse multiple timeframes for the bigger picture and entry timing",
