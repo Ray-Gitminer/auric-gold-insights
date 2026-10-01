@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowDown, ArrowRight, ArrowUp, Bell, Boxes, CalendarDays, CheckCircle2,
@@ -14,6 +14,9 @@ import { GoldChart, type Timeframe } from "@/components/auriq/GoldChart";
 import { useI18n } from "@/contexts/I18nContext";
 import { usePortfolioData } from "@/hooks/use-portfolio-data";
 import { useMt5Candles } from "@/hooks/use-mt5-candles";
+import { candlesByTimeframe } from "@/data/fixtures";
+import { computeFormulaSignal } from "@/lib/signals/engine";
+import { runAiSignal, type AiSignal } from "@/lib/signals/ai-signal.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -93,6 +96,25 @@ function Dashboard() {
   const candles = useMt5Candles(timeframe);
   const chartLive = portfolio.source === "mt5" && Boolean(candles.data && candles.data.length > 1);
   const pending = t("dashboard.awaitingData");
+  const [mode, setMode] = useState<1 | 2 | 3>(1);
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => { setNow(new Date()); const id = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(id); }, []);
+  const source = chartLive ? candles.data! : candlesByTimeframe[timeframe] ?? [];
+  const formula = useMemo(() => computeFormulaSignal(source), [source]);
+  const [ai, setAi] = useState<AiSignal | null>(null);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiErr, setAiErr] = useState<string | null>(null);
+  const askAi = async () => {
+    setAiBusy(true); setAiErr(null);
+    try {
+      const r = await runAiSignal({ data: { timeframe, candles: source.slice(-80).map(({ t: tt, o, h, l, c }) => ({ t: tt, o, h, l, c })), formula: formula as unknown as Record<string, unknown> } });
+      if (r.ok) setAi(r.signal); else setAiErr(r.error);
+    } catch (e) { setAiErr(e instanceof Error ? e.message : "AI error"); } finally { setAiBusy(false); }
+  };
+  const dataTag = chartLive ? <span className="shrink-0 rounded-sm border border-positive/55 bg-positive/10 px-1.5 py-0.5 text-[8px] font-semibold text-positive">MT5 LIVE</span> : <SampleTag />;
+  const f2 = (n: number | null | undefined) => (n == null ? null : num(n));
+  const sig = mode === 1 && formula ? { bias: formula.bias, entry: formula.entry ? `${num(formula.entry[0])} – ${num(formula.entry[1])}` : null, stop: f2(formula.stop), tp: formula.tp1 ? `${num(formula.tp1)} / ${f2(formula.tp2)}` : null, conf: formula.confidence }
+    : mode === 2 && ai ? { bias: ai.bias, entry: ai.entry, stop: ai.stop, tp: ai.tp1 ? `${ai.tp1}${ai.tp2 ? ` / ${ai.tp2}` : ""}` : null, conf: ai.confidence } : null;
   const passed = strategy.conditions.filter((condition) => condition.pass).length;
   const up = instrument.change >= 0;
   const features = [
@@ -198,12 +220,44 @@ function Dashboard() {
 
           {/* RIGHT column */}
           <aside className="order-2 flex min-w-0 flex-col gap-3 xl:order-3 xl:col-start-3 xl:row-span-2 xl:row-start-1">
-            <Panel title={t("dashboard.signalSummary")} icon={<Target className="size-4" />} tag={<SampleTag />}>
-              <div className="mb-1 rounded-md border border-positive/40 bg-positive/8 px-2 py-2"><Row label={t("dashboard.bias")} value={<BiasValue dir={bias.direction} />} /></div>
-              <Row label={t("dashboard.entryZone")} value={pending} pending /><Row label={t("dashboard.stopLoss")} value={pending} pending /><Row label={t("dashboard.targets")} value={pending} pending /><Row label={t("dashboard.lastUpdated")} value={portfolio.account.lastSync || pending} pending={!portfolio.account.lastSync} />
+            <Panel title={t("dashboard.signalSummary")} icon={<Target className="size-4" />} tag={dataTag}>
+              <div className="mb-2 grid grid-cols-3 gap-1" role="tablist">
+                {([1, 2, 3] as const).map((m) => (
+                  <button key={m} type="button" role="tab" aria-selected={mode === m} onClick={() => setMode(m)} className={cn("rounded-md border px-1 py-1 text-[10px] font-medium", mode === m ? "border-primary/70 bg-primary/15 text-primary" : "border-border/60 text-muted-foreground hover:text-foreground")}>
+                    {m}. {t(`signals.mode${m}`)}
+                  </button>
+                ))}
+              </div>
+              {mode === 2 && (
+                <div className="mb-2 space-y-1.5">
+                  <button type="button" onClick={askAi} disabled={aiBusy} className="w-full rounded-md border border-info/60 bg-info/10 px-2 py-1.5 text-[11px] font-semibold text-info disabled:opacity-60">
+                    <Sparkles className="mr-1 inline size-3" />{aiBusy ? t("signals.aiRunning") : t("signals.aiRun")}
+                  </button>
+                  <p className="text-[9px] text-muted-foreground">{t("signals.aiDisclaimer")}</p>
+                  {aiErr && <p className="text-[10px] text-negative">{aiErr}</p>}
+                  {ai && <p className="text-[10px] leading-4 text-foreground/80">{tx(ai.reasoningTh) && t("signals.reasoning")}: {t("signals.lang") === "th" ? ai.reasoningTh || ai.reasoning : ai.reasoning}</p>}
+                </div>
+              )}
+              {mode === 3 ? (
+                <p className="rounded-md border border-border/60 bg-background/30 px-2 py-3 text-[11px] text-muted-foreground">{t("signals.awaitRules")}</p>
+              ) : (
+                <>
+                  <div className="mb-1 rounded-md border border-positive/40 bg-positive/8 px-2 py-2"><Row label={t("dashboard.bias")} value={sig ? <BiasValue dir={sig.bias} /> : pending} pending={!sig} /></div>
+                  <Row label={t("dashboard.entryZone")} value={sig?.entry ?? pending} pending={!sig?.entry} />
+                  <Row label={t("dashboard.stopLoss")} value={sig?.stop ?? pending} pending={!sig?.stop} />
+                  <Row label={t("dashboard.targets")} value={sig?.tp ?? pending} pending={!sig?.tp} />
+                  <Row label={t("signals.confidence")} value={sig ? `${sig.conf}%` : pending} pending={!sig} />
+                </>
+              )}
+              <Row label={t("dashboard.lastUpdated")} value={now ? now.toLocaleTimeString("en-GB", { timeZone: "Asia/Bangkok", hour12: false }) : "—"} />
+              {!chartLive && <p className="mt-1 text-[9px] text-muted-foreground">{t("signals.needMt5")}</p>}
             </Panel>
-            <Panel title={t("dashboard.marketContext")} icon={<Layers className="size-4" />} tag={<SampleTag />}>
-              <Row label={t("dashboard.trend")} value={<BiasValue dir={bias.direction} />} /><Row label={t("dashboard.structure")} value={pending} pending /><Row label={t("dashboard.liquidity")} value={pending} pending /><Row label="Premium / Discount" value={pending} pending /><Row label={t("dashboard.confirmation")} value={tx(strategy.state)} />
+            <Panel title={t("dashboard.marketContext")} icon={<Layers className="size-4" />} tag={dataTag}>
+              <Row label={t("dashboard.trend")} value={formula ? <BiasValue dir={formula.trend} /> : pending} pending={!formula} />
+              <Row label={t("dashboard.structure")} value={formula?.structure ?? pending} pending={!formula} />
+              <Row label={t("dashboard.liquidity")} value={formula ? `${num(formula.support)} / ${num(formula.resistance)}` : pending} pending={!formula} />
+              <Row label="Premium / Discount" value={formula?.zone ?? pending} pending={!formula} />
+              <Row label="EMA20 / EMA50 · RSI" value={formula ? `${num(formula.ema20)} / ${num(formula.ema50)} · ${formula.rsi}` : pending} pending={!formula} />
             </Panel>
             <Panel title="AURIQ AI Insight" icon={<Sparkles className="size-4" />} tag={<SampleTag />} className="border-info/50 xl:hidden">
               {insightBody}
