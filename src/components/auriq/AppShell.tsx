@@ -285,20 +285,21 @@ function DashboardHeader({ onOpenMobile }: { onOpenMobile: ReactNode }) {
   ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-xl">
-      <div className="mx-auto grid h-16 w-full max-w-[1920px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 sm:px-5 xl:grid-cols-[20rem_minmax(0,1fr)_20rem] xl:px-8">
+    <header className="sticky top-0 z-40 border-b border-info/15 bg-background/88 shadow-[0_8px_26px_-22px_var(--color-info)] backdrop-blur-xl">
+      <div className="mx-auto grid h-16 w-full max-w-[1920px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 sm:px-5 xl:grid-cols-[25%_50%_25%] xl:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <div className="lg:hidden">{onOpenMobile}</div>
           <Link to="/" className="flex min-w-0 items-center gap-3">
-            <span className="grid size-10 shrink-0 place-items-center text-xl font-black text-primary [text-shadow:0_0_18px_var(--color-primary)]">A</span>
+            <span className="auriq-mark hidden shrink-0 sm:block" aria-hidden />
+            <span className="grid size-9 shrink-0 place-items-center font-black text-primary sm:hidden">A</span>
             <span className="min-w-0">
-              <span className="block truncate text-sm font-bold text-gold-bright sm:text-base">AURIQ GOLD INSIGHTS</span>
+              <span className="block truncate text-sm font-extrabold text-gold-bright sm:text-[17px]">AURIQ GOLD INSIGHTS</span>
               <span className="hidden text-[10px] text-muted-foreground sm:block">AI-Powered Gold Market Intelligence</span>
             </span>
           </Link>
         </div>
 
-        <nav className="hidden items-stretch justify-center gap-7 self-stretch xl:flex" aria-label={t("nav.main")}>
+        <nav className="hidden items-stretch justify-center gap-9 self-stretch xl:flex" aria-label={t("nav.main")}>
           {links.map((item) => {
             const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
             return (
@@ -306,9 +307,9 @@ function DashboardHeader({ onOpenMobile }: { onOpenMobile: ReactNode }) {
                 key={item.to}
                 to={item.to}
                 className={cn(
-                  "relative flex items-center text-xs font-medium transition-colors",
+                  "relative flex items-center text-[11px] font-medium transition-colors",
                   active ? "text-primary" : "text-muted-foreground hover:text-foreground",
-                  active && "after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-primary",
+                   active && "after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-primary after:shadow-[0_0_10px_var(--color-primary)]",
                 )}
               >
                 {item.label}

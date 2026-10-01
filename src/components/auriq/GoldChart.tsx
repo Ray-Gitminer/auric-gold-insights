@@ -86,10 +86,10 @@ export function GoldChart({
         </div>
       ) : null}
 
-      <div className="grid-texture relative">
+      <div className="grid-texture relative border-y border-border/45 bg-background/20">
         <svg
           viewBox={`0 0 ${W} ${H}`}
-          className={cn("w-full", compact ? "h-48" : "h-[300px] sm:h-[380px]")}
+          className={cn("w-full", compact ? "h-48" : "h-[300px] sm:h-[360px] 2xl:h-[380px]")}
           role="img"
           aria-label={t("chart.aria", {
             label: instrument.label,
