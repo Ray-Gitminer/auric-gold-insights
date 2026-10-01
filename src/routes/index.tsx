@@ -160,9 +160,13 @@ function Dashboard() {
                   <div><dt className="text-muted-foreground">{t("dashboard.open")}</dt><dd className="num text-muted-foreground">—</dd></div>
                 </dl>
               </div>
-               <div className="flex min-w-0 items-center gap-1 overflow-x-auto border-b border-border/60 bg-background/18 px-3 py-2" role="group" aria-label="Timeframe">
+               <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 border-b border-border/60 bg-background/18 px-3 py-2" role="group" aria-label="Timeframe">
+                 <div className="flex min-w-0 items-center gap-1 overflow-x-auto">
                 {TF.map((tf) => <button key={tf.value} type="button" aria-pressed={timeframe === tf.value} onClick={() => setTimeframe(tf.value)} className={cn("shrink-0 rounded-sm border px-3 py-1 text-[10px] font-semibold", timeframe === tf.value ? "border-info/60 bg-info/15 text-info" : "border-border text-muted-foreground")}>{tf.label}</button>)}
-                 <div className="ml-2 hidden items-center gap-1 lg:flex" aria-hidden><span className="rounded-sm border border-border/70 px-2 py-1 text-[9px] text-muted-foreground">EMA</span><span className="rounded-sm border border-border/70 px-2 py-1 text-[9px] text-muted-foreground">RSI</span><span className="rounded-sm border border-border/70 px-2 py-1 text-[9px] text-muted-foreground">Stoch</span></div><span className="ml-auto shrink-0 pl-3 text-[9px] text-muted-foreground">{chartLive ? t("dashboard.mt5ChartLive") : t("chart.staticDemo")}</span>
+                 <div className="ml-2 hidden items-center gap-1 lg:flex" aria-hidden><span className="rounded-sm border border-border/70 px-2 py-1 text-[9px] text-muted-foreground">EMA</span><span className="rounded-sm border border-border/70 px-2 py-1 text-[9px] text-muted-foreground">RSI</span><span className="rounded-sm border border-border/70 px-2 py-1 text-[9px] text-muted-foreground">Stoch</span></div>
+                 </div>
+                 <span className="hidden shrink-0 pl-2 text-[9px] text-muted-foreground sm:block">{chartLive ? t("dashboard.mt5ChartLive") : t("chart.staticDemo")}</span>
+                 <span className="col-span-2 mt-1 truncate text-right text-[8px] text-muted-foreground sm:hidden">{chartLive ? t("dashboard.mt5ChartLive") : t("chart.staticDemo")}</span>
               </div>
               <GoldChart timeframe={timeframe} candlesOverride={chartLive ? candles.data : undefined} live={chartLive} />
               <div className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-3 border-t border-border/60 px-3 py-2 xl:pr-[19.5rem]">
