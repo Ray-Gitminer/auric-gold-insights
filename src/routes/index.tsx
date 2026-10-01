@@ -2,8 +2,8 @@ import { useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowDown, ArrowRight, ArrowUp, Bell, Boxes, CalendarDays, CheckCircle2,
-  ChevronRight, CircleAlert, Gauge, Layers, LineChart, Minus, Network, Sparkles,
-  Target, Waves,
+  ChevronRight, CircleAlert, Crosshair, Gauge, Layers, LineChart, Minus, Network,
+  ShieldCheck, Sparkles, Target, Waves,
 } from "lucide-react";
 
 import mountainBackground from "@/assets/auriq-mountain-bg.jpg";
@@ -36,7 +36,7 @@ const TF: { label: string; value: Timeframe }[] = [
 
 function SampleTag() {
   const { t } = useI18n();
-  return <span className="shrink-0 rounded-sm border border-primary/50 bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-primary">{t("dashboard.sampleData")}</span>;
+  return <span className="shrink-0 rounded-sm border border-primary/55 bg-primary/10 px-1.5 py-0.5 text-[8px] font-semibold text-primary shadow-[inset_0_1px_0_color-mix(in_oklab,var(--color-foreground)_8%,transparent)]">{t("dashboard.sampleData")}</span>;
 }
 
 function SoonTag() {
@@ -46,9 +46,9 @@ function SoonTag() {
 
 function Panel({ title, icon, tag, children, className }: { title: string; icon: ReactNode; tag?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <section className={cn("min-w-0 rounded-lg border border-border/90 bg-card/80 p-3 shadow-[var(--shadow-glow)] backdrop-blur-md", className)}>
+    <section className={cn("auric-glass min-w-0 overflow-hidden rounded-lg p-3", className)}>
       <header className="mb-2 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 border-b border-border/50 pb-2">
-        <span className="grid size-7 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">{icon}</span>
+        <span className="auric-icon grid size-7 shrink-0 place-items-center rounded-md text-primary">{icon}</span>
         <h2 className="truncate text-sm font-semibold">{title}</h2>
         {tag}
       </header>
@@ -70,6 +70,19 @@ function BiasValue({ dir }: { dir: "Bullish" | "Bearish" | "Neutral" }) {
   const { tx } = useI18n();
   const Icon = dir === "Bullish" ? ArrowUp : dir === "Bearish" ? ArrowDown : ArrowRight;
   return <span className={cn("inline-flex items-center gap-1 font-semibold", dir === "Bullish" ? "text-positive" : dir === "Bearish" ? "text-negative" : "text-muted-foreground")}><Icon className="size-3" />{tx(dir)}</span>;
+}
+
+function ModuleVisual({ index }: { index: number }) {
+  if (index === 0) {
+    return <div className="flex h-16 w-20 shrink-0 items-end gap-1 border-b border-info/30 px-1 pb-1" aria-hidden>{[22, 35, 29, 48, 42, 61, 53].map((height, i) => <span key={i} className={cn("w-1.5 rounded-t-sm", i > 3 ? "bg-info shadow-[0_0_8px_var(--color-info)]" : "bg-primary/55")} style={{ height }} />)}</div>;
+  }
+  if (index === 1) {
+    return <div className="relative h-16 w-20 shrink-0" aria-hidden><span className="absolute top-2 right-1 h-7 w-14 -skew-y-12 border border-negative/55 bg-negative/15" /><span className="absolute top-6 right-4 h-7 w-14 -skew-y-12 border border-info/55 bg-info/15" /><span className="absolute top-10 right-7 h-5 w-10 -skew-y-12 border border-primary/55 bg-primary/15" /></div>;
+  }
+  if (index === 2) {
+    return <div className="auric-glass relative h-16 w-14 shrink-0 rounded-md p-2" aria-hidden><span className="mx-auto block h-1 w-7 rounded bg-muted" /><span className="mt-3 block h-2 rounded-sm bg-primary/55" /><span className="mt-1.5 block h-2 rounded-sm bg-info/50" /><span className="mt-1.5 block h-2 rounded-sm bg-positive/45" /></div>;
+  }
+  return <div className="grid h-16 w-16 shrink-0 grid-cols-4 gap-1 rounded-md border border-info/35 bg-background/35 p-2" aria-hidden>{Array.from({ length: 12 }, (_, i) => <span key={i} className={cn("rounded-[2px]", i === 6 ? "bg-primary shadow-[0_0_8px_var(--color-primary)]" : i === 9 ? "bg-negative/75" : "bg-info/22")} />)}</div>;
 }
 
 function Dashboard() {
@@ -107,26 +120,26 @@ function Dashboard() {
 
   return (
     <div className="relative isolate min-h-[calc(100vh-4rem)] overflow-hidden">
-      <img src={mountainBackground} width={1920} height={1080} alt="" className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover object-bottom opacity-55" />
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-background/55" />
+      <img src={mountainBackground} width={1920} height={1080} alt="" className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover object-bottom opacity-70" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-background/45" />
 
-      <div className="w-full px-3 py-4 sm:px-5 xl:px-6">
-        <div className="grid min-w-0 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] xl:gap-3.5">
+      <div className="mx-auto w-full max-w-[1920px] px-3 py-3 sm:px-5 xl:px-6">
+        <div className="grid min-w-0 gap-2.5 xl:grid-cols-[25%_50%_25%] xl:gap-3">
           {/* LEFT intro */}
-          <aside className="order-3 flex min-w-0 flex-col gap-4 xl:order-1 xl:col-start-1 xl:row-start-1">
-            <div>
-              <p className="text-[9px] font-semibold tracking-[0.28em] text-muted-foreground">PRECISION · CONTEXT · CONFIRMATION</p>
-              <h1 className="mt-3 text-3xl leading-[1.12] font-extrabold sm:text-4xl xl:text-[2.2rem] 2xl:text-[2.6rem]">
+          <aside className="order-3 flex min-w-0 flex-col gap-3 xl:order-1 xl:col-start-1 xl:row-start-1 xl:pt-3">
+            <div className="max-w-[27rem]">
+              <p className="text-[8px] font-semibold tracking-[0.3em] text-muted-foreground">PRECISION · CONTEXT · CONFIRMATION</p>
+              <h1 className="mt-3 text-3xl leading-[1.1] font-extrabold sm:text-4xl xl:text-[2.25rem] 2xl:text-[2.7rem]">
                 <span className="block">{t("dashboard.heroTitle")}</span>
                 <span className="block whitespace-nowrap">{t("dashboard.heroWith")} <span className="text-gold-bright">AI + Context</span> +</span>
                 <span className="block text-info">Confirmation</span>
               </h1>
-              <p className="mt-3 text-[13px] leading-6 text-foreground/80">{t("dashboard.heroDescription")}</p>
+              <p className="mt-3 max-w-[26rem] text-[12px] leading-5 text-foreground/80 2xl:text-[13px] 2xl:leading-6">{t("dashboard.heroDescription")}</p>
             </div>
             <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-              {features.map((feature) => {
-                const content = <><span className="grid size-9 shrink-0 place-items-center rounded-md bg-primary/10 text-primary"><feature.icon className="size-4" /></span><span className="min-w-0 flex-1"><span className="block truncate text-[11px] font-semibold">{feature.title}</span><span className="block line-clamp-2 text-[9px] leading-3 text-muted-foreground">{feature.desc}</span></span>{feature.to ? <ChevronRight className="size-3 shrink-0 text-muted-foreground" /> : null}</>;
-                const className = "flex min-w-0 items-center gap-2 rounded-md border border-border/80 bg-card/70 p-2 backdrop-blur-md transition-colors";
+              {features.map((feature, index) => {
+                const content = <><span className={cn("auric-icon grid size-9 shrink-0 place-items-center rounded-md", index % 2 ? "text-primary" : "text-info")}><feature.icon className="size-4" /></span><span className="min-w-0 flex-1"><span className="block truncate text-[10px] font-semibold 2xl:text-[11px]">{feature.title}</span><span className="block line-clamp-2 text-[8px] leading-3 text-muted-foreground 2xl:text-[9px]">{feature.desc}</span></span>{feature.to ? <ChevronRight className="size-3 shrink-0 text-muted-foreground" /> : null}</>;
+                const className = "auric-glass flex min-w-0 items-center gap-2 rounded-md p-2 transition-colors";
                 return feature.to ? <Link key={feature.title} to={feature.to} className={cn(className, "hover:border-primary/60")}>{content}</Link> : <div key={feature.title} className={className}>{content}</div>;
               })}
             </div>
@@ -134,7 +147,7 @@ function Dashboard() {
 
           {/* CENTER chart workspace */}
           <div className="order-1 min-w-0 xl:order-2 xl:col-start-2 xl:row-start-1">
-            <section className="relative min-w-0 overflow-hidden rounded-lg border border-info/35 bg-card/85 shadow-[var(--shadow-glow)] backdrop-blur-md">
+            <section className="auric-glass relative min-w-0 overflow-hidden rounded-lg border-info/50 shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-info)_8%,transparent),0_22px_45px_-30px_var(--color-info)]">
               <div className="grid min-w-0 grid-cols-1 gap-2 border-b border-border/60 px-3 py-3 sm:flex sm:flex-wrap sm:items-center sm:gap-6">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2"><span className="text-xl font-extrabold">XAUUSD</span><SampleTag /></div>
@@ -147,9 +160,9 @@ function Dashboard() {
                   <div><dt className="text-muted-foreground">{t("dashboard.open")}</dt><dd className="num text-muted-foreground">—</dd></div>
                 </dl>
               </div>
-              <div className="flex min-w-0 items-center gap-1 overflow-x-auto border-b border-border/60 px-3 py-2" role="group" aria-label="Timeframe">
+               <div className="flex min-w-0 items-center gap-1 overflow-x-auto border-b border-border/60 bg-background/18 px-3 py-2" role="group" aria-label="Timeframe">
                 {TF.map((tf) => <button key={tf.value} type="button" aria-pressed={timeframe === tf.value} onClick={() => setTimeframe(tf.value)} className={cn("shrink-0 rounded-sm border px-3 py-1 text-[10px] font-semibold", timeframe === tf.value ? "border-info/60 bg-info/15 text-info" : "border-border text-muted-foreground")}>{tf.label}</button>)}
-                <span className="ml-auto shrink-0 pl-3 text-[9px] text-muted-foreground">{chartLive ? t("dashboard.mt5ChartLive") : t("chart.staticDemo")}</span>
+                 <div className="ml-2 hidden items-center gap-1 lg:flex" aria-hidden><span className="rounded-sm border border-border/70 px-2 py-1 text-[9px] text-muted-foreground">EMA</span><span className="rounded-sm border border-border/70 px-2 py-1 text-[9px] text-muted-foreground">RSI</span><span className="rounded-sm border border-border/70 px-2 py-1 text-[9px] text-muted-foreground">Stoch</span></div><span className="ml-auto shrink-0 pl-3 text-[9px] text-muted-foreground">{chartLive ? t("dashboard.mt5ChartLive") : t("chart.staticDemo")}</span>
               </div>
               <GoldChart timeframe={timeframe} candlesOverride={chartLive ? candles.data : undefined} live={chartLive} />
               <div className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-3 border-t border-border/60 px-3 py-2 xl:pr-[19.5rem]">
@@ -163,7 +176,7 @@ function Dashboard() {
               {/* Floating AI Insight (desktop) */}
               <div className="absolute right-3 bottom-3 hidden w-[18.5rem] xl:block">
                 {insightOpen ? (
-                  <div className="rounded-lg border border-info/50 bg-background/92 p-3 shadow-[0_0_24px_-6px_var(--color-info)] backdrop-blur-md">
+                   <div className="auric-glass rounded-lg border-info/60 bg-background/92 p-3 shadow-[0_0_26px_-8px_var(--color-info)]">
                     <div className="mb-2 flex items-center gap-2 border-b border-border/50 pb-2">
                       <Sparkles className="size-4 shrink-0 text-gold-bright" />
                       <h2 className="truncate text-sm font-semibold text-gold-bright">AURIQ AI Insight</h2>
@@ -194,19 +207,19 @@ function Dashboard() {
             <Panel title="AURIQ Flow" icon={<Waves className="size-4" />} tag={<SoonTag />}>
               <Row label="Delta / Spot" value={pending} pending /><Row label="CVD" value={pending} pending /><Row label={t("dashboard.buyerPressure")} value={pending} pending /><Row label={t("dashboard.sellerPressure")} value={pending} pending />
             </Panel>
-            <section className="order-last rounded-lg border border-border/90 bg-card/80 p-3 backdrop-blur-md max-xl:hidden">
+            <section className="auric-glass order-last rounded-lg p-3 max-xl:hidden">
               <HowWorks steps={steps} title={t("dashboard.howTitle")} desc={t("dashboard.howDescription")} />
             </section>
           </aside>
 
           {/* BOTTOM modules under left + center */}
           <div className="order-4 grid min-w-0 gap-3 sm:grid-cols-2 xl:col-span-2 xl:col-start-1 xl:row-start-2 xl:grid-cols-4">
-            {modules.map((module) => {
-              const body = <><div className="flex min-w-0 items-center gap-2"><span className="grid size-8 shrink-0 place-items-center rounded-md bg-primary/10 text-primary"><module.icon className="size-4" /></span><h3 className="truncate text-xs font-semibold">{module.title}</h3>{module.to ? <ChevronRight className="ml-auto size-3 shrink-0" /> : <SoonTag />}</div><ul className="mt-2 space-y-1 text-[10px] text-muted-foreground">{module.points.map((point) => <li key={point} className="flex gap-1.5"><CheckCircle2 className="mt-0.5 size-3 shrink-0 text-primary" />{point}</li>)}</ul></>;
-              const classes = "min-w-0 rounded-lg border border-border/90 bg-card/80 p-3 backdrop-blur-md";
+            {modules.map((module, index) => {
+              const body = <><div className="flex min-w-0 items-center gap-2"><span className="auric-icon grid size-8 shrink-0 place-items-center rounded-md text-primary"><module.icon className="size-4" /></span><h3 className="truncate text-xs font-semibold">{module.title}</h3>{module.to ? <ChevronRight className="ml-auto size-3 shrink-0" /> : <SoonTag />}</div><div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2"><ul className="min-w-0 space-y-1 text-[9px] text-muted-foreground">{module.points.map((point) => <li key={point} className="flex gap-1.5"><CheckCircle2 className="mt-0.5 size-3 shrink-0 text-primary" /><span className="line-clamp-1">{point}</span></li>)}</ul><ModuleVisual index={index} /></div></>;
+              const classes = "auric-glass min-h-32 min-w-0 overflow-hidden rounded-lg p-3";
               return module.to ? <Link key={module.title} to={module.to} className={cn(classes, "hover:border-primary/60")}>{body}</Link> : <div key={module.title} className={classes}>{body}</div>;
             })}
-            <section className="rounded-lg border border-border/90 bg-card/80 p-3 backdrop-blur-md sm:col-span-2 xl:hidden">
+            <section className="auric-glass rounded-lg p-3 sm:col-span-2 xl:hidden">
               <HowWorks steps={steps} title={t("dashboard.howTitle")} desc={t("dashboard.howDescription")} />
             </section>
           </div>
@@ -219,9 +232,9 @@ function Dashboard() {
 function HowWorks({ steps, title, desc }: { steps: string[]; title: string; desc: string }) {
   return (
     <>
-      <div className="flex items-center gap-2"><Gauge className="size-4 text-primary" /><h2 className="text-xs font-semibold">{title}</h2></div>
+      <div className="flex items-center gap-2"><span className="auric-icon grid size-7 place-items-center rounded-md"><Gauge className="size-4 text-primary" /></span><h2 className="text-xs font-semibold">{title}</h2><ShieldCheck className="ml-auto size-3.5 text-info" /></div>
       <ol className="mt-3 grid grid-cols-4 gap-1">
-        {steps.map((step, index) => <li key={step} className="min-w-0 text-center"><span className="num mx-auto grid size-7 place-items-center rounded-full border border-info/70 text-[10px] text-info shadow-[0_0_10px_-3px_var(--color-info)]">{index + 1}</span><span className="mt-1 block truncate text-[9px] text-muted-foreground">{step}</span></li>)}
+        {steps.map((step, index) => <li key={step} className="relative min-w-0 text-center"><span className="num mx-auto grid size-7 place-items-center rounded-full border border-info/70 bg-info/8 text-[10px] text-info shadow-[0_0_14px_-3px_var(--color-info)]">{index + 1}</span><span className="mt-1 block truncate text-[9px] text-muted-foreground">{step}</span>{index < steps.length - 1 ? <ArrowRight className="absolute top-2 -right-2 size-3 text-primary/65" aria-hidden /> : null}</li>)}
       </ol>
       <p className="mt-2 flex items-start gap-1 text-[9px] leading-3 text-muted-foreground"><CircleAlert className="size-3 shrink-0 text-primary" />{desc}</p>
     </>
