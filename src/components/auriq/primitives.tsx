@@ -71,7 +71,7 @@ export function PanelCard({
   return (
     <section
       className={cn(
-        "flex min-w-0 max-w-full flex-col overflow-hidden rounded-md border border-border bg-card",
+        "auric-glass flex min-w-0 max-w-full flex-col overflow-hidden rounded-md",
         className,
       )}
     >
@@ -107,7 +107,7 @@ export function KpiCard({
   icon?: ReactNode;
 }) {
   return (
-    <div className="rounded-md border border-border bg-card p-4 transition-colors hover:border-primary/40">
+    <div className="auric-glass rounded-md p-4 transition-colors hover:border-primary/55">
       <div className="flex min-h-8 items-start gap-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
         {icon ? <span className="mt-0.5 shrink-0 text-primary">{icon}</span> : null}
         <span className="leading-snug">{label}</span>

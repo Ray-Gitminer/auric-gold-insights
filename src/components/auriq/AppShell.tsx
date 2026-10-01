@@ -38,6 +38,7 @@ import auriqLogo from "@/assets/auriq-logo-transparent.png.asset.json";
 
 const NAV = [
   { to: "/", key: "nav.overview", icon: LayoutDashboard },
+  { to: "/signals", key: "nav.signals", icon: Activity },
   { to: "/positions-orders", key: "nav.positionsOrders", icon: BarChart3 },
   { to: "/trade-history", key: "nav.tradeHistory", icon: Clock },
   // News, weekly analysis and the economic calendar live as tabs inside /economic-news.
@@ -278,15 +279,16 @@ function DashboardHeader({ onOpenMobile }: { onOpenMobile: ReactNode }) {
   const { t } = useI18n();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const links = [
-    { to: "/" as const, label: t("nav.overview") },
-    { to: "/chart-strategy" as const, label: t("nav.chartStrategy") },
-    { to: "/economic-news" as const, label: t("nav.economicNews") },
-    { to: "/alerts" as const, label: t("nav.alerts") },
+    { to: "/" as const, label: "Dashboard" },
+    { to: "/signals" as const, label: "Signals" },
+    { to: "/economic-news" as const, label: "News" },
+    { to: "/chart-strategy" as const, label: "Strategy" },
   ];
+  const comingSoonLinks = ["AURIQ Flow", "Pricing"];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-info/15 bg-background/88 shadow-[0_8px_26px_-22px_var(--color-info)] backdrop-blur-xl">
-      <div className="mx-auto grid h-16 w-full max-w-[1920px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 sm:px-5 xl:grid-cols-[25%_50%_25%] xl:px-6">
+    <header className="sticky top-0 z-40 border-b border-info/30 bg-background/90 shadow-[0_12px_34px_-22px_var(--color-info)] backdrop-blur-xl">
+      <div className="mx-auto grid h-[68px] w-full max-w-[1920px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 sm:px-5 xl:grid-cols-[27%_46%_27%] xl:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <div className="lg:hidden">{onOpenMobile}</div>
           <Link to="/" className="flex min-w-0 items-center gap-3">
@@ -299,12 +301,12 @@ function DashboardHeader({ onOpenMobile }: { onOpenMobile: ReactNode }) {
             <img
               src={auriqLogo.url}
               alt="AURIQ Gold Insights"
-              className="hidden h-12 w-[210px] max-w-full object-contain object-left drop-shadow-[0_0_14px_color-mix(in_oklab,var(--color-primary)_25%,transparent)] sm:block"
+              className="hidden h-14 w-[260px] max-w-full object-contain object-left drop-shadow-[0_0_18px_color-mix(in_oklab,var(--color-primary)_34%,transparent)] sm:block"
             />
           </Link>
         </div>
 
-        <nav className="hidden items-stretch justify-center gap-9 self-stretch xl:flex" aria-label={t("nav.main")}>
+        <nav className="hidden items-stretch justify-center gap-8 self-stretch xl:flex" aria-label={t("nav.main")}>
           {links.map((item) => {
             const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
             return (
@@ -312,7 +314,7 @@ function DashboardHeader({ onOpenMobile }: { onOpenMobile: ReactNode }) {
                 key={item.to}
                 to={item.to}
                 className={cn(
-                  "relative flex items-center text-[11px] font-medium transition-colors",
+                  "relative flex items-center text-xs font-semibold transition-colors",
                   active ? "text-primary" : "text-muted-foreground hover:text-foreground",
                    active && "after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-primary after:shadow-[0_0_10px_var(--color-primary)]",
                 )}
@@ -321,6 +323,9 @@ function DashboardHeader({ onOpenMobile }: { onOpenMobile: ReactNode }) {
               </Link>
             );
           })}
+          {comingSoonLinks.map((label) => (
+            <span key={label} className="flex items-center text-xs font-semibold text-muted-foreground/55" title={t("dashboard.comingSoon")}>{label}</span>
+          ))}
         </nav>
 
         <div className="flex shrink-0 items-center justify-end gap-2">
@@ -330,6 +335,9 @@ function DashboardHeader({ onOpenMobile }: { onOpenMobile: ReactNode }) {
           <LanguageSwitcher className="hidden sm:inline-flex" />
           <Button asChild size="sm" className="shadow-[0_0_22px_color-mix(in_oklab,var(--color-primary)_35%,transparent)]">
             <Link to="/chart-strategy"><Sparkles aria-hidden />{t("dashboard.startAnalysis")}</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm" className="hidden border-info/45 bg-info/5 text-info 2xl:inline-flex">
+            <Link to="/economic-calendar">{t("nav.liveCalendar")}</Link>
           </Button>
         </div>
       </div>
@@ -344,7 +352,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const live = portfolio.source === "mt5";
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const dashboard = pathname === "/";
+  const dashboard = pathname === "/" || pathname === "/signals";
 
   const mobileNavigation = (
     <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -363,7 +371,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   if (dashboard) {
     return (
-      <div className="min-h-screen w-full overflow-x-hidden bg-background">
+      <div className="auric-page min-h-screen w-full overflow-x-hidden bg-background">
         <DashboardHeader onOpenMobile={mobileNavigation} />
         <main className="min-w-0 overflow-x-hidden">{children}</main>
       </div>

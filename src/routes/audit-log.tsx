@@ -19,6 +19,8 @@ export const Route = createFileRoute("/audit-log")({
         property: "og:description",
         content: "Append-only audit trail with correlation IDs — demo data.",
       },
+       { property: "og:type", content: "website" },
+       { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AuditLog,

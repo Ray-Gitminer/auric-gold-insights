@@ -26,6 +26,8 @@ export const Route = createFileRoute("/settings")({
         property: "og:description",
         content: "Risk limits, session security and refresh cadence — demo data.",
       },
+       { property: "og:type", content: "website" },
+       { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Settings,

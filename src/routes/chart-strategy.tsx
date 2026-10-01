@@ -23,6 +23,8 @@ export const Route = createFileRoute("/chart-strategy")({
         property: "og:description",
         content: "Multi-timeframe workspace and setup state machine — demo data.",
       },
+       { property: "og:type", content: "website" },
+       { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ChartStrategy,

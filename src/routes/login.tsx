@@ -6,7 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 
-export const Route = createFileRoute("/login")({ component: LoginPage });
+export const Route = createFileRoute("/login")({
+  head: () => ({
+    meta: [
+      { title: "Sign in · AURIQ Gold Insights" },
+      { name: "description", content: "Sign in to access the AURIQ gold intelligence workspace." },
+      { property: "og:title", content: "Sign in · AURIQ Gold Insights" },
+      { property: "og:description", content: "Access the AURIQ gold intelligence workspace." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: LoginPage,
+});
 
 function LoginPage() {
   const navigate = useNavigate();

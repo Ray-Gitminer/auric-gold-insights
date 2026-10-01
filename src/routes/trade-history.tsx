@@ -24,6 +24,8 @@ export const Route = createFileRoute("/trade-history")({
         property: "og:description",
         content: "Closed trades and performance statistics — demo data.",
       },
+       { property: "og:type", content: "website" },
+       { name: "twitter:card", content: "summary" },
     ],
   }),
   component: TradeHistory,

@@ -33,20 +33,34 @@ export function GoldChart({
   compact = false,
   candlesOverride,
   live = false,
+  allowFallback = true,
+  emptyLabel,
 }: {
   timeframe: Timeframe;
   onTimeframeChange?: (tf: Timeframe) => void;
   compact?: boolean;
   candlesOverride?: Candle[] | undefined;
   live?: boolean;
+  allowFallback?: boolean;
+  emptyLabel?: string;
 }) {
   const { t } = useI18n();
-  const candles =
-    candlesOverride && candlesOverride.length > 1
-      ? candlesOverride
-      : (candlesByTimeframe[timeframe] ?? candlesByTimeframe["1D"]!);
+  const fallbackCandles = candlesByTimeframe[timeframe] ?? candlesByTimeframe["1D"] ?? [];
+  const candles = candlesOverride && candlesOverride.length > 1 ? candlesOverride : allowFallback ? fallbackCandles : [];
+
+  if (candles.length < 2) {
+    return (
+      <div className="grid-texture grid h-[300px] place-items-center border-y border-border/45 bg-background/20 px-6 text-center sm:h-[360px] 2xl:h-[380px]">
+        <div>
+          <p className="text-sm font-semibold text-primary">{emptyLabel ?? t("dashboard.awaitingData")}</p>
+          <p className="mt-1 text-[11px] text-muted-foreground">XAUUSD · {timeframe}</p>
+        </div>
+      </div>
+    );
+  }
   const { y, x, slot } = useScale(candles);
-  const last = candles[candles.length - 1]!;
+  const last = candles[candles.length - 1];
+  if (!last) return null;
   const priceTicks = useMemo(() => {
     const highs = candles.map((c) => c.h);
     const lows = candles.map((c) => c.l);
@@ -276,6 +290,8 @@ export function GoldChart({
           {/* time scale */}
           {[0, 0.25, 0.5, 0.75, 0.98].map((f) => {
             const i = Math.floor(f * (candles.length - 1));
+            const candle = candles[i];
+            if (!candle) return null;
             return (
               <text
                 key={f}
@@ -286,7 +302,7 @@ export function GoldChart({
                 fill="var(--color-muted-foreground)"
                 fontFamily="var(--font-mono)"
               >
-                {candles[i]!.t}
+                {candle.t}
               </text>
             );
           })}
