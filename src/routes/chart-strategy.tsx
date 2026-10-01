@@ -163,8 +163,8 @@ function LiveContextChart({ timeframe }: { timeframe: Timeframe }) {
     <GoldChart
       timeframe={timeframe}
       compact
-      candlesOverride={candles.data}
-      live={Boolean(candles.data?.length)}
+      candlesOverride={candles.data?.candles}
+      live={Boolean(candles.data?.candles.length)}
     />
   );
 }
