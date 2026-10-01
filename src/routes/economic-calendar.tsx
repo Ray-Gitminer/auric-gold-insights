@@ -1,3 +1,4 @@
+import { TrendChart } from "@/components/auriq/TrendChart";
 import { Fragment, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
@@ -229,6 +230,7 @@ function EventCard({ item }: { item: CalendarEvent }) {
         </button>
         {open ? (
           <div className="mt-2 space-y-1.5 rounded-sm border border-border bg-surface p-2.5 text-xs">
+            <TrendChart history={release.history} unit={release.unit} source={release.agency} />
             {assessment ? (
               <>
                 <p>
@@ -453,6 +455,7 @@ function CalendarTable({
                     <tr className="border-b border-border/60 bg-surface/60">
                       <td colSpan={index === 0 ? 10 : 11} className="px-3 py-3">
                         <div className="space-y-1.5 text-xs">
+                          <TrendChart history={release.history} unit={release.unit} source={release.agency} />
                           {assessment ? (
                             <>
                               <SurprisePill assessment={assessment} />
