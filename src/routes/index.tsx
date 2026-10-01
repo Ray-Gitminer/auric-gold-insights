@@ -1,660 +1,346 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
+  ArrowDown,
   ArrowRight,
+  ArrowUp,
   Bell,
-  BookOpen,
-  CircleDollarSign,
-  Gauge,
-  Info,
-  Landmark,
-  ShieldAlert,
-  TrendingUp,
-  Wallet,
+  Boxes,
+  CalendarDays,
+  ChevronRight,
+  Layers,
+  LineChart,
+  Network,
+  Sparkles,
+  Target,
+  Waves,
 } from "lucide-react";
 
-import { alerts, bias, instrument, journal, risk, strategy } from "@/data/fixtures";
-import { money, num, pct, signedMoney, toneFor } from "@/lib/format";
+import { bias, instrument, strategy } from "@/data/fixtures";
+import { num, pct } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { GoldChart, type Timeframe } from "@/components/auriq/GoldChart";
 import { useI18n } from "@/contexts/I18nContext";
-import { useEconomicCalendar } from "@/hooks/use-economic-calendar";
-import { useNewsIntelligence } from "@/hooks/use-news-intelligence";
 import { usePortfolioData } from "@/hooks/use-portfolio-data";
-import {
-  ActualBadge,
-  ForecastBadge,
-  ImpactDots,
-  SurprisePill,
-} from "@/components/auriq/CalendarBadges";
-import {
-  AdvisoryTag,
-  DemoDataTag,
-  KpiCard,
-  PageHeader,
-  PanelCard,
-  StaleState,
-  StatusBadge,
-} from "@/components/auriq/primitives";
+import { useMt5Candles } from "@/hooks/use-mt5-candles";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Overview · AURIQ Gold Trading Intelligence" },
+      { title: "Dashboard · AURIQ Gold Insights" },
       {
         name: "description",
         content:
-          "Paper-trading overview: account KPIs, gold market workspace, AI advisory rail, positions, orders and risk monitoring.",
+          "AURIQ Gold Insights — XAUUSD market intelligence: context, confirmation and execution in one dashboard.",
       },
-      { property: "og:title", content: "Overview · AURIQ Gold Trading Intelligence" },
+      { property: "og:title", content: "Dashboard · AURIQ Gold Insights" },
       {
         property: "og:description",
-        content:
-          "Account KPIs, gold chart workspace, AI advisory rail and risk monitor — demo data.",
+        content: "Gold market intelligence for XAUUSD with multi-timeframe context and AI insight.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Overview,
+  component: Dashboard,
 });
 
-const setupTone: Record<string, "gold" | "positive" | "negative" | "info"> = {
-  WAITING: "gold",
-  VALID: "positive",
-  INVALID: "negative",
-  TRIGGERED: "info",
-};
+const TF: { label: string; value: Timeframe }[] = [
+  { label: "M5", value: "5m" },
+  { label: "M15", value: "15m" },
+  { label: "H1", value: "1h" },
+  { label: "H4", value: "4h" },
+  { label: "D1", value: "1D" },
+];
 
-function Overview() {
-  const { t, tx } = useI18n();
-  const { data: portfolioData } = usePortfolioData();
-  const { account, positions, orders } = portfolioData;
-  const { impact: goldImpact, isLoading: newsLoading } = useNewsIntelligence();
+const PENDING = "รอเชื่อมข้อมูล";
 
-  const [timeframe, setTimeframe] = useState<Timeframe>("1D");
-
+function SampleTag() {
   return (
-    <>
-      <PageHeader
-        title={t("overview.title")}
-        description={t("overview.desc")}
-        actions={
-          <>
-            <StatusBadge tone="positive">{t("overview.feedLive")}</StatusBadge>
-            <StatusBadge tone="neutral">{t("common.timezone")}</StatusBadge>
-          </>
-        }
-      />
-
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        <KpiCard
-          label={t("kpi.netLiquidation")}
-          value={money(account.netLiquidation)}
-          delta={pct(1.25)}
-          deltaTone="positive"
-          freshness={t("kpi.vsYesterday")}
-          icon={<CircleDollarSign className="size-3.5" />}
-        />
-        <KpiCard
-          label={t("kpi.availableCash")}
-          value={money(account.availableCash)}
-          delta={pct(0.68)}
-          deltaTone="positive"
-          freshness={t("kpi.settled")}
-          icon={<Wallet className="size-3.5" />}
-        />
-        <KpiCard
-          label={t("kpi.todayPnl")}
-          value={signedMoney(account.todayPnl)}
-          delta={pct(account.todayPnlPct)}
-          deltaTone="positive"
-          freshness={t("kpi.asOf", { time: account.lastSync })}
-          icon={<TrendingUp className="size-3.5" />}
-        />
-        <KpiCard
-          label={t("kpi.unrealisedPnl")}
-          value={signedMoney(account.unrealisedPnl)}
-          delta={pct(account.unrealisedPnlPct)}
-          deltaTone="positive"
-          freshness={t("kpi.openPositions", { count: 4 })}
-          icon={<Gauge className="size-3.5" />}
-        />
-        <KpiCard
-          label={t("kpi.marginUsed")}
-          value={money(account.marginUsed)}
-          delta={t("kpi.ofNlv", { pct: account.marginUsedPct })}
-          deltaTone="neutral"
-          freshness={t("kpi.withinLimits")}
-          icon={<Landmark className="size-3.5" />}
-        />
-        <KpiCard
-          label={t("kpi.drawdown")}
-          value={pct(account.drawdownPct)}
-          delta={signedMoney(account.drawdownValue)}
-          deltaTone="negative"
-          freshness={t("kpi.limit", { value: "-1.00%" })}
-          icon={<ShieldAlert className="size-3.5" />}
-        />
-      </div>
-
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
-        {/* Market workspace */}
-        <div className="flex flex-col gap-4">
-          <section className="min-w-0 max-w-full overflow-hidden rounded-md border border-border bg-card">
-            <div className="flex min-w-0 flex-col gap-3 border-b border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <div className="flex min-w-0 flex-wrap items-center gap-2">
-                  <h2 className="text-sm font-semibold break-words">{instrument.label}</h2>
-                  <DemoDataTag />
-                </div>
-                <p className="num mt-1 text-xs text-muted-foreground">
-                  {instrument.exchange} · {timeframe}
-                </p>
-              </div>
-              <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 sm:shrink-0">
-                <div className="text-left sm:text-right">
-                  <p className="num text-lg font-semibold">{num(instrument.last, 1)}</p>
-                  <p className={cn("num text-xs", toneFor(instrument.change))}>
-                    {instrument.change > 0 ? "+" : ""}
-                    {num(instrument.change, 1)} ({pct(instrument.changePct)})
-                  </p>
-                </div>
-                <dl className="num hidden gap-x-4 text-xs text-muted-foreground sm:grid sm:grid-cols-3">
-                  <div>
-                    <dt className="text-[10px] uppercase">{t("common.high")}</dt>
-                    <dd className="text-foreground">{num(instrument.high, 1)}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-[10px] uppercase">{t("common.low")}</dt>
-                    <dd className="text-foreground">{num(instrument.low, 1)}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-[10px] uppercase">{t("common.vol")}</dt>
-                    <dd className="text-foreground">{instrument.volume}</dd>
-                  </div>
-                </dl>
-                <StatusBadge tone={setupTone[strategy.state] ?? "neutral"}>
-                  {t("overview.setup")}: {strategy.state}
-                </StatusBadge>
-              </div>
-            </div>
-            <GoldChart timeframe={timeframe} onTimeframeChange={setTimeframe} />
-            <div className="border-t border-border p-4">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="text-xs font-semibold tracking-wide uppercase">
-                  {t("overview.strategyConditions")} · {tx(strategy.name)}
-                </h3>
-                <Link to="/chart-strategy" className="text-xs text-info hover:underline">
-                  {t("overview.openChartStrategy")}
-                </Link>
-              </div>
-              <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                {strategy.conditions.map((c) => (
-                  <li
-                    key={c.label}
-                    className="flex items-start gap-2 rounded-sm border border-border bg-surface/60 px-3 py-2"
-                  >
-                    <span
-                      className={cn(
-                        "mt-1 size-1.5 shrink-0 rounded-full",
-                        c.pass ? "bg-positive" : "bg-negative",
-                      )}
-                      aria-hidden
-                    />
-                    <div className="min-w-0">
-                      <p className="text-xs leading-snug font-medium">{tx(c.label)}</p>
-                      <p className="num text-[11px] leading-snug text-muted-foreground">
-                        {tx(c.detail)}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </section>
-
-          <div className="grid gap-4 lg:grid-cols-2">
-            <PanelCard
-              title={`${t("overview.openPositions")} (${positions.length})`}
-              action={
-                <Link to="/positions-orders" className="text-xs text-info hover:underline">
-                  {t("common.viewAll")}
-                </Link>
-              }
-              bodyClassName="p-0"
-            >
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[560px] text-sm">
-                  <caption className="sr-only">{t("overview.positionsCaption")}</caption>
-                  <thead>
-                    <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                      <th scope="col" className="px-4 py-2 text-left font-medium">
-                        {t("common.symbol")}
-                      </th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">
-                        {t("common.qty")}
-                      </th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">
-                        {t("common.avg")}
-                      </th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">
-                        {t("common.last")}
-                      </th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">
-                        {t("common.unrlzd")}
-                      </th>
-                      <th scope="col" className="px-4 py-2 text-right font-medium">
-                        {t("common.plPct")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {positions.map((p) => (
-                      <tr key={p.id} className="border-b border-border/60 last:border-0">
-                        <th scope="row" className="num px-4 py-2 text-left font-medium">
-                          {p.symbol}
-                        </th>
-                        <td className="num px-2 py-2 text-right">{p.qty}</td>
-                        <td className="num px-2 py-2 text-right">{num(p.avgPrice, 3)}</td>
-                        <td className="num px-2 py-2 text-right">{num(p.lastPrice, 3)}</td>
-                        <td className={cn("num px-2 py-2 text-right", toneFor(p.unrealisedPnl))}>
-                          {signedMoney(p.unrealisedPnl, 0)}
-                        </td>
-                        <td className={cn("num px-4 py-2 text-right", toneFor(p.pnlPct))}>
-                          {pct(p.pnlPct)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </PanelCard>
-
-            <PanelCard
-              title={`${t("overview.openOrders")} (${orders.length})`}
-              action={
-                <Link to="/positions-orders" className="text-xs text-info hover:underline">
-                  {t("common.viewAll")}
-                </Link>
-              }
-              bodyClassName="p-0"
-            >
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[560px] text-sm">
-                  <caption className="sr-only">{t("overview.ordersCaption")}</caption>
-                  <thead>
-                    <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                      <th scope="col" className="px-4 py-2 text-left font-medium">
-                        {t("common.symbol")}
-                      </th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">
-                        {t("common.side")}
-                      </th>
-                      <th scope="col" className="px-2 py-2 text-left font-medium">
-                        {t("common.type")}
-                      </th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">
-                        {t("common.qty")}
-                      </th>
-                      <th scope="col" className="px-2 py-2 text-right font-medium">
-                        {t("common.price")}
-                      </th>
-                      <th scope="col" className="px-4 py-2 text-right font-medium">
-                        {t("common.status")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {orders.map((o) => (
-                      <tr key={o.id} className="border-b border-border/60 last:border-0">
-                        <th scope="row" className="num px-4 py-2 text-left font-medium">
-                          {o.symbol}
-                        </th>
-                        <td
-                          className={cn(
-                            "px-2 py-2 text-xs font-semibold",
-                            o.side === "BUY" ? "text-positive" : "text-negative",
-                          )}
-                        >
-                          {o.side}
-                        </td>
-                        <td className="px-2 py-2 text-xs text-info">{o.type}</td>
-                        <td className="num px-2 py-2 text-right">{o.qty}</td>
-                        <td className="num px-2 py-2 text-right">{num(o.price, 2)}</td>
-                        <td className="px-4 py-2 text-right text-xs text-info">{o.status}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </PanelCard>
-          </div>
-
-          <div className="grid gap-4 lg:grid-cols-2">
-            <EconomicCalendarPanel />
-
-            <PanelCard
-              title={t("overview.journalLatest")}
-              action={
-                <Link to="/journal" className="text-xs text-info hover:underline">
-                  {t("overview.fullJournal")}
-                </Link>
-              }
-              bodyClassName="p-0"
-            >
-              <ul className="divide-y divide-border">
-                {journal.slice(0, 3).map((j) => (
-                  <li key={j.id} className="flex gap-3 px-4 py-3">
-                    <div className="grid size-10 shrink-0 place-items-center rounded-sm border border-border bg-surface text-muted-foreground">
-                      <BookOpen className="size-4" aria-hidden />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{tx(j.title)}</p>
-                      <p className="truncate text-xs text-muted-foreground">{tx(j.thesis)}</p>
-                      <p className="num mt-1 text-[11px] text-muted-foreground">
-                        {tx(j.setup)} · {tx(j.emotion)} · {t("overview.discipline")}{" "}
-                        {j.disciplineScore}/10
-                      </p>
-                    </div>
-                    <span className="num shrink-0 text-[11px] text-muted-foreground">
-                      {j.date} {j.time}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </PanelCard>
-          </div>
-
-          <PanelCard
-            title={t("overview.alertsHealth")}
-            action={
-              <Link
-                to="/alerts"
-                className="inline-flex items-center gap-1 text-xs text-info hover:underline"
-              >
-                {t("overview.viewAllAlerts")} <ArrowRight className="size-3" aria-hidden />
-              </Link>
-            }
-            bodyClassName="p-0"
-          >
-            <ul className="divide-y divide-border">
-              {alerts.map((a) => (
-                <li
-                  key={a.id}
-                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-2.5"
-                >
-                  <div className="flex min-w-0 items-center gap-2">
-                    {a.severity === "info" ? (
-                      <Info className="size-3.5 shrink-0 text-info" aria-hidden />
-                    ) : (
-                      <Bell
-                        className={cn(
-                          "size-3.5 shrink-0",
-                          a.severity === "risk" ? "text-negative" : "text-primary",
-                        )}
-                        aria-hidden
-                      />
-                    )}
-                    <span
-                      className={cn(
-                        "truncate text-sm",
-                        a.severity === "risk" && "text-negative",
-                        a.severity === "warning" && "text-primary",
-                        a.severity === "info" && "text-info",
-                      )}
-                    >
-                      {tx(a.message)}
-                    </span>
-                  </div>
-                  <span className="num shrink-0 text-[11px] text-muted-foreground">
-                    {a.time} · {a.date}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </PanelCard>
-        </div>
-
-        {/* Intelligence rail */}
-        <aside className="flex flex-col gap-4" aria-label={t("overview.rail")}>
-          <PanelCard title={t("overview.impactScore")} subtitle={t("overview.impactRange")}>
-            <AdvisoryTag />
-            <div className="mt-3 flex items-center gap-4">
-              <div className="num grid size-20 shrink-0 place-items-center rounded-full border-4 border-primary/70 text-xl font-semibold text-primary">
-                {goldImpact.score > 0 ? "+" : ""}
-                {goldImpact.score}
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-primary">{tx(goldImpact.band)}</p>
-                <p className="num text-xs text-muted-foreground">
-                  {goldImpact.newsCount} {t("news.title")} · {goldImpact.eventCount} {t("ec.title")}
-                </p>
-              </div>
-            </div>
-            <ul className="mt-4 space-y-1.5">
-              {goldImpact.drivers.map((d) => (
-                <li key={d.label} className="flex items-center justify-between gap-2 text-xs">
-                  <span className="min-w-0 truncate text-muted-foreground" title={d.label}>
-                    {d.kind === "calendar" ? "📅 " : ""}
-                    {d.label}
-                  </span>
-                  <span className={cn("num shrink-0", toneFor(d.weight))}>
-                    {d.weight > 0 ? "+" : ""}
-                    {d.weight}
-                  </span>
-                </li>
-              ))}
-              {goldImpact.drivers.length === 0 && (
-                <li className="text-xs text-muted-foreground">
-                  {newsLoading ? t("common.loading") : t("news.empty")}
-                </li>
-              )}
-            </ul>
-          </PanelCard>
-
-          <PanelCard title={t("overview.marketBias")} subtitle={t("overview.biasSubtitle")}>
-            <AdvisoryTag />
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <StatusBadge
-                tone={
-                  bias.direction === "Bullish"
-                    ? "positive"
-                    : bias.direction === "Bearish"
-                      ? "negative"
-                      : "neutral"
-                }
-              >
-                {tx(bias.direction)}
-              </StatusBadge>
-              <span className="text-xs text-muted-foreground">
-                {t("common.confidence")}{" "}
-                <span className="text-foreground">{tx(bias.confidence)}</span>
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {t("common.horizon")} <span className="text-foreground">{tx(bias.horizon)}</span>
-              </span>
-            </div>
-            <dl className="mt-3 space-y-2 text-xs">
-              <div>
-                <dt className="font-medium text-foreground">{t("overview.rationale")}</dt>
-                <dd className="text-muted-foreground">{tx(bias.rationale)}</dd>
-              </div>
-              <div>
-                <dt className="font-medium text-foreground">{t("overview.counterEvidence")}</dt>
-                <dd className="text-muted-foreground">{tx(bias.counterEvidence)}</dd>
-              </div>
-              <div>
-                <dt className="font-medium text-foreground">{t("overview.invalidation")}</dt>
-                <dd className="text-negative">{tx(bias.invalidation)}</dd>
-              </div>
-            </dl>
-          </PanelCard>
-
-          <PanelCard title={t("overview.riskMonitor")}>
-            <dl className="space-y-2.5 text-xs">
-              <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">{t("risk.exposure")}</dt>
-                <dd className="num">
-                  {money(risk.exposure, 0)}{" "}
-                  <span className="text-muted-foreground">({risk.exposurePct}%)</span>
-                </dd>
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">{t("risk.marginHeadroom")}</dt>
-                <dd className="num">{money(risk.marginHeadroom, 0)}</dd>
-              </div>
-              <div>
-                <div className="flex items-center justify-between gap-2">
-                  <dt className="text-muted-foreground">{t("risk.dailyLossUsed")}</dt>
-                  <dd className="num">
-                    {money(risk.dailyLossUsed, 0)} / {money(risk.dailyLossLimit, 0)}
-                  </dd>
-                </div>
-                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-accent">
-                  <div
-                    className="h-full rounded-full bg-primary"
-                    style={{ width: `${(risk.dailyLossUsed / risk.dailyLossLimit) * 100}%` }}
-                  />
-                </div>
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">{t("risk.var")}</dt>
-                <dd className="num">{money(risk.var1d, 0)}</dd>
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">{t("risk.maxPositionRisk")}</dt>
-                <dd className="num">{risk.maxPositionRisk}%</dd>
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">{t("risk.freshness")}</dt>
-                <dd className="num text-positive">
-                  {t("risk.secondsAgo", { n: risk.connectionAgeSeconds })}
-                </dd>
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">{t("risk.status")}</dt>
-                <dd className="text-positive">{tx(risk.status)}</dd>
-              </div>
-            </dl>
-          </PanelCard>
-
-          <div className="rounded-md border border-primary/40 bg-primary/8 p-3">
-            <p className="text-xs font-semibold tracking-[0.1em] text-primary uppercase">
-              {t("overview.aiOnly")}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">{t("overview.aiOnlyBody")}</p>
-          </div>
-
-          <StaleState age={t("overview.staleAge")} />
-        </aside>
-      </div>
-    </>
+    <span className="shrink-0 rounded-sm border border-primary/40 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-primary">
+      ข้อมูลตัวอย่าง
+    </span>
   );
 }
 
-function EconomicCalendarPanel() {
-  const { t } = useI18n();
-  const { events, isLoading, isError, refetch } = useEconomicCalendar();
-  const rows = events.slice(0, 6);
+function SoonTag() {
+  return (
+    <span className="shrink-0 rounded-sm border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
+      เร็ว ๆ นี้
+    </span>
+  );
+}
+
+function Card({
+  title,
+  icon,
+  tag,
+  children,
+  className,
+}: {
+  title: string;
+  icon: ReactNode;
+  tag?: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <section
+      className={cn(
+        "min-w-0 rounded-xl border border-border bg-card/70 p-4 shadow-[var(--shadow-glow)] backdrop-blur-sm",
+        className,
+      )}
+    >
+      <header className="mb-3 flex min-w-0 items-center gap-2">
+        <span className="grid size-7 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
+          {icon}
+        </span>
+        <h2 className="truncate text-sm font-semibold">{title}</h2>
+        <span className="ml-auto">{tag}</span>
+      </header>
+      {children}
+    </section>
+  );
+}
+
+function Row({ label, value, tone }: { label: string; value: ReactNode; tone?: string }) {
+  const pending = value === PENDING;
+  return (
+    <div className="flex items-center justify-between gap-3 border-b border-border/50 py-2 text-sm last:border-0">
+      <span className="text-muted-foreground">{label}</span>
+      <span
+        className={cn(
+          "num truncate text-right",
+          pending ? "text-xs text-muted-foreground/70 italic" : tone ?? "text-foreground",
+        )}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function BiasValue({ dir }: { dir: "Bullish" | "Bearish" | "Neutral" }) {
+  const Icon = dir === "Bullish" ? ArrowUp : dir === "Bearish" ? ArrowDown : ArrowRight;
+  const tone =
+    dir === "Bullish" ? "text-positive" : dir === "Bearish" ? "text-negative" : "text-muted-foreground";
+  return (
+    <span className={cn("inline-flex items-center gap-1 font-semibold", tone)}>
+      <Icon className="size-3.5" aria-hidden /> {dir}
+    </span>
+  );
+}
+
+const FEATURES = [
+  { icon: LineChart, title: "MTF Analysis", desc: "วิเคราะห์หลาย Timeframe มองภาพใหญ่และจุดเข้า", to: "/chart-strategy" as const },
+  { icon: Network, title: "Rayny Nexora Signals", desc: "สัญญาณพร้อมเงื่อนไขยืนยัน" },
+  { icon: Boxes, title: "MPGP Context", desc: "ระบุโซนสำคัญ Premium / Discount" },
+  { icon: Waves, title: "AURIQ Flow", desc: "อ่านแรงซื้อขายและ Volume context" },
+  { icon: Bell, title: "Smart Alerts", desc: "แจ้งสัญญาณและเหตุการณ์สำคัญ", to: "/alerts" as const },
+];
+
+const MODULES = [
+  { icon: Network, title: "Rayny Nexora Engine", points: ["วิเคราะห์สัญญาณเชิงโครงสร้าง", "ตรวจจับโซนสำคัญ", "กรองสัญญาณตามเงื่อนไข"] },
+  { icon: Boxes, title: "MPGP Framework", points: ["ระบุ Premium / Discount", "วิเคราะห์โครงสร้างตลาด", "มองโอกาสตาม Context"] },
+  { icon: Bell, title: "Smart Alert System", points: ["แจ้งเตือนสัญญาณ", "เตือนเหตุการณ์สำคัญ", "ปรับตามความเสี่ยง"], to: "/alerts" as const },
+  { icon: CalendarDays, title: "Economic Event Filter", points: ["ติดตามปฏิทินเศรษฐกิจ USD", "ระดับผลกระทบ สูง / กลาง / ต่ำ", "เตือนก่อนประกาศ"], to: "/economic-news" as const, impact: true },
+];
+
+const STEPS = ["Context", "Confirmation", "Execution", "Review"];
+
+function Dashboard() {
+  const { tx } = useI18n();
+  const { data: portfolio } = usePortfolioData();
+  const live = portfolio.source === "mt5";
+  const [timeframe, setTimeframe] = useState<Timeframe>("1h");
+  const candles = useMt5Candles(timeframe);
+  const passed = strategy.conditions.filter((c) => c.pass).length;
+  const up = instrument.change >= 0;
 
   return (
-    <PanelCard
-      title={t("overview.events")}
-      subtitle={t("ec.dashSubtitle")}
-      action={
-        <Link
-          to="/economic-calendar"
-          className="inline-flex items-center gap-1 text-xs text-info hover:underline"
-        >
-          {t("ec.openFull")} <ArrowRight className="size-3" aria-hidden />
-        </Link>
-      }
-      bodyClassName="p-0"
-    >
-      {isLoading ? (
-        <p className="p-4 text-sm text-muted-foreground">{t("ec.loading")}</p>
-      ) : isError ? (
-        <div className="p-4">
-          <p className="text-sm text-negative">{t("ec.unavailable")}</p>
-          <button
-            type="button"
-            onClick={refetch}
-            className="mt-2 rounded-sm border border-border bg-card px-2.5 py-1.5 text-xs"
-          >
-            {t("ec.retry")}
-          </button>
+    <div className="relative -mx-3 -my-5 min-w-0 px-3 py-5 sm:-mx-5 sm:px-5 lg:-mx-6 lg:px-6" style={{ backgroundImage: "var(--gradient-hero)" }}>
+      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)]">
+        {/* Left: brand + features */}
+        <div className="order-3 flex min-w-0 flex-col gap-3 lg:order-1">
+          <div className="py-2">
+            <p className="text-[11px] font-semibold tracking-[0.24em] text-primary">AURIQ GOLD INSIGHTS</p>
+            <h1 className="mt-2 text-2xl leading-tight font-bold sm:text-3xl">
+              วิเคราะห์ทองให้คมขึ้น
+              <span className="mt-1 block bg-gradient-to-r from-gold-bright to-info bg-clip-text text-transparent">
+                ด้วย AI + Context + Confirmation
+              </span>
+            </h1>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              อ่านบริบทตลาด XAUUSD ด้วยการวิเคราะห์หลายกรอบเวลา โครงสร้างราคา และการยืนยันจากระบบ AURIQ
+            </p>
+          </div>
+          {FEATURES.map((f) => {
+            const inner = (
+              <>
+                <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                  <f.icon className="size-5" aria-hidden />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold">{f.title}</span>
+                  <span className="block text-xs text-muted-foreground">{f.desc}</span>
+                </span>
+                {f.to ? <ChevronRight className="size-4 shrink-0 text-muted-foreground" /> : <SoonTag />}
+              </>
+            );
+            const cls = "flex min-w-0 items-center gap-3 rounded-xl border border-border bg-card/60 p-3 transition-colors";
+            return f.to ? (
+              <Link key={f.title} to={f.to} className={cn(cls, "hover:border-primary/50 focus-visible:border-primary")}>
+                {inner}
+              </Link>
+            ) : (
+              <div key={f.title} className={cls}>{inner}</div>
+            );
+          })}
         </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[560px] text-sm">
-            <caption className="sr-only">{t("ec.caption")}</caption>
-            <thead>
-              <tr className="border-b border-border text-[11px] tracking-wide text-muted-foreground uppercase">
-                <th scope="col" className="px-4 py-2 text-left font-medium">
-                  {t("common.time")}
-                </th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">
-                  {t("common.event")}
-                </th>
-                <th scope="col" className="px-2 py-2 text-left font-medium">
-                  {t("common.impact")}
-                </th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">
-                  {t("common.actual")}
-                </th>
-                <th scope="col" className="px-4 py-2 text-right font-medium">
-                  {t("common.forecast")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(({ release, forecast, assessment }) => (
-                <tr key={release.releaseId} className="border-b border-border/60 last:border-0">
-                  <td className="num px-4 py-2 align-top">
-                    {new Intl.DateTimeFormat("en-GB", {
-                      timeZone: "Asia/Bangkok",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: false,
-                    }).format(new Date(release.nextReleaseUtc))}
-                  </td>
-                  <td className="px-2 py-2 align-top">{release.event}</td>
-                  <td className="px-2 py-2 align-top">
-                    <ImpactDots impact={release.impact} />
-                  </td>
-                  <td className="px-2 py-2 text-right align-top">
-                    {release.actualValue == null ? (
-                      <span className="text-muted-foreground">—</span>
-                    ) : (
-                      <div className="flex flex-col items-end gap-1">
-                        <span
-                          className={cn(
-                            "num",
-                            assessment?.goldBias === "bullish" && "text-positive",
-                            assessment?.goldBias === "bearish" && "text-negative",
-                          )}
-                        >
-                          {release.actual}
-                        </span>
-                        <ActualBadge source={release.actualSource} />
-                        {assessment ? <SurprisePill assessment={assessment} /> : null}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-4 py-2 text-right align-top">
-                    <div className="flex flex-col items-end gap-1">
-                      <span className="num">{forecast.value}</span>
-                      <ForecastBadge forecast={forecast} />
-                    </div>
-                  </td>
-                </tr>
+
+        {/* Center: chart + AI insight */}
+        <div className="order-1 flex min-w-0 flex-col gap-4 lg:order-2">
+          <section className="min-w-0 rounded-xl border border-border bg-card/70 p-4 shadow-[var(--shadow-glow)]">
+            <div className="flex min-w-0 flex-wrap items-end gap-x-6 gap-y-2">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-bold">XAUUSD</span>
+                  {!live && <SampleTag />}
+                </div>
+                <p className="text-xs text-muted-foreground">Gold Spot / U.S. Dollar</p>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="num text-2xl font-semibold">{num(instrument.last)}</span>
+                <span className={cn("num text-sm", up ? "text-positive" : "text-negative")}>
+                  {up ? "+" : ""}{num(instrument.change)} ({pct(instrument.changePct)})
+                </span>
+              </div>
+              <dl className="num flex gap-5 text-xs">
+                <div><dt className="text-muted-foreground">High</dt><dd>{num(instrument.high)}</dd></div>
+                <div><dt className="text-muted-foreground">Low</dt><dd>{num(instrument.low)}</dd></div>
+                <div><dt className="text-muted-foreground">Open</dt><dd className="text-muted-foreground/70">—</dd></div>
+              </dl>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-1" role="group" aria-label="Timeframe">
+              {TF.map((tf) => (
+                <button
+                  key={tf.value}
+                  type="button"
+                  aria-pressed={timeframe === tf.value}
+                  onClick={() => setTimeframe(tf.value)}
+                  className={cn(
+                    "rounded-md border px-3 py-1 text-xs font-semibold transition-colors",
+                    timeframe === tf.value
+                      ? "border-info/60 bg-info/15 text-info"
+                      : "border-border text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {tf.label}
+                </button>
               ))}
-            </tbody>
-          </table>
+            </div>
+            <div className="mt-3 min-w-0">
+              <GoldChart timeframe={timeframe} candlesOverride={live ? candles.data : undefined} live={live} />
+            </div>
+          </section>
+
+          <Card title="AURIQ AI Insight" icon={<Sparkles className="size-4" />} tag={<SampleTag />}>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-lg border border-border/60 bg-background/40 p-3">
+                <p className="text-[11px] font-semibold tracking-wide text-info">Market Context</p>
+                <p className="mt-1 line-clamp-4 text-xs leading-relaxed text-muted-foreground">{tx(bias.rationale)}</p>
+              </div>
+              <div className="rounded-lg border border-border/60 bg-background/40 p-3">
+                <p className="text-[11px] font-semibold tracking-wide text-info">Confirmation</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  เงื่อนไขผ่าน <span className="num text-foreground">{passed}/{strategy.conditions.length}</span> · สถานะ {strategy.state}
+                </p>
+              </div>
+              <div className="rounded-lg border border-border/60 bg-background/40 p-3">
+                <p className="text-[11px] font-semibold tracking-wide text-info">Suggested Bias</p>
+                <p className="mt-1 text-sm"><BiasValue dir={bias.direction} /></p>
+                <p className="mt-1 text-[10px] text-muted-foreground">ตีความจาก output ของระบบ · ไม่ใช่คำแนะนำการลงทุน</p>
+              </div>
+            </div>
+          </Card>
         </div>
-      )}
-      <p className="border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
-        {t("ec.pollNote")}
-      </p>
-    </PanelCard>
+
+        {/* Right: summaries */}
+        <div className="order-2 flex min-w-0 flex-col gap-4 lg:order-3">
+          <Card title="Signal Summary" icon={<Target className="size-4" />} tag={<SampleTag />}>
+            <Row label="Bias" value={<BiasValue dir={bias.direction} />} />
+            <Row label="Entry Zone" value={PENDING} />
+            <Row label="Stop Loss" value={PENDING} />
+            <Row label="Targets" value={PENDING} />
+            <Row label="อัปเดตล่าสุด" value={portfolio.account.lastSync || PENDING} />
+          </Card>
+          <Card title="Market Context" icon={<Layers className="size-4" />} tag={<SampleTag />}>
+            <Row label="Trend" value={<BiasValue dir={bias.direction} />} />
+            <Row label="Structure" value={PENDING} />
+            <Row label="Liquidity" value={PENDING} />
+            <Row label="Premium / Discount" value={PENDING} />
+            <Row label="Confirmation" value={strategy.state} tone="text-primary" />
+          </Card>
+          <Card title="AURIQ Flow" icon={<Waves className="size-4" />} tag={<SoonTag />}>
+            <Row label="Delta" value={PENDING} />
+            <Row label="CVD" value={PENDING} />
+            <Row label="Buyer Pressure" value={PENDING} />
+            <Row label="Seller Pressure" value={PENDING} />
+          </Card>
+        </div>
+      </div>
+
+      {/* Modules */}
+      <div className="mt-4 grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {MODULES.map((m) => {
+          const body = (
+            <>
+              <div className="flex items-center gap-2">
+                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                  <m.icon className="size-4" aria-hidden />
+                </span>
+                <h3 className="truncate text-sm font-semibold">{m.title}</h3>
+                <span className="ml-auto">{m.to ? <ChevronRight className="size-4 text-muted-foreground" /> : <SoonTag />}</span>
+              </div>
+              <ul className="mt-3 space-y-1.5 text-xs text-muted-foreground">
+                {m.points.map((p) => (
+                  <li key={p} className="flex gap-2"><span className="text-primary">•</span>{p}</li>
+                ))}
+              </ul>
+              {m.impact && (
+                <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
+                  <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-negative" />สูง</span>
+                  <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-warning" />กลาง</span>
+                  <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-gold-bright" />ต่ำ</span>
+                </div>
+              )}
+            </>
+          );
+          const cls = "min-w-0 rounded-xl border border-border bg-card/60 p-4 transition-colors";
+          return m.to ? (
+            <Link key={m.title} to={m.to} className={cn(cls, "hover:border-primary/50")}>{body}</Link>
+          ) : (
+            <div key={m.title} className={cls}>{body}</div>
+          );
+        })}
+      </div>
+
+      {/* How AURIQ works */}
+      <section className="mt-4 rounded-xl border border-border bg-card/50 p-4">
+        <h2 className="text-sm font-semibold">How AURIQ Works</h2>
+        <p className="text-xs text-muted-foreground">อธิบายกระบวนการวิเคราะห์ · ไม่ใช่ระบบส่งคำสั่งซื้อขาย</p>
+        <ol className="mt-3 flex flex-wrap items-center gap-3">
+          {STEPS.map((s, i) => (
+            <li key={s} className="flex items-center gap-3">
+              <span className="flex items-center gap-2">
+                <span className="num grid size-8 place-items-center rounded-full border border-primary/60 text-sm font-semibold text-primary">{i + 1}</span>
+                <span className="text-sm">{s}</span>
+              </span>
+              {i < STEPS.length - 1 && <ArrowRight className="size-4 text-muted-foreground" aria-hidden />}
+            </li>
+          ))}
+        </ol>
+      </section>
+    </div>
   );
 }
