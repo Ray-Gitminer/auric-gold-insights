@@ -101,7 +101,7 @@ function Dashboard() {
     <div className="space-y-2.5">
       <div><p className="text-[10px] font-semibold text-info">{t("dashboard.marketContext")}</p><p className="mt-0.5 line-clamp-3 text-[10px] leading-4 text-foreground/80">{tx(bias.rationale)}</p></div>
       <div><p className="text-[10px] font-semibold text-info">{t("dashboard.confirmation")}</p><p className="mt-0.5 text-[10px] leading-4 text-foreground/80">{t("dashboard.conditionsPassed", { passed, total: strategy.conditions.length, state: tx(strategy.state) })}</p></div>
-      <div><p className="text-[10px] font-semibold text-info">{t("dashboard.suggestedBias")}</p><div className="mt-1 flex items-center gap-2"><span className="rounded-md border border-positive/60 bg-positive/10 px-3 py-1 text-xs"><BiasValue dir={bias.direction} /></span><span className="text-[9px] text-muted-foreground">{t("dashboard.advisoryNote")}</span></div></div>
+      <div><p className="text-[10px] font-semibold text-info">{t("dashboard.suggestedBias")}</p><div className="mt-1 flex items-center gap-2"><span className="rounded-md border border-positive/60 bg-positive/10 px-3 py-1 text-xs whitespace-nowrap"><BiasValue dir={bias.direction} /></span><span className="text-[9px] text-muted-foreground">{t("dashboard.advisoryNote")}</span></div></div>
     </div>
   );
 
@@ -116,9 +116,9 @@ function Dashboard() {
           <aside className="order-3 flex min-w-0 flex-col gap-4 xl:order-1 xl:col-start-1 xl:row-start-1">
             <div>
               <p className="text-[9px] font-semibold tracking-[0.28em] text-muted-foreground">PRECISION · CONTEXT · CONFIRMATION</p>
-              <h1 className="mt-3 text-3xl leading-[1.12] font-extrabold sm:text-4xl xl:text-[2.5rem] 2xl:text-[2.85rem]">
+              <h1 className="mt-3 text-3xl leading-[1.12] font-extrabold sm:text-4xl xl:text-[2.2rem] 2xl:text-[2.6rem]">
                 <span className="block">{t("dashboard.heroTitle")}</span>
-                <span className="block">{t("dashboard.heroWith")} <span className="text-gold-bright">AI + Context</span> +</span>
+                <span className="block whitespace-nowrap">{t("dashboard.heroWith")} <span className="text-gold-bright">AI + Context</span> +</span>
                 <span className="block text-info">Confirmation</span>
               </h1>
               <p className="mt-3 text-[13px] leading-6 text-foreground/80">{t("dashboard.heroDescription")}</p>
