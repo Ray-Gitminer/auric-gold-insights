@@ -34,10 +34,9 @@ function ResetPasswordPage() {
   const recoverySession = Boolean(session);
 
   useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => void navigate({ to: "/", replace: true }), 1500);
-      return () => clearTimeout(timer);
-    }
+    if (!success) return;
+    const timer = setTimeout(() => void navigate({ to: "/", replace: true }), 1500);
+    return () => clearTimeout(timer);
   }, [navigate, success]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
