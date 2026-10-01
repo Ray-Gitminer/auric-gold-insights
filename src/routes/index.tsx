@@ -235,7 +235,7 @@ function Dashboard() {
                   </button>
                   <p className="text-[9px] text-muted-foreground">{t("signals.aiDisclaimer")}</p>
                   {aiErr && <p className="text-[10px] text-negative">{aiErr}</p>}
-                  {ai && <p className="text-[10px] leading-4 text-foreground/80">{tx(ai.reasoningTh) && t("signals.reasoning")}: {t("signals.lang") === "th" ? ai.reasoningTh || ai.reasoning : ai.reasoning}</p>}
+                  {ai && <p className="text-[10px] leading-4 text-foreground/80">{t("signals.reasoning")}: {t("signals.lang") === "th" ? ai.reasoningTh || ai.reasoning : ai.reasoning}</p>}
                 </div>
               )}
               {mode === 3 ? (

@@ -154,6 +154,17 @@ export const th: Dictionary = {
   "overview.rail": "แถบข้อมูลวิเคราะห์",
 
   // ---------- แดชบอร์ด AURIQ Gold Insights ----------
+  "signals.mode1": "สูตรคำนวณ",
+  "signals.mode2": "AI ตัดสิน",
+  "signals.mode3": "Rayny/MPGP",
+  "signals.aiRun": "วิเคราะห์ด้วย AI",
+  "signals.aiRunning": "กำลังวิเคราะห์…",
+  "signals.aiDisclaimer": "ความเห็นของ AI ยังไม่ได้ตรวจสอบ ทำงานเมื่อกดปุ่มเท่านั้น",
+  "signals.reasoning": "เหตุผล",
+  "signals.lang": "th",
+  "signals.awaitRules": "รอสูตร Rayny Nexora / MPGP จากคุณ ระบบจะไม่เดาสูตรเอง",
+  "signals.confidence": "ความมั่นใจ",
+  "signals.needMt5": "ยังไม่เชื่อม MT5 — สัญญาณคำนวณจากข้อมูลตัวอย่าง",
   "dashboard.sampleData": "ข้อมูลตัวอย่าง",
   "dashboard.awaitingData": "รอเชื่อมข้อมูล",
   "dashboard.comingSoon": "เร็ว ๆ นี้",
