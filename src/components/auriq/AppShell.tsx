@@ -34,6 +34,7 @@ import { Button } from "@/components/ui/button";
 import { useI18n, type Language } from "@/contexts/I18nContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePortfolioData } from "@/hooks/use-portfolio-data";
+import auriqLogo from "@/assets/auriq-logo-transparent.png.asset.json";
 
 const NAV = [
   { to: "/", key: "nav.overview", icon: LayoutDashboard },
@@ -122,17 +123,16 @@ function NavList({
 }
 
 function Wordmark({ collapsed = false }: { collapsed?: boolean }) {
-  const { t } = useI18n();
   return (
-    <div className={cn("px-4 py-4", collapsed && "px-2 text-center")}>
-      <span className="text-lg font-semibold tracking-[0.22em] text-primary">
-        {collapsed ? "AQ" : "AURIQ"}
-      </span>
-      {!collapsed && (
-        <p className="mt-0.5 text-[11px] tracking-wide text-muted-foreground">
-          {t("brand.tagline")}
-        </p>
-      )}
+    <div className={cn("px-4 py-4", collapsed && "px-2")}>
+      <img
+        src={collapsed ? "/favicon.png" : auriqLogo.url}
+        alt="AURIQ Gold Insights"
+        className={cn(
+          "object-contain object-left drop-shadow-[0_0_14px_color-mix(in_oklab,var(--color-primary)_24%,transparent)]",
+          collapsed ? "mx-auto size-9" : "h-auto w-full max-w-[190px]",
+        )}
+      />
     </div>
   );
 }
@@ -290,12 +290,17 @@ function DashboardHeader({ onOpenMobile }: { onOpenMobile: ReactNode }) {
         <div className="flex min-w-0 items-center gap-3">
           <div className="lg:hidden">{onOpenMobile}</div>
           <Link to="/" className="flex min-w-0 items-center gap-3">
-            <span className="auriq-mark hidden shrink-0 sm:block" aria-hidden />
-            <span className="grid size-9 shrink-0 place-items-center font-black text-primary sm:hidden">A</span>
-            <span className="min-w-0">
-              <span className="block truncate text-sm font-extrabold text-gold-bright sm:text-[17px]">AURIQ GOLD INSIGHTS</span>
-              <span className="hidden text-[10px] text-muted-foreground sm:block">AI-Powered Gold Market Intelligence</span>
-            </span>
+            <img
+              src="/favicon.png"
+              alt=""
+              className="size-9 shrink-0 object-contain sm:hidden"
+              aria-hidden
+            />
+            <img
+              src={auriqLogo.url}
+              alt="AURIQ Gold Insights"
+              className="hidden h-12 w-[210px] max-w-full object-contain object-left drop-shadow-[0_0_14px_color-mix(in_oklab,var(--color-primary)_25%,transparent)] sm:block"
+            />
           </Link>
         </div>
 

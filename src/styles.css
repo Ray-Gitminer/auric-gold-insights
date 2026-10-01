@@ -182,27 +182,6 @@
   box-shadow: inset 0 1px 0 color-mix(in oklab, var(--foreground) 8%, transparent), 0 8px 18px -12px var(--primary);
 }
 
-@utility auriq-mark {
-  position: relative;
-  width: 2.5rem;
-  height: 2.25rem;
-  filter: drop-shadow(0 0 10px color-mix(in oklab, var(--primary) 48%, transparent));
-
-  &::before,
-  &::after {
-    content: "";
-    position: absolute;
-    bottom: 0.2rem;
-    width: 0.55rem;
-    height: 2rem;
-    border-radius: 0.15rem;
-    background: linear-gradient(to bottom, var(--gold-bright), var(--primary) 58%, color-mix(in oklab, var(--primary) 44%, var(--background)));
-  }
-
-  &::before { left: 0.62rem; transform: skew(-29deg); }
-  &::after { right: 0.62rem; transform: skew(29deg); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
