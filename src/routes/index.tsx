@@ -111,7 +111,9 @@ function Dashboard() {
       if (r.ok) setAi(r.signal); else setAiErr(r.error);
     } catch (e) { setAiErr(e instanceof Error ? e.message : "AI error"); } finally { setAiBusy(false); }
   };
-  const dataTag = chartLive ? <span className="shrink-0 rounded-sm border border-positive/55 bg-positive/10 px-1.5 py-0.5 text-[8px] font-semibold text-positive">MT5 LIVE</span> : <SampleTag />;
+  // Price/bias/context remain fixture-backed even when the chart itself is live.
+  // Never let the MT5 chart connection relabel unrelated dashboard data.
+  const dataTag = <SampleTag />;
   const f2 = (n: number | null | undefined) => (n == null ? null : num(n));
   const sig = mode === 1 && formula ? { bias: formula.bias, entry: formula.entry ? `${num(formula.entry[0])} – ${num(formula.entry[1])}` : null, stop: f2(formula.stop), tp: formula.tp1 ? `${num(formula.tp1)} / ${f2(formula.tp2)}` : null, conf: formula.confidence }
     : mode === 2 && ai ? { bias: ai.bias, entry: ai.entry, stop: ai.stop, tp: ai.tp1 ? `${ai.tp1}${ai.tp2 ? ` / ${ai.tp2}` : ""}` : null, conf: ai.confidence } : null;
