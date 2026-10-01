@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowDown, ArrowRight, ArrowUp, Bell, Boxes, CalendarDays, CheckCircle2,
-  ChevronRight, CircleAlert, Gauge, Layers, LineChart, Network, Sparkles,
+  ChevronRight, CircleAlert, Gauge, Layers, LineChart, Minus, Network, Sparkles,
   Target, Waves,
 } from "lucide-react";
 
@@ -76,6 +76,7 @@ function Dashboard() {
   const { t, tx } = useI18n();
   const { data: portfolio } = usePortfolioData();
   const [timeframe, setTimeframe] = useState<Timeframe>("1h");
+  const [insightOpen, setInsightOpen] = useState(true);
   const candles = useMt5Candles(timeframe);
   const chartLive = portfolio.source === "mt5" && Boolean(candles.data && candles.data.length > 1);
   const pending = t("dashboard.awaitingData");
@@ -96,23 +97,33 @@ function Dashboard() {
   ];
   const steps = [t("dashboard.stepContext"), t("dashboard.stepConfirmation"), t("dashboard.stepExecution"), t("dashboard.stepReview")];
 
+  const insightBody = (
+    <div className="space-y-2.5">
+      <div><p className="text-[10px] font-semibold text-info">{t("dashboard.marketContext")}</p><p className="mt-0.5 line-clamp-3 text-[10px] leading-4 text-foreground/80">{tx(bias.rationale)}</p></div>
+      <div><p className="text-[10px] font-semibold text-info">{t("dashboard.confirmation")}</p><p className="mt-0.5 text-[10px] leading-4 text-foreground/80">{t("dashboard.conditionsPassed", { passed, total: strategy.conditions.length, state: tx(strategy.state) })}</p></div>
+      <div><p className="text-[10px] font-semibold text-info">{t("dashboard.suggestedBias")}</p><div className="mt-1 flex items-center gap-2"><span className="rounded-md border border-positive/60 bg-positive/10 px-3 py-1 text-xs"><BiasValue dir={bias.direction} /></span><span className="text-[9px] text-muted-foreground">{t("dashboard.advisoryNote")}</span></div></div>
+    </div>
+  );
+
   return (
     <div className="relative isolate min-h-[calc(100vh-4rem)] overflow-hidden">
       <img src={mountainBackground} width={1920} height={1080} alt="" className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover object-bottom opacity-55" />
       <div className="pointer-events-none absolute inset-0 -z-10 bg-background/55" />
 
-      <div className="mx-auto w-full max-w-[1920px] px-3 py-4 sm:px-5 xl:px-7">
-        <div className="grid min-w-0 gap-3 xl:grid-cols-[20rem_minmax(34rem,1fr)_20rem]">
-          <aside className="order-3 flex min-w-0 flex-col justify-between gap-3 xl:order-1">
+      <div className="w-full px-3 py-4 sm:px-5 xl:px-6">
+        <div className="grid min-w-0 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] xl:gap-3.5">
+          {/* LEFT intro */}
+          <aside className="order-3 flex min-w-0 flex-col gap-4 xl:order-1 xl:col-start-1 xl:row-start-1">
             <div>
-              <p className="text-[9px] font-semibold tracking-[0.28em] text-info">PRECISION · CONTEXT · CONFIRMATION</p>
-              <h1 className="mt-3 text-3xl leading-[1.18] font-extrabold sm:text-4xl xl:text-[2.6rem]">
-                {t("dashboard.heroTitle")}
-                <span className="mt-1 block text-gold-bright">{t("dashboard.heroAccent")}</span>
+              <p className="text-[9px] font-semibold tracking-[0.28em] text-muted-foreground">PRECISION · CONTEXT · CONFIRMATION</p>
+              <h1 className="mt-3 text-3xl leading-[1.12] font-extrabold sm:text-4xl xl:text-[2.5rem] 2xl:text-[2.85rem]">
+                <span className="block">{t("dashboard.heroTitle")}</span>
+                <span className="block">{t("dashboard.heroWith")} <span className="text-gold-bright">AI + Context</span> +</span>
+                <span className="block text-info">Confirmation</span>
               </h1>
-              <p className="mt-4 max-w-md text-sm leading-6 text-foreground/80">{t("dashboard.heroDescription")}</p>
+              <p className="mt-3 text-[13px] leading-6 text-foreground/80">{t("dashboard.heroDescription")}</p>
             </div>
-            <div className="grid gap-1.5 sm:grid-cols-2 xl:grid-cols-2">
+            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
               {features.map((feature) => {
                 const content = <><span className="grid size-9 shrink-0 place-items-center rounded-md bg-primary/10 text-primary"><feature.icon className="size-4" /></span><span className="min-w-0 flex-1"><span className="block truncate text-[11px] font-semibold">{feature.title}</span><span className="block line-clamp-2 text-[9px] leading-3 text-muted-foreground">{feature.desc}</span></span>{feature.to ? <ChevronRight className="size-3 shrink-0 text-muted-foreground" /> : null}</>;
                 const className = "flex min-w-0 items-center gap-2 rounded-md border border-border/80 bg-card/70 p-2 backdrop-blur-md transition-colors";
@@ -121,14 +132,15 @@ function Dashboard() {
             </div>
           </aside>
 
-          <div className="order-1 min-w-0 xl:order-2">
-            <section className="min-w-0 overflow-hidden rounded-lg border border-info/35 bg-card/85 shadow-[var(--shadow-glow)] backdrop-blur-md">
-              <div className="grid min-w-0 grid-cols-1 gap-2 border-b border-border/60 px-3 py-3 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
+          {/* CENTER chart workspace */}
+          <div className="order-1 min-w-0 xl:order-2 xl:col-start-2 xl:row-start-1">
+            <section className="relative min-w-0 overflow-hidden rounded-lg border border-info/35 bg-card/85 shadow-[var(--shadow-glow)] backdrop-blur-md">
+              <div className="grid min-w-0 grid-cols-1 gap-2 border-b border-border/60 px-3 py-3 sm:flex sm:flex-wrap sm:items-center sm:gap-6">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2"><span className="text-xl font-extrabold">XAUUSD</span><SampleTag /></div>
                   <p className="truncate text-[10px] text-muted-foreground">{t("dashboard.instrumentName")}</p>
                 </div>
-                <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 text-left"><span className="num text-2xl font-bold">{num(instrument.last)}</span><span className={cn("num text-xs", up ? "text-positive" : "text-negative")}>{up ? "+" : ""}{num(instrument.change)} · {pct(instrument.changePct)}</span></div>
+                <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 text-left"><span className="num text-3xl font-bold">{num(instrument.last)}</span><span className={cn("num text-xs", up ? "text-positive" : "text-negative")}>{up ? "+" : ""}{num(instrument.change)} · {pct(instrument.changePct)}</span></div>
                 <dl className="flex gap-5 text-[10px] sm:ml-auto">
                   <div><dt className="text-muted-foreground">{t("common.high")}</dt><dd className="num">{num(instrument.high)}</dd></div>
                   <div><dt className="text-muted-foreground">{t("common.low")}</dt><dd className="num">{num(instrument.low)}</dd></div>
@@ -140,21 +152,35 @@ function Dashboard() {
                 <span className="ml-auto shrink-0 pl-3 text-[9px] text-muted-foreground">{chartLive ? t("dashboard.mt5ChartLive") : t("chart.staticDemo")}</span>
               </div>
               <GoldChart timeframe={timeframe} candlesOverride={chartLive ? candles.data : undefined} live={chartLive} />
-              <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 border-t border-border/60 px-3 py-2">
-                <span className="num text-[9px] text-muted-foreground">RSI 14</span><div className="h-8 overflow-hidden"><svg viewBox="0 0 700 32" className="h-full w-full" aria-hidden><polyline fill="none" stroke="var(--color-info)" strokeWidth="1.5" points="0,23 45,16 90,20 130,10 180,24 225,15 275,18 320,7 365,20 410,14 455,22 505,6 550,12 600,4 650,17 700,9" /></svg></div>
+              <div className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-3 border-t border-border/60 px-3 py-2 xl:pr-[19.5rem]">
+                <span className="num text-[9px] text-muted-foreground">RSI 14</span><div className="h-10 overflow-hidden"><svg viewBox="0 0 700 32" preserveAspectRatio="none" className="h-full w-full" aria-hidden><polyline fill="none" stroke="var(--color-info)" strokeWidth="1.5" points="0,23 45,16 90,20 130,10 180,24 225,15 275,18 320,7 365,20 410,14 455,22 505,6 550,12 600,4 650,17 700,9" /></svg></div>
+              </div>
+              <div className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-3 border-t border-border/60 px-3 py-2 xl:pr-[19.5rem]">
+                <span className="num text-[9px] text-muted-foreground">Stoch</span>
+                <div className="grid h-10 place-items-center rounded-sm border border-dashed border-border/60 text-[9px] italic text-muted-foreground/70">{pending}</div>
+              </div>
+
+              {/* Floating AI Insight (desktop) */}
+              <div className="absolute right-3 bottom-3 hidden w-[18.5rem] xl:block">
+                {insightOpen ? (
+                  <div className="rounded-lg border border-info/50 bg-background/92 p-3 shadow-[0_0_24px_-6px_var(--color-info)] backdrop-blur-md">
+                    <div className="mb-2 flex items-center gap-2 border-b border-border/50 pb-2">
+                      <Sparkles className="size-4 shrink-0 text-gold-bright" />
+                      <h2 className="truncate text-sm font-semibold text-gold-bright">AURIQ AI Insight</h2>
+                      <SampleTag />
+                      <button type="button" onClick={() => setInsightOpen(false)} aria-label={t("dashboard.hideInsight")} className="ml-auto rounded p-0.5 text-muted-foreground hover:text-foreground"><Minus className="size-3.5" /></button>
+                    </div>
+                    {insightBody}
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => setInsightOpen(true)} className="ml-auto flex items-center gap-1.5 rounded-md border border-info/50 bg-background/90 px-2.5 py-1.5 text-[10px] font-semibold text-gold-bright"><Sparkles className="size-3.5" />{t("dashboard.showInsight")}</button>
+                )}
               </div>
             </section>
-
-            <Panel title="AURIQ AI Insight" icon={<Sparkles className="size-4" />} tag={<SampleTag />} className="mt-3">
-              <div className="grid gap-3 sm:grid-cols-3">
-                <div><p className="text-[10px] font-semibold text-info">{t("dashboard.marketContext")}</p><p className="mt-1 line-clamp-3 text-[10px] leading-4 text-muted-foreground">{tx(bias.rationale)}</p></div>
-                <div><p className="text-[10px] font-semibold text-info">{t("dashboard.confirmation")}</p><p className="mt-1 text-[10px] leading-4 text-muted-foreground">{t("dashboard.conditionsPassed", { passed, total: strategy.conditions.length, state: tx(strategy.state) })}</p></div>
-                <div><p className="text-[10px] font-semibold text-info">{t("dashboard.suggestedBias")}</p><p className="mt-1"><BiasValue dir={bias.direction} /></p><p className="mt-1 text-[9px] text-muted-foreground">{t("dashboard.advisoryNote")}</p></div>
-              </div>
-            </Panel>
           </div>
 
-          <aside className="order-2 flex min-w-0 flex-col gap-3 xl:order-3">
+          {/* RIGHT column */}
+          <aside className="order-2 flex min-w-0 flex-col gap-3 xl:order-3 xl:col-start-3 xl:row-span-2 xl:row-start-1">
             <Panel title={t("dashboard.signalSummary")} icon={<Target className="size-4" />} tag={<SampleTag />}>
               <div className="mb-1 rounded-md border border-positive/40 bg-positive/8 px-2 py-2"><Row label={t("dashboard.bias")} value={<BiasValue dir={bias.direction} />} /></div>
               <Row label={t("dashboard.entryZone")} value={pending} pending /><Row label={t("dashboard.stopLoss")} value={pending} pending /><Row label={t("dashboard.targets")} value={pending} pending /><Row label={t("dashboard.lastUpdated")} value={portfolio.account.lastSync || pending} pending={!portfolio.account.lastSync} />
@@ -162,27 +188,42 @@ function Dashboard() {
             <Panel title={t("dashboard.marketContext")} icon={<Layers className="size-4" />} tag={<SampleTag />}>
               <Row label={t("dashboard.trend")} value={<BiasValue dir={bias.direction} />} /><Row label={t("dashboard.structure")} value={pending} pending /><Row label={t("dashboard.liquidity")} value={pending} pending /><Row label="Premium / Discount" value={pending} pending /><Row label={t("dashboard.confirmation")} value={tx(strategy.state)} />
             </Panel>
+            <Panel title="AURIQ AI Insight" icon={<Sparkles className="size-4" />} tag={<SampleTag />} className="border-info/50 xl:hidden">
+              {insightBody}
+            </Panel>
             <Panel title="AURIQ Flow" icon={<Waves className="size-4" />} tag={<SoonTag />}>
               <Row label="Delta / Spot" value={pending} pending /><Row label="CVD" value={pending} pending /><Row label={t("dashboard.buyerPressure")} value={pending} pending /><Row label={t("dashboard.sellerPressure")} value={pending} pending />
             </Panel>
+            <section className="order-last rounded-lg border border-border/90 bg-card/80 p-3 backdrop-blur-md max-xl:hidden">
+              <HowWorks steps={steps} title={t("dashboard.howTitle")} desc={t("dashboard.howDescription")} />
+            </section>
           </aside>
-        </div>
 
-        <div className="mt-3 grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-[repeat(4,minmax(0,1fr))_minmax(22rem,1.7fr)]">
-          {modules.map((module) => {
-            const body = <><div className="flex min-w-0 items-center gap-2"><span className="grid size-8 shrink-0 place-items-center rounded-md bg-primary/10 text-primary"><module.icon className="size-4" /></span><h3 className="truncate text-xs font-semibold">{module.title}</h3>{module.to ? <ChevronRight className="ml-auto size-3 shrink-0" /> : <SoonTag />}</div><ul className="mt-2 space-y-1 text-[10px] text-muted-foreground">{module.points.map((point) => <li key={point} className="flex gap-1.5"><CheckCircle2 className="mt-0.5 size-3 shrink-0 text-primary" />{point}</li>)}</ul></>;
-            const classes = "min-w-0 rounded-lg border border-border/90 bg-card/80 p-3 backdrop-blur-md";
-            return module.to ? <Link key={module.title} to={module.to} className={cn(classes, "hover:border-primary/60")}>{body}</Link> : <div key={module.title} className={classes}>{body}</div>;
-          })}
-          <section className="rounded-lg border border-border/90 bg-card/80 p-3 backdrop-blur-md sm:col-span-2 xl:col-span-1">
-            <div className="flex items-center gap-2"><Gauge className="size-4 text-primary" /><h2 className="text-xs font-semibold">{t("dashboard.howTitle")}</h2></div>
-            <ol className="mt-3 grid grid-cols-4 gap-1">
-              {steps.map((step, index) => <li key={step} className="min-w-0 text-center"><span className="num mx-auto grid size-7 place-items-center rounded-full border border-info/70 text-[10px] text-info">{index + 1}</span><span className="mt-1 block truncate text-[9px] text-muted-foreground">{step}</span></li>)}
-            </ol>
-            <p className="mt-2 flex items-start gap-1 text-[9px] leading-3 text-muted-foreground"><CircleAlert className="size-3 shrink-0 text-primary" />{t("dashboard.howDescription")}</p>
-          </section>
+          {/* BOTTOM modules under left + center */}
+          <div className="order-4 grid min-w-0 gap-3 sm:grid-cols-2 xl:col-span-2 xl:col-start-1 xl:row-start-2 xl:grid-cols-4">
+            {modules.map((module) => {
+              const body = <><div className="flex min-w-0 items-center gap-2"><span className="grid size-8 shrink-0 place-items-center rounded-md bg-primary/10 text-primary"><module.icon className="size-4" /></span><h3 className="truncate text-xs font-semibold">{module.title}</h3>{module.to ? <ChevronRight className="ml-auto size-3 shrink-0" /> : <SoonTag />}</div><ul className="mt-2 space-y-1 text-[10px] text-muted-foreground">{module.points.map((point) => <li key={point} className="flex gap-1.5"><CheckCircle2 className="mt-0.5 size-3 shrink-0 text-primary" />{point}</li>)}</ul></>;
+              const classes = "min-w-0 rounded-lg border border-border/90 bg-card/80 p-3 backdrop-blur-md";
+              return module.to ? <Link key={module.title} to={module.to} className={cn(classes, "hover:border-primary/60")}>{body}</Link> : <div key={module.title} className={classes}>{body}</div>;
+            })}
+            <section className="rounded-lg border border-border/90 bg-card/80 p-3 backdrop-blur-md sm:col-span-2 xl:hidden">
+              <HowWorks steps={steps} title={t("dashboard.howTitle")} desc={t("dashboard.howDescription")} />
+            </section>
+          </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function HowWorks({ steps, title, desc }: { steps: string[]; title: string; desc: string }) {
+  return (
+    <>
+      <div className="flex items-center gap-2"><Gauge className="size-4 text-primary" /><h2 className="text-xs font-semibold">{title}</h2></div>
+      <ol className="mt-3 grid grid-cols-4 gap-1">
+        {steps.map((step, index) => <li key={step} className="min-w-0 text-center"><span className="num mx-auto grid size-7 place-items-center rounded-full border border-info/70 text-[10px] text-info shadow-[0_0_10px_-3px_var(--color-info)]">{index + 1}</span><span className="mt-1 block truncate text-[9px] text-muted-foreground">{step}</span></li>)}
+      </ol>
+      <p className="mt-2 flex items-start gap-1 text-[9px] leading-3 text-muted-foreground"><CircleAlert className="size-3 shrink-0 text-primary" />{desc}</p>
+    </>
   );
 }
