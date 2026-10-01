@@ -71,25 +71,58 @@ def sync_candles(settings: Settings, terminal: ReadOnlyTerminal, bar_count: int 
     return sent
 
 
+def connect_with_retry(settings: Settings) -> ReadOnlyTerminal:
+    delay = 5.0
+    while running:
+        terminal = ReadOnlyTerminal(settings)
+        try:
+            connected = terminal.connect()
+            log.info(
+                "Connected read-only | login=...%s server=%s",
+                str(connected["login"])[-4:],
+                connected["server"],
+            )
+            return terminal
+        except Exception as exc:  # MT5 closed, logged out, network down
+            log.warning("MT5 not ready (%s) - retrying in %.0fs", exc, delay)
+            try:
+                terminal.close()
+            except Exception:
+                pass
+            time.sleep(delay)
+            delay = min(delay * 2, 60.0)
+    raise SystemExit(0)
+
+
 def main() -> None:
     settings = Settings.from_env()
-    terminal = ReadOnlyTerminal(settings)
+    terminal = connect_with_retry(settings)
+    # Full history on first sync and after any failure, so gaps are backfilled.
+    need_backfill = True
+    failures = 0
     try:
-        connected = terminal.connect()
-        log.info(
-            "Connected read-only | login=...%s server=%s balance=%.2f",
-            str(connected["login"])[-4:],
-            connected["server"],
-            float(connected["balance"]),
-        )
-        first_cycle = True
         while running:
-            sent = sync_candles(settings, terminal, None if first_cycle else 3)
-            log.info("Synced ...%s | candles=%d", str(settings.expected_login)[-4:], sent)
-            if settings.run_once:
-                break
-            first_cycle = False
-            time.sleep(settings.sync_interval_seconds)
+            try:
+                sent = sync_candles(settings, terminal, None if need_backfill else 3)
+                log.info("Synced ...%s | candles=%d", str(settings.expected_login)[-4:], sent)
+                need_backfill = False
+                failures = 0
+                if settings.run_once:
+                    break
+                time.sleep(settings.sync_interval_seconds)
+            except Exception as exc:
+                failures += 1
+                need_backfill = True
+                wait = min(5.0 * failures, 60.0)
+                log.warning("Sync failed (%s) - retry %d in %.0fs", exc, failures, wait)
+                time.sleep(wait)
+                if failures % 3 == 0:
+                    log.info("Reconnecting to MT5 terminal")
+                    try:
+                        terminal.close()
+                    except Exception:
+                        pass
+                    terminal = connect_with_retry(settings)
     finally:
         terminal.close()
 

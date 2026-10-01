@@ -37,3 +37,11 @@ python main.py
 The Dashboard changes the chart badge to `MT5 LIVE · READ-ONLY` only while fresh
 candles are arriving. It returns to the sample chart automatically after 20 seconds
 without a successful sync.
+
+## Keep XAUUSD data flowing 24/7
+
+- Start with `run_agent.bat` instead of `python main.py`; it restarts the agent if it ever exits.
+- The agent retries automatically when MT5 is closed, logged out, or the network drops, and re-sends full history after any failure so no candles are missing.
+- Auto-start on boot: press Win+R, type `shell:startup`, and put a shortcut to `run_agent.bat` there.
+- Windows power settings: set Sleep to "Never" (or use a Windows VPS), and keep MT5 logged in with AutoTrading not required.
+- In the app, the chart shows `MT5 LIVE` while candles arrive; if the agent stops it keeps the last real candles with an "Agent paused · last HH:MM" label instead of switching back to sample data.
