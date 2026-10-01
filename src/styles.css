@@ -36,6 +36,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-info: var(--info);
+  --color-warning: var(--warning);
   --color-positive: var(--positive);
   --color-negative: var(--negative);
   --color-destructive: var(--destructive);
@@ -80,6 +81,9 @@
   --accent: oklch(0.321 0.057 243.6);
   --accent-foreground: oklch(0.946 0.009 242.8);
   --info: oklch(0.768 0.124 218.1);
+  --warning: oklch(0.74 0.16 55);
+  --gradient-hero: radial-gradient(120% 80% at 0% 0%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 55%), radial-gradient(90% 70% at 100% 100%, color-mix(in oklab, var(--info) 10%, transparent), transparent 60%);
+  --shadow-glow: 0 0 0 1px color-mix(in oklab, var(--primary) 18%, transparent), 0 18px 40px -24px color-mix(in oklab, var(--primary) 45%, transparent);
   --positive: oklch(0.734 0.148 161);
   --negative: oklch(0.679 0.173 22.9);
   --destructive: oklch(0.679 0.173 22.9);
