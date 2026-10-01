@@ -54,6 +54,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { error } = await client.auth.signInWithPassword({ email, password });
         return error?.message ?? null;
       },
+      async resetPassword(email) {
+        const client = getSupabaseBrowserClient();
+        if (!client) return "Supabase is not configured";
+        const { error } = await client.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        return error?.message ?? null;
+      },
+      async updatePassword(password) {
+        const client = getSupabaseBrowserClient();
+        if (!client) return "Supabase is not configured";
+        const { error } = await client.auth.updateUser({ password });
+        return error?.message ?? null;
+      },
       async signOut() {
         await getSupabaseBrowserClient()?.auth.signOut();
       },
