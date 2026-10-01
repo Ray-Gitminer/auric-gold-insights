@@ -14,3 +14,4 @@
 - Dashboard and Signals use the full-width top navigation while all other routes retain the sidebar shell, because these two intelligence workspaces share the cinematic three-column composition.
 - Dashboard trading signals are computed deterministically in src/lib/signals/engine.ts; AI only runs in the explicit, user-triggered "AI" mode, because AI must not be the source of truth for core signals.
 - FinanceCalendar.com data is read server-side through the Firecrawl connector with a 1h in-memory cache and shown with its own source badge alongside official agency data, so third-party values never overwrite official ones.
+- The Windows MT5 agent sends candle-only batches through the secret-protected public receiver; it never receives database credentials or exposes order operations, because chart ingestion must remain read-only and independently revocable.

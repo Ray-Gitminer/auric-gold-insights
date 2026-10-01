@@ -18,13 +18,15 @@ async function fetchCandles(timeframe: Timeframe): Promise<Candle[]> {
   if (!client) return [];
   const { data: account, error: accountError } = await client
     .from("mt5_accounts")
-    .select("id")
+    .select("id, last_sync_at")
     .eq("status", "connected")
     .order("last_sync_at", { ascending: false })
     .limit(1)
     .maybeSingle();
   if (accountError) throw accountError;
   if (!account) return [];
+  const lastSync = account.last_sync_at ? new Date(account.last_sync_at).getTime() : 0;
+  if (!Number.isFinite(lastSync) || Date.now() - lastSync > 20_000) return [];
 
   const { data, error } = await client
     .from("mt5_candles")
