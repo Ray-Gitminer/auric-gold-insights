@@ -10,3 +10,5 @@
 > the editor, so keep the branch in a working state.
 
 <!-- LOVABLE:END -->
+
+- The Dashboard uses its own full-width top navigation while all other routes retain the sidebar shell, because its reference composition requires a cinematic three-column workspace.

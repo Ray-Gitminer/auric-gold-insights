@@ -166,6 +166,7 @@ export const en = {
   "dashboard.instrumentName": "Gold Spot / U.S. Dollar",
   "dashboard.open": "Open",
   "dashboard.mt5ChartLive": "MT5 LIVE · READ-ONLY",
+  "dashboard.startAnalysis": "Start Analysis",
   "dashboard.marketContext": "Market Context",
   "dashboard.confirmation": "Confirmation",
   "dashboard.suggestedBias": "Suggested Bias",

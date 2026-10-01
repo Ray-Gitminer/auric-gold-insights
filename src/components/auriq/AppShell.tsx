@@ -12,8 +12,10 @@ import {
   Menu,
   Newspaper,
   RefreshCw,
+  Search,
   Settings as SettingsIcon,
   ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -28,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { StatusBadge } from "./primitives";
+import { Button } from "@/components/ui/button";
 import { useI18n, type Language } from "@/contexts/I18nContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePortfolioData } from "@/hooks/use-portfolio-data";
@@ -271,12 +274,95 @@ function TopBar({
   );
 }
 
+function DashboardHeader({ onOpenMobile }: { onOpenMobile: ReactNode }) {
+  const { t } = useI18n();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const links = [
+    { to: "/" as const, label: t("nav.overview") },
+    { to: "/chart-strategy" as const, label: t("nav.chartStrategy") },
+    { to: "/economic-news" as const, label: t("nav.economicNews") },
+    { to: "/alerts" as const, label: t("nav.alerts") },
+  ];
+
+  return (
+    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-xl">
+      <div className="mx-auto grid h-16 w-full max-w-[1920px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 sm:px-5 xl:grid-cols-[20rem_minmax(0,1fr)_20rem] xl:px-8">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="lg:hidden">{onOpenMobile}</div>
+          <Link to="/" className="flex min-w-0 items-center gap-3">
+            <span className="grid size-10 shrink-0 place-items-center text-xl font-black text-primary [text-shadow:0_0_18px_var(--color-primary)]">A</span>
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-bold text-gold-bright sm:text-base">AURIQ GOLD INSIGHTS</span>
+              <span className="hidden text-[10px] text-muted-foreground sm:block">AI-Powered Gold Market Intelligence</span>
+            </span>
+          </Link>
+        </div>
+
+        <nav className="hidden items-stretch justify-center gap-7 self-stretch xl:flex" aria-label={t("nav.main")}>
+          {links.map((item) => {
+            const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={cn(
+                  "relative flex items-center text-xs font-medium transition-colors",
+                  active ? "text-primary" : "text-muted-foreground hover:text-foreground",
+                  active && "after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-primary",
+                )}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="flex shrink-0 items-center justify-end gap-2">
+          <Button variant="ghost" size="icon" className="hidden text-muted-foreground sm:inline-flex" aria-label="Search">
+            <Search aria-hidden />
+          </Button>
+          <LanguageSwitcher className="hidden sm:inline-flex" />
+          <Button asChild size="sm" className="shadow-[0_0_22px_color-mix(in_oklab,var(--color-primary)_35%,transparent)]">
+            <Link to="/chart-strategy"><Sparkles aria-hidden />{t("dashboard.startAnalysis")}</Link>
+          </Button>
+        </div>
+      </div>
+    </header>
+  );
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useI18n();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data: portfolio } = usePortfolioData();
   const live = portfolio.source === "mt5";
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const dashboard = pathname === "/";
+
+  const mobileNavigation = (
+    <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+      <SheetTrigger
+        className="grid size-8 place-items-center rounded-sm border border-border text-muted-foreground"
+        aria-label={t("shell.openNav")}
+      >
+        <Menu className="size-4" aria-hidden />
+      </SheetTrigger>
+      <SheetContent side="left" className="w-64 border-border bg-sidebar p-0">
+        <SheetTitle className="sr-only">{t("shell.nav")}</SheetTitle>
+        <SidebarInner collapsed={false} live={live} onNavigate={() => setMobileOpen(false)} />
+      </SheetContent>
+    </Sheet>
+  );
+
+  if (dashboard) {
+    return (
+      <div className="min-h-screen w-full overflow-x-hidden bg-background">
+        <DashboardHeader onOpenMobile={mobileNavigation} />
+        <main className="min-w-0 overflow-x-hidden">{children}</main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen w-full max-w-full overflow-x-hidden bg-background">
@@ -304,24 +390,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           accountId={portfolio.account.accountId}
           lastSync={portfolio.account.lastSync}
           live={live}
-          onOpenMobile={
-            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-              <SheetTrigger
-                className="grid size-8 place-items-center rounded-sm border border-border text-muted-foreground"
-                aria-label={t("shell.openNav")}
-              >
-                <Menu className="size-4" aria-hidden />
-              </SheetTrigger>
-              <SheetContent side="left" className="w-64 border-border bg-sidebar p-0">
-                <SheetTitle className="sr-only">{t("shell.nav")}</SheetTitle>
-                <SidebarInner
-                  collapsed={false}
-                  live={live}
-                  onNavigate={() => setMobileOpen(false)}
-                />
-              </SheetContent>
-            </Sheet>
-          }
+          onOpenMobile={mobileNavigation}
         />
         <p className="border-b border-primary/30 bg-primary/8 px-3 py-1.5 text-center text-[11px] font-medium tracking-wide text-primary sm:px-5">
           {t("shell.safety")}
