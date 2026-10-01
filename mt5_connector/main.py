@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-import logging
 import json
+import logging
 import signal
 import time
 import urllib.error
 import urllib.request
-from datetime import UTC, datetime
 from typing import Any
 
-import MetaTrader5 as mt5
 from config import Settings
 from mt5_reader import ReadOnlyTerminal
 

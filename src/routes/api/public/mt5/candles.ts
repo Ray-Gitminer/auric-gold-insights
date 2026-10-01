@@ -42,7 +42,7 @@ async function secretsMatch(received: string, expected: string): Promise<boolean
   const right = new Uint8Array(expectedHash);
   let difference = left.length ^ right.length;
   for (let index = 0; index < Math.min(left.length, right.length); index += 1) {
-    difference |= left[index] ^ right[index];
+    difference |= (left.at(index) ?? 0) ^ (right.at(index) ?? 0);
   }
   return difference === 0;
 }
