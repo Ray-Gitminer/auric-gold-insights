@@ -44,7 +44,7 @@ export function GoldChart({
   live?: boolean;
   allowFallback?: boolean;
   emptyLabel?: string;
-  statusLabel?: string;
+  statusLabel?: string | undefined;
 }) {
   const { t } = useI18n();
   const fallbackCandles = candlesByTimeframe[timeframe] ?? candlesByTimeframe["1D"] ?? [];
