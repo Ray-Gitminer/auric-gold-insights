@@ -1,3 +1,4 @@
+import { NewsIntelligenceView } from "@/components/auriq/NewsIntelligenceView";
 import { useEffect, useMemo, useRef, useState, type Ref } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CalendarClock, ExternalLink, Loader2, RefreshCw, Send, Upload } from "lucide-react";
@@ -390,6 +391,7 @@ function EconomicNewsWorkspace() {
 
   return (
     <>
+      <NewsIntelligenceView />
       <PageHeader
         title={t("nav.economicNews")}
         description={t("enews.desc")}

@@ -1,3 +1,4 @@
+import { NewsIntelligenceView } from "@/components/auriq/NewsIntelligenceView";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalendarClock, ExternalLink, RefreshCw } from "lucide-react";
 
@@ -51,6 +52,7 @@ function News() {
 
   return (
     <>
+      <NewsIntelligenceView />
       <PageHeader
         title={t("news.title")}
         description={t("news.desc")}
