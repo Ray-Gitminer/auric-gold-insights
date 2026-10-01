@@ -10,6 +10,7 @@ type AuthContextValue = {
   user: User | null;
   signIn: (email: string, password: string) => Promise<string | null>;
   resetPassword: (email: string) => Promise<string | null>;
+  signUp: (email: string, password: string) => Promise<{ error: string | null; confirmed: boolean }>;
   updatePassword: (password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
 };
@@ -53,6 +54,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!client) return "Supabase is not configured";
         const { error } = await client.auth.signInWithPassword({ email, password });
         return error?.message ?? null;
+      },
+      async signUp(email, password) {
+        const client = getSupabaseBrowserClient();
+        if (!client) return { error: "Supabase is not configured", confirmed: false };
+        const { data, error } = await client.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: window.location.origin },
+        });
+        return { error: error?.message ?? null, confirmed: Boolean(data.session) };
       },
       async resetPassword(email) {
         const client = getSupabaseBrowserClient();
