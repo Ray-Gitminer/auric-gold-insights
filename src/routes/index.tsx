@@ -143,16 +143,16 @@ function Dashboard() {
   return (
     <div className="relative isolate min-h-[calc(100vh-4rem)] overflow-hidden">
       <img src={mountainBackground} width={1920} height={1080} alt="" className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover object-bottom opacity-70" />
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-background/45" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-background/40 via-background/70 to-background/92" />
 
       <div className="mx-auto w-full max-w-[1920px] px-3 py-3 sm:px-5 xl:px-6">
         <div className="grid min-w-0 gap-2.5 xl:grid-cols-[25%_50%_25%] xl:gap-3">
           {/* LEFT intro */}
           <aside className="order-3 flex min-w-0 flex-col gap-3 xl:order-1 xl:col-start-1 xl:row-start-1 xl:pt-3">
             <div className="max-w-[27rem]">
-              <p className="text-[8px] font-semibold tracking-[0.3em] text-muted-foreground">PRECISION · CONTEXT · CONFIRMATION</p>
+               <p className="text-[9px] font-semibold tracking-[0.3em] text-info">XAUUSD INTELLIGENCE · AI INTERPRETATION</p>
               <h1 className="mt-3 text-3xl leading-[1.1] font-extrabold sm:text-4xl xl:text-[2.25rem] 2xl:text-[2.7rem]">
-                <span className="block">{t("dashboard.heroTitle")}</span>
+                <span className="block text-foreground drop-shadow-[0_0_18px_color-mix(in_oklab,var(--color-info)_18%,transparent)]">{t("dashboard.heroTitle")}</span>
                 <span className="block whitespace-nowrap">{t("dashboard.heroWith")} <span className="text-gold-bright">AI + Context</span> +</span>
                 <span className="block text-info">Confirmation</span>
               </h1>
