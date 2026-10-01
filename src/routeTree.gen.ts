@@ -20,6 +20,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PositionsOrdersRouteImport } from './routes/positions-orders'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignalsRouteImport } from './routes/signals'
 import { Route as TradeHistoryRouteImport } from './routes/trade-history'
@@ -80,6 +81,11 @@ const PositionsOrdersRoute = PositionsOrdersRouteImport.update({
   path: '/positions-orders',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/news': typeof NewsRoute
   '/portfolio': typeof PortfolioRoute
   '/positions-orders': typeof PositionsOrdersRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/signals': typeof SignalsRoute
   '/trade-history': typeof TradeHistoryRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/news': typeof NewsRoute
   '/portfolio': typeof PortfolioRoute
   '/positions-orders': typeof PositionsOrdersRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/signals': typeof SignalsRoute
   '/trade-history': typeof TradeHistoryRoute
@@ -148,6 +156,7 @@ export interface FileRoutesById {
   '/news': typeof NewsRoute
   '/portfolio': typeof PortfolioRoute
   '/positions-orders': typeof PositionsOrdersRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/signals': typeof SignalsRoute
   '/trade-history': typeof TradeHistoryRoute
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/portfolio'
     | '/positions-orders'
+    | '/reset-password'
     | '/settings'
     | '/signals'
     | '/trade-history'
@@ -184,6 +194,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/portfolio'
     | '/positions-orders'
+    | '/reset-password'
     | '/settings'
     | '/signals'
     | '/trade-history'
@@ -201,6 +212,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/portfolio'
     | '/positions-orders'
+    | '/reset-password'
     | '/settings'
     | '/signals'
     | '/trade-history'
@@ -219,6 +231,7 @@ export interface RootRouteChildren {
   NewsRoute: typeof NewsRoute
   PortfolioRoute: typeof PortfolioRoute
   PositionsOrdersRoute: typeof PositionsOrdersRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SettingsRoute: typeof SettingsRoute
   SignalsRoute: typeof SignalsRoute
   TradeHistoryRoute: typeof TradeHistoryRoute
@@ -304,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PositionsOrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -347,6 +367,7 @@ const rootRouteChildren: RootRouteChildren = {
   NewsRoute: NewsRoute,
   PortfolioRoute: PortfolioRoute,
   PositionsOrdersRoute: PositionsOrdersRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SettingsRoute: SettingsRoute,
   SignalsRoute: SignalsRoute,
   TradeHistoryRoute: TradeHistoryRoute,
