@@ -206,7 +206,7 @@ function Dashboard() {
                   <span className="text-lg font-bold">XAUUSD</span>
                    <SampleTag />
                 </div>
-                <p className="text-xs text-muted-foreground">Gold Spot / U.S. Dollar</p>
+                <p className="text-xs text-muted-foreground">{t("dashboard.instrumentName")}</p>
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="num text-2xl font-semibold">{num(instrument.last)}</span>
@@ -215,9 +215,9 @@ function Dashboard() {
                 </span>
               </div>
               <dl className="num flex gap-5 text-xs">
-                <div><dt className="text-muted-foreground">High</dt><dd>{num(instrument.high)}</dd></div>
-                <div><dt className="text-muted-foreground">Low</dt><dd>{num(instrument.low)}</dd></div>
-                <div><dt className="text-muted-foreground">Open</dt><dd className="text-muted-foreground/70">—</dd></div>
+                <div><dt className="text-muted-foreground">{t("common.high")}</dt><dd>{num(instrument.high)}</dd></div>
+                <div><dt className="text-muted-foreground">{t("common.low")}</dt><dd>{num(instrument.low)}</dd></div>
+                <div><dt className="text-muted-foreground">{t("dashboard.open")}</dt><dd className="text-muted-foreground/70">—</dd></div>
               </dl>
             </div>
             <div className="mt-3 flex flex-wrap gap-1" role="group" aria-label="Timeframe">
@@ -237,6 +237,9 @@ function Dashboard() {
                   {tf.label}
                 </button>
               ))}
+              <span className="ml-auto self-center text-[10px] tracking-wide text-muted-foreground">
+                {chartLive ? t("dashboard.mt5ChartLive") : t("chart.staticDemo")}
+              </span>
             </div>
             <div className="mt-3 min-w-0">
                <GoldChart timeframe={timeframe} candlesOverride={chartLive ? candles.data : undefined} live={chartLive} />

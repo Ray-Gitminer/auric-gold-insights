@@ -177,9 +177,7 @@ function SidebarInner({
       <Wordmark collapsed={collapsed} />
       {!collapsed && (
         <div className="flex flex-wrap items-center gap-2 px-4 pb-4">
-          <StatusBadge tone={live ? "positive" : "gold"}>
-            {live ? "LIVE · READ-ONLY" : t("shell.paperShort")}
-          </StatusBadge>
+          <StatusBadge tone="gold">{t("shell.paperShort")}</StatusBadge>
           <span className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
             <span className="size-1.5 rounded-full bg-positive" aria-hidden />
             {live ? "MT5 Connected" : t("shell.gatewayDemo")}
@@ -214,9 +212,7 @@ function TopBar({
     <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-surface/95 px-3 backdrop-blur sm:px-5">
       <div className="lg:hidden">{onOpenMobile}</div>
 
-      <StatusBadge tone={live ? "positive" : "gold"} className="shrink-0">
-        {live ? "MT5 LIVE · READ-ONLY" : t("shell.paper")}
-      </StatusBadge>
+      <StatusBadge tone="gold" className="shrink-0">{t("shell.paper")}</StatusBadge>
       <span className="hidden shrink-0 items-center gap-1.5 text-xs text-muted-foreground md:inline-flex">
         <ShieldCheck className="size-3.5" aria-hidden />
         {t("shell.humanConfirm")}
@@ -328,9 +324,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           }
         />
         <p className="border-b border-primary/30 bg-primary/8 px-3 py-1.5 text-center text-[11px] font-medium tracking-wide text-primary sm:px-5">
-          {live
-            ? "บัญชีจริง · อ่านข้อมูลเท่านั้น · ไม่มีคำสั่งซื้อขายอัตโนมัติ"
-            : t("shell.safety")}
+          {t("shell.safety")}
         </p>
         <main className="w-full min-w-0 flex-1 overflow-x-hidden px-3 py-5 sm:px-5 lg:px-6">
           <div className="mx-auto flex w-full min-w-0 max-w-[1600px] flex-col gap-5">
