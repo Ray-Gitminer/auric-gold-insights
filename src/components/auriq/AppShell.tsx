@@ -299,7 +299,7 @@ function DashboardHeader({ onOpenMobile }: { onOpenMobile: ReactNode }) {
             <img
               src={auriqLogo.url}
               alt="AURIQ Gold Insights"
-              className="hidden h-auto w-[220px] max-w-full object-contain object-left drop-shadow-[0_0_14px_color-mix(in_oklab,var(--color-primary)_25%,transparent)] sm:block"
+              className="hidden h-12 w-[210px] max-w-full object-contain object-left drop-shadow-[0_0_14px_color-mix(in_oklab,var(--color-primary)_25%,transparent)] sm:block"
             />
           </Link>
         </div>
