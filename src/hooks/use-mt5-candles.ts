@@ -57,7 +57,7 @@ export function useMt5Candles(timeframe: Timeframe) {
     queryKey: ["mt5-candles", user?.id, timeframe],
     queryFn: () => fetchCandles(timeframe),
     enabled: Boolean(user),
-    staleTime: 4_000,
-    refetchInterval: 5_000,
+    staleTime: 900,
+    refetchInterval: 1_000,
   });
 }

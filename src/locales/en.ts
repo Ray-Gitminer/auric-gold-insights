@@ -151,6 +151,17 @@ export const en = {
   "overview.rail": "Intelligence rail",
 
   // ---------- AURIQ Gold Insights dashboard ----------
+  "signals.mode1": "Formula",
+  "signals.mode2": "AI",
+  "signals.mode3": "Rayny/MPGP",
+  "signals.aiRun": "Analyse with AI",
+  "signals.aiRunning": "Analysing…",
+  "signals.aiDisclaimer": "AI judgment — not verified. Runs only when you press the button.",
+  "signals.reasoning": "Reasoning",
+  "signals.lang": "en",
+  "signals.awaitRules": "Waiting for your Rayny Nexora / MPGP rules. No logic is invented.",
+  "signals.confidence": "Confidence",
+  "signals.needMt5": "MT5 not connected — signals computed on sample data.",
   "dashboard.sampleData": "Sample data",
   "dashboard.awaitingData": "Awaiting data",
   "dashboard.comingSoon": "Coming soon",
