@@ -1,3 +1,4 @@
+import { FinanceCalendarPanel } from "@/components/auriq/FinanceCalendarPanel";
 import { TrendChart } from "@/components/auriq/TrendChart";
 import { Fragment, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
@@ -565,6 +566,8 @@ function EconomicCalendarPage() {
           </>
         }
       />
+
+      <FinanceCalendarPanel />
 
       <div className="flex flex-col gap-3 rounded-md border border-border bg-card p-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap items-center gap-2">
