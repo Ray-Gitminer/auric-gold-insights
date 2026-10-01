@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowDown, ArrowRight, ArrowUp, Bell, Boxes, CalendarDays, CheckCircle2,
-  ChevronRight, CircleAlert, Crosshair, Gauge, Layers, LineChart, Minus, Network,
+  ChevronRight, CircleAlert, Gauge, Layers, LineChart, Minus, Network,
   ShieldCheck, Sparkles, Target, Waves,
 } from "lucide-react";
 
@@ -74,7 +74,7 @@ function BiasValue({ dir }: { dir: "Bullish" | "Bearish" | "Neutral" }) {
 
 function ModuleVisual({ index }: { index: number }) {
   if (index === 0) {
-    return <div className="flex h-16 w-20 shrink-0 items-end gap-1 border-b border-info/30 px-1 pb-1" aria-hidden>{[22, 35, 29, 48, 42, 61, 53].map((height, i) => <span key={i} className={cn("w-1.5 rounded-t-sm", i > 3 ? "bg-info shadow-[0_0_8px_var(--color-info)]" : "bg-primary/55")} style={{ height }} />)}</div>;
+    return <svg viewBox="0 0 80 64" className="h-16 w-20 shrink-0 border-b border-info/30" aria-hidden><polyline points="3,55 14,47 24,50 35,33 46,39 57,19 68,26 77,9" fill="none" stroke="var(--color-info)" strokeWidth="2" /><path d="M3 55L14 47L24 50L35 33L46 39L57 19L68 26L77 9L77 61L3 61Z" fill="var(--color-info)" opacity=".12" />{[14,24,35,46,57,68].map((x, i) => <line key={x} x1={x} x2={x} y1={47 - i * 5} y2={58 - i * 3} stroke={i > 2 ? "var(--color-info)" : "var(--color-primary)"} strokeWidth="3" />)}</svg>;
   }
   if (index === 1) {
     return <div className="relative h-16 w-20 shrink-0" aria-hidden><span className="absolute top-2 right-1 h-7 w-14 -skew-y-12 border border-negative/55 bg-negative/15" /><span className="absolute top-6 right-4 h-7 w-14 -skew-y-12 border border-info/55 bg-info/15" /><span className="absolute top-10 right-7 h-5 w-10 -skew-y-12 border border-primary/55 bg-primary/15" /></div>;
