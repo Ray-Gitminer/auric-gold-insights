@@ -198,6 +198,7 @@ export const th: Dictionary = {
   "dashboard.instrumentName": "ทองคำสปอต / ดอลลาร์สหรัฐ",
   "dashboard.open": "เปิด",
   "dashboard.mt5ChartLive": "MT5 สด · อ่านข้อมูลเท่านั้น",
+  "dashboard.mt5ChartPaused": "MT5 · Agent หยุดส่ง · ล่าสุด",
   "dashboard.startAnalysis": "เริ่มวิเคราะห์",
   "dashboard.marketContext": "บริบทตลาด",
   "dashboard.confirmation": "การยืนยัน",

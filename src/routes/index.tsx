@@ -12,7 +12,7 @@ import { num, pct } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { GoldChart, type Timeframe } from "@/components/auriq/GoldChart";
 import { useI18n } from "@/contexts/I18nContext";
-import { useMt5Candles } from "@/hooks/use-mt5-candles";
+import { isMt5Fresh, useMt5Candles } from "@/hooks/use-mt5-candles";
 import { candlesByTimeframe } from "@/data/fixtures";
 import { computeFormulaSignal } from "@/lib/signals/engine";
 import { runAiSignal, type AiSignal } from "@/lib/signals/ai-signal.functions";
@@ -92,12 +92,15 @@ function Dashboard() {
   const [timeframe, setTimeframe] = useState<Timeframe>("1h");
   const [insightOpen, setInsightOpen] = useState(true);
   const candles = useMt5Candles(timeframe);
-  const chartLive = Boolean(candles.data && candles.data.length > 1);
+  const mt5Candles = candles.data?.candles ?? [];
+  const chartLive = mt5Candles.length > 1;
   const pending = t("dashboard.awaitingData");
   const [mode, setMode] = useState<1 | 2 | 3>(1);
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => { setNow(new Date()); const id = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(id); }, []);
-  const source = chartLive ? candles.data! : candlesByTimeframe[timeframe] ?? [];
+  const mt5Fresh = isMt5Fresh(candles.data, now?.getTime());
+  const mt5Label = !chartLive ? t("chart.staticDemo") : mt5Fresh ? t("dashboard.mt5ChartLive") : `${t("dashboard.mt5ChartPaused")} ${candles.data?.lastSyncAt ? new Date(candles.data.lastSyncAt).toLocaleTimeString("en-GB", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" }) : ""}`;
+  const source = chartLive ? mt5Candles : candlesByTimeframe[timeframe] ?? [];
   const formula = useMemo(() => computeFormulaSignal(source), [source]);
   const [ai, setAi] = useState<AiSignal | null>(null);
   const [aiBusy, setAiBusy] = useState(false);
@@ -187,10 +190,10 @@ function Dashboard() {
                 {TF.map((tf) => <button key={tf.value} type="button" aria-pressed={timeframe === tf.value} onClick={() => setTimeframe(tf.value)} className={cn("shrink-0 rounded-sm border px-3 py-1 text-[10px] font-semibold", timeframe === tf.value ? "border-info/60 bg-info/15 text-info" : "border-border text-muted-foreground")}>{tf.label}</button>)}
                  <div className="ml-2 hidden items-center gap-1 lg:flex" aria-hidden><span className="rounded-sm border border-border/70 px-2 py-1 text-[9px] text-muted-foreground">EMA</span><span className="rounded-sm border border-border/70 px-2 py-1 text-[9px] text-muted-foreground">RSI</span><span className="rounded-sm border border-border/70 px-2 py-1 text-[9px] text-muted-foreground">Stoch</span></div>
                  </div>
-                 <span className="hidden shrink-0 pl-2 text-[9px] text-muted-foreground sm:block">{chartLive ? t("dashboard.mt5ChartLive") : t("chart.staticDemo")}</span>
-                 <span className="col-span-2 mt-1 truncate text-right text-[8px] text-muted-foreground sm:hidden">{chartLive ? t("dashboard.mt5ChartLive") : t("chart.staticDemo")}</span>
+                 <span className="hidden shrink-0 pl-2 text-[9px] text-muted-foreground sm:block">{mt5Label}</span>
+                 <span className="col-span-2 mt-1 truncate text-right text-[8px] text-muted-foreground sm:hidden">{mt5Label}</span>
               </div>
-              <GoldChart timeframe={timeframe} candlesOverride={chartLive ? candles.data : undefined} live={chartLive} />
+              <GoldChart timeframe={timeframe} candlesOverride={chartLive ? mt5Candles : undefined} live={chartLive} statusLabel={mt5Label} />
               <div className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-3 border-t border-border/60 px-3 py-2 xl:pr-[19.5rem]">
                 <span className="num text-[9px] text-muted-foreground">RSI 14</span><div className="h-10 overflow-hidden"><svg viewBox="0 0 700 32" preserveAspectRatio="none" className="h-full w-full" aria-hidden><polyline fill="none" stroke="var(--color-info)" strokeWidth="1.5" points="0,23 45,16 90,20 130,10 180,24 225,15 275,18 320,7 365,20 410,14 455,22 505,6 550,12 600,4 650,17 700,9" /></svg></div>
               </div>

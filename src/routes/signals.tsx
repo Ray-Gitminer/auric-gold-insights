@@ -9,7 +9,7 @@ import { GoldChart, type Timeframe } from "@/components/auriq/GoldChart";
 import { TrendChart } from "@/components/auriq/TrendChart";
 import { Button } from "@/components/ui/button";
 import { useEconomicCalendar } from "@/hooks/use-economic-calendar";
-import { useMt5Candles } from "@/hooks/use-mt5-candles";
+import { isMt5Fresh, useMt5Candles } from "@/hooks/use-mt5-candles";
 import { useI18n } from "@/contexts/I18nContext";
 import { computeFormulaSignal, type Direction } from "@/lib/signals/engine";
 import { eventLabel } from "@/locales/economic-events-th";
@@ -101,9 +101,12 @@ function SignalsPage() {
   const [timeframe, setTimeframe] = useState<Timeframe>("1h");
   const calendar = useEconomicCalendar();
   const candles = useMt5Candles(timeframe);
-  const chartLive = Boolean(candles.data && candles.data.length > 29);
-  const signal = useMemo(() => chartLive && candles.data ? computeFormulaSignal(candles.data) : null, [chartLive, candles.data]);
   const now = Date.now();
+  const mt5Candles = useMemo(() => candles.data?.candles ?? [], [candles.data]);
+  const chartLive = mt5Candles.length > 29;
+  const mt5Fresh = isMt5Fresh(candles.data, now);
+  const signal = useMemo(() => chartLive ? computeFormulaSignal(mt5Candles) : null, [chartLive, mt5Candles]);
+  const mt5Label = mt5Fresh ? "MT5 LIVE · READ-ONLY" : t("dashboard.mt5ChartPaused");
   const economicEvents = useMemo(() => calendar.events
     .filter((event) => event.release.currency === "USD" || !event.release.currency)
     .sort((a, b) => a.release.nextReleaseUtc.localeCompare(b.release.nextReleaseUtc)), [calendar.events]);
@@ -126,7 +129,7 @@ function SignalsPage() {
           </div>
           <div className="flex flex-wrap items-center gap-2 lg:justify-end">
             <span className="rounded-md border border-info/45 bg-info/8 px-2.5 py-1 text-[10px] font-semibold text-info">{t("signals.sourceOfficial")}</span>
-            <span className={cn("rounded-md border px-2.5 py-1 text-[10px] font-semibold", chartLive ? "border-positive/55 bg-positive/10 text-positive" : "border-warning/55 bg-warning/10 text-warning")}>{chartLive ? "MT5 LIVE · READ-ONLY" : t("signals.waitingConnector")}</span>
+            <span className={cn("rounded-md border px-2.5 py-1 text-[10px] font-semibold", chartLive ? "border-positive/55 bg-positive/10 text-positive" : "border-warning/55 bg-warning/10 text-warning")}>{chartLive ? mt5Label : t("signals.waitingConnector")}</span>
           </div>
         </header>
 
@@ -144,9 +147,9 @@ function SignalsPage() {
               <div className="mb-2 flex min-w-0 flex-wrap items-center gap-1 border-b border-border/55 pb-2">
                 <strong className="mr-2 text-lg">XAUUSD</strong>
                 {TIMEFRAMES.map((item) => <Button key={item.value} type="button" size="sm" variant={timeframe === item.value ? "secondary" : "ghost"} onClick={() => setTimeframe(item.value)} className="h-7 px-2 text-[10px]">{item.label}</Button>)}
-                <span className="ml-auto text-[10px] text-muted-foreground">{chartLive ? `${candles.data?.length ?? 0} candles` : t("signals.noTradeSignal")}</span>
+                <span className="ml-auto text-[10px] text-muted-foreground">{chartLive ? `${mt5Candles.length} candles` : t("signals.noTradeSignal")}</span>
               </div>
-              <GoldChart timeframe={timeframe} candlesOverride={chartLive ? candles.data : undefined} live={chartLive} allowFallback={false} emptyLabel={t("signals.waitingConnector")} />
+              <GoldChart timeframe={timeframe} candlesOverride={chartLive ? mt5Candles : undefined} live={chartLive} statusLabel={chartLive ? mt5Label : undefined} allowFallback={false} emptyLabel={t("signals.waitingConnector")} />
             </SignalPanel>
 
             <SignalPanel title={t("signals.releaseTrend")} icon={<BarChart3 className="size-4" />}>
