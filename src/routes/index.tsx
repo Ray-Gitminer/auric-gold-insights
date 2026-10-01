@@ -12,7 +12,6 @@ import { num, pct } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { GoldChart, type Timeframe } from "@/components/auriq/GoldChart";
 import { useI18n } from "@/contexts/I18nContext";
-import { usePortfolioData } from "@/hooks/use-portfolio-data";
 import { useMt5Candles } from "@/hooks/use-mt5-candles";
 import { candlesByTimeframe } from "@/data/fixtures";
 import { computeFormulaSignal } from "@/lib/signals/engine";
@@ -90,11 +89,10 @@ function ModuleVisual({ index }: { index: number }) {
 
 function Dashboard() {
   const { t, tx } = useI18n();
-  const { data: portfolio } = usePortfolioData();
   const [timeframe, setTimeframe] = useState<Timeframe>("1h");
   const [insightOpen, setInsightOpen] = useState(true);
   const candles = useMt5Candles(timeframe);
-  const chartLive = portfolio.source === "mt5" && Boolean(candles.data && candles.data.length > 1);
+  const chartLive = Boolean(candles.data && candles.data.length > 1);
   const pending = t("dashboard.awaitingData");
   const [mode, setMode] = useState<1 | 2 | 3>(1);
   const [now, setNow] = useState<Date | null>(null);

@@ -10,7 +10,6 @@ import { TrendChart } from "@/components/auriq/TrendChart";
 import { Button } from "@/components/ui/button";
 import { useEconomicCalendar } from "@/hooks/use-economic-calendar";
 import { useMt5Candles } from "@/hooks/use-mt5-candles";
-import { usePortfolioData } from "@/hooks/use-portfolio-data";
 import { useI18n } from "@/contexts/I18nContext";
 import { computeFormulaSignal, type Direction } from "@/lib/signals/engine";
 import { eventLabel } from "@/locales/economic-events-th";
@@ -101,9 +100,8 @@ function SignalsPage() {
   const { t, lang } = useI18n();
   const [timeframe, setTimeframe] = useState<Timeframe>("1h");
   const calendar = useEconomicCalendar();
-  const { data: portfolio } = usePortfolioData();
   const candles = useMt5Candles(timeframe);
-  const chartLive = portfolio.source === "mt5" && Boolean(candles.data && candles.data.length > 29);
+  const chartLive = Boolean(candles.data && candles.data.length > 29);
   const signal = useMemo(() => chartLive && candles.data ? computeFormulaSignal(candles.data) : null, [chartLive, candles.data]);
   const now = Date.now();
   const economicEvents = useMemo(() => calendar.events
