@@ -528,12 +528,32 @@ function EconomicNewsWorkspace() {
                   className="sr-only"
                 />
               </label>
+              <button
+                type="button"
+                disabled={importing}
+                onClick={() => void pasteFromClipboard()}
+                className="inline-flex items-center gap-1.5 rounded-sm border border-info/50 bg-info/12 px-3 py-1.5 text-xs font-medium text-info hover:bg-info/20 disabled:opacity-50"
+              >
+                {importing ? (
+                  <Loader2 className="size-3 animate-spin" aria-hidden />
+                ) : (
+                  <ClipboardPaste className="size-3" aria-hidden />
+                )}
+                {lang === "th" ? "วางภาพจากคลิปบอร์ด" : "Paste from clipboard"}
+              </button>
               <span className="text-[11px] text-muted-foreground">
                 {lang === "th"
-                  ? "รองรับ PNG/JPG/WebP · หรือก๊อปปี้ภาพแล้วกด Ctrl+V วางได้เลย · AI จะไม่เดาตัวเลขที่อ่านไม่ชัด"
-                  : "PNG/JPG/WebP · or copy an image and press Ctrl+V to paste · unreadable values are never guessed"}
+                  ? "รองรับ PNG/JPG/WebP · ก๊อปปี้ภาพแล้วกดปุ่มวาง หรือกด Ctrl+V · AI จะไม่เดาตัวเลขที่อ่านไม่ชัด"
+                  : "PNG/JPG/WebP · copy an image, then click paste or press Ctrl+V · unreadable values are never guessed"}
               </span>
             </div>
+            {clipboardDenied ? (
+              <p className="mt-3 text-xs text-warning">
+                {lang === "th"
+                  ? "อ่านคลิปบอร์ดไม่ได้ — กรุณาคลิกที่หน้านี้ก่อนแล้วกด Ctrl+V หรือใช้ปุ่มอัปโหลดแทน (บางเบราว์เซอร์ต้องอนุญาตการเข้าถึงคลิปบอร์ด)"
+                  : "Clipboard read was blocked — click on this page first, then press Ctrl+V, or use the upload button (some browsers require clipboard permission)."}
+              </p>
+            ) : null}
             {importError ? (
               <p className="mt-3 text-xs text-negative">
                 {lang === "th"
