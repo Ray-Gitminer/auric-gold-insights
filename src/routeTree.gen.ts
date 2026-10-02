@@ -17,6 +17,7 @@ import { Route as EconomicCalendarRouteImport } from './routes/economic-calendar
 import { Route as EconomicNewsRouteImport } from './routes/economic-news'
 import { Route as JournalRouteImport } from './routes/journal'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MarketDataRouteImport } from './routes/market-data'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PositionsOrdersRouteImport } from './routes/positions-orders'
@@ -64,6 +65,11 @@ const JournalRoute = JournalRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketDataRoute = MarketDataRouteImport.update({
+  id: '/market-data',
+  path: '/market-data',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewsRoute = NewsRouteImport.update({
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/economic-news': typeof EconomicNewsRoute
   '/journal': typeof JournalRoute
   '/login': typeof LoginRoute
+  '/market-data': typeof MarketDataRoute
   '/news': typeof NewsRoute
   '/portfolio': typeof PortfolioRoute
   '/positions-orders': typeof PositionsOrdersRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   '/economic-news': typeof EconomicNewsRoute
   '/journal': typeof JournalRoute
   '/login': typeof LoginRoute
+  '/market-data': typeof MarketDataRoute
   '/news': typeof NewsRoute
   '/portfolio': typeof PortfolioRoute
   '/positions-orders': typeof PositionsOrdersRoute
@@ -153,6 +161,7 @@ export interface FileRoutesById {
   '/economic-news': typeof EconomicNewsRoute
   '/journal': typeof JournalRoute
   '/login': typeof LoginRoute
+  '/market-data': typeof MarketDataRoute
   '/news': typeof NewsRoute
   '/portfolio': typeof PortfolioRoute
   '/positions-orders': typeof PositionsOrdersRoute
@@ -173,6 +182,7 @@ export interface FileRouteTypes {
     | '/economic-news'
     | '/journal'
     | '/login'
+    | '/market-data'
     | '/news'
     | '/portfolio'
     | '/positions-orders'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/economic-news'
     | '/journal'
     | '/login'
+    | '/market-data'
     | '/news'
     | '/portfolio'
     | '/positions-orders'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/economic-news'
     | '/journal'
     | '/login'
+    | '/market-data'
     | '/news'
     | '/portfolio'
     | '/positions-orders'
@@ -228,6 +240,7 @@ export interface RootRouteChildren {
   EconomicNewsRoute: typeof EconomicNewsRoute
   JournalRoute: typeof JournalRoute
   LoginRoute: typeof LoginRoute
+  MarketDataRoute: typeof MarketDataRoute
   NewsRoute: typeof NewsRoute
   PortfolioRoute: typeof PortfolioRoute
   PositionsOrdersRoute: typeof PositionsOrdersRoute
@@ -294,6 +307,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/market-data': {
+      id: '/market-data'
+      path: '/market-data'
+      fullPath: '/market-data'
+      preLoaderRoute: typeof MarketDataRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/news': {
@@ -364,6 +384,7 @@ const rootRouteChildren: RootRouteChildren = {
   EconomicNewsRoute: EconomicNewsRoute,
   JournalRoute: JournalRoute,
   LoginRoute: LoginRoute,
+  MarketDataRoute: MarketDataRoute,
   NewsRoute: NewsRoute,
   PortfolioRoute: PortfolioRoute,
   PositionsOrdersRoute: PositionsOrdersRoute,

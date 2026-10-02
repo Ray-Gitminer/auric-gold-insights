@@ -8,6 +8,7 @@ import {
   ChevronRight,
   Clock,
   FileClock,
+  Globe,
   LayoutDashboard,
   Menu,
   Newspaper,
@@ -43,6 +44,8 @@ const NAV = [
   { to: "/trade-history", key: "nav.tradeHistory", icon: Clock },
   // News, weekly analysis and the economic calendar live as tabs inside /economic-news.
   { to: "/economic-news", key: "nav.economicNews", icon: Newspaper },
+  { to: "/market-data", key: "nav.marketData", icon: Globe },
+
 
   { to: "/chart-strategy", key: "nav.chartStrategy", icon: Activity },
   { to: "/alerts", key: "nav.alerts", icon: Bell },
