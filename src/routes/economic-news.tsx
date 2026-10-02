@@ -1370,8 +1370,9 @@ const WeeklyVisualSummary = function WeeklyVisualSummary({
 }) {
   const visualRows = result.visualSummary?.rows ?? [];
   const findVisual = (releaseId: string) => visualRows.find((row) => row.releaseId === releaseId);
-  const dateRange = events.length
-    ? `${bkkDateTime(events[0]!.nextReleaseUtc)} – ${bkkDateTime(events.at(-1)!.nextReleaseUtc)}`
+  const orderedEvents = [...events].sort((a, b) => a.nextReleaseUtc.localeCompare(b.nextReleaseUtc));
+  const dateRange = orderedEvents.length
+    ? `${bkkDateTime(orderedEvents[0]?.nextReleaseUtc ?? "")} – ${bkkDateTime(orderedEvents.at(-1)?.nextReleaseUtc ?? "")}`
     : "";
   const impactText = (impact: EventSnapshot["impact"]) =>
     impact === "High"
@@ -1385,100 +1386,161 @@ const WeeklyVisualSummary = function WeeklyVisualSummary({
         : lang === "th"
           ? "ต่ำ"
           : "Low";
+  const groupedDays = Array.from(
+    orderedEvents.reduce((days, event) => {
+      const key = dayKey(event.nextReleaseUtc);
+      days.set(key, [...(days.get(key) ?? []), event]);
+      return days;
+    }, new Map<string, EventSnapshot[]>()),
+  );
+  const directionLabel = (direction: GoldDirection) =>
+    direction === "positive"
+      ? lang === "th"
+        ? "บวกทอง"
+        : "Positive for gold"
+      : direction === "negative"
+        ? lang === "th"
+          ? "ลบทอง"
+          : "Negative for gold"
+        : lang === "th"
+          ? "เป็นกลาง"
+          : "Neutral";
+  const directionTone = (direction: GoldDirection) =>
+    direction === "positive"
+      ? "border-positive/70 bg-positive/10 text-positive"
+      : direction === "negative"
+        ? "border-negative/70 bg-negative/10 text-negative"
+        : "border-primary/70 bg-primary/10 text-primary";
+  const DirectionIcon = ({ direction, className }: { direction: GoldDirection; className?: string }) => {
+    const Icon = direction === "positive" ? ArrowUp : direction === "negative" ? ArrowDown : ArrowRight;
+    return <Icon className={className} strokeWidth={3} aria-hidden />;
+  };
+  const weeklyDirection: GoldDirection =
+    result.goldOutlook.direction === "Bullish"
+      ? "positive"
+      : result.goldOutlook.direction === "Bearish"
+        ? "negative"
+        : "neutral";
 
   return (
     <div
       ref={ref}
-      className="overflow-hidden rounded-lg border border-[#d9ad43] bg-[#f7f4ed] text-[#071a3a] shadow-[0_18px_50px_rgba(0,0,0,0.25)]"
+      className="auric-page overflow-hidden rounded-lg border border-primary/70 text-foreground shadow-[var(--shadow-glow)]"
     >
-      <header className="border-b-4 border-[#d9ad43] bg-[linear-gradient(135deg,#03132d,#082d5e)] px-5 py-5 text-white">
-        <p className="text-[10px] font-semibold tracking-[0.22em] text-[#e9bb4c]">
-          AURIQ INTELLIGENCE
-        </p>
-        <h2 className="mt-1 text-xl leading-tight font-extrabold sm:text-3xl">
+      <header className="relative overflow-hidden border-b border-primary/70 bg-background/90 px-4 py-5 text-center sm:px-7 sm:py-7">
+        <div className="absolute inset-x-0 top-0 h-px bg-primary" aria-hidden />
+        <p className="text-[10px] font-semibold text-primary">AURIQ · GOLD INTELLIGENCE</p>
+        <h2 className="mt-1 text-xl leading-tight font-extrabold text-gold-bright sm:text-3xl">
           {result.visualSummary?.title ??
             (lang === "th"
-              ? "สรุปผลกระทบข่าวเศรษฐกิจต่อทองคำ (XAU/USD)"
-              : "Economic impact summary for gold (XAU/USD)")}
+              ? "ปฏิทินข่าวทองคำรายสัปดาห์"
+              : "Weekly gold economic calendar")}
         </h2>
-        <p className="mt-2 text-xs text-blue-100">{dateRange} · ICT</p>
+        <p className="num mt-2 text-xs text-muted-foreground">{dateRange} · BANGKOK TIME (GMT+7)</p>
+        <div className="mx-auto mt-3 flex max-w-3xl flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-md border border-border bg-card/70 px-3 py-2 text-xs">
+          <span className="text-muted-foreground">{lang === "th" ? "ภาพรวม:" : "Outlook:"}</span>
+          <DirectionIcon direction={weeklyDirection} className="size-4" />
+          <strong className={cn(directionTone(weeklyDirection).split(" ").at(-1))}>
+            {directionLabel(weeklyDirection)}
+          </strong>
+          <span className="text-muted-foreground">· {result.goldOutlook.note}</span>
+        </div>
       </header>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] table-fixed border-collapse text-left text-xs sm:text-sm">
-          <thead className="bg-[#082d5e] text-white">
-            <tr>
-              <th className="w-[15%] border-r border-white/30 px-3 py-3">
-                {lang === "th" ? "วัน / เวลา" : "Date / time"}
-              </th>
-              <th className="w-[26%] border-r border-white/30 px-3 py-3">
-                {lang === "th" ? "ข่าว" : "Release"}
-              </th>
-              <th className="w-[12%] border-r border-white/30 px-3 py-3 text-center">Impact</th>
-              <th className="w-[24%] border-r border-white/30 px-3 py-3">
-                {lang === "th" ? "ผลต่อทองคำ" : "Gold impact"}
-              </th>
-              <th className="w-[23%] px-3 py-3">{lang === "th" ? "แผนรับมือ" : "Response plan"}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {events.map((event, index) => {
-              const row = findVisual(event.releaseId);
-              const fallbackComparison = result.forecastVsPrevious.find(
-                (item) => item.releaseId === event.releaseId,
-              )?.comparison;
-              return (
-                <tr key={event.releaseId} className={index % 2 ? "bg-[#eef1f5]" : "bg-white"}>
-                  <td className="border-r border-b border-[#9aa9bb] px-3 py-3 font-bold">
-                    {bkkDateTime(event.nextReleaseUtc)}
-                  </td>
-                  <td className="border-r border-b border-[#9aa9bb] px-3 py-3 font-semibold">
-                    {eventLabel(event.event, lang)}
-                    <p className="mt-1 text-[10px] font-normal text-[#52627a]">
-                      F {event.marketForecast ?? "—"} · P {event.previous ?? "—"}
-                    </p>
-                  </td>
-                  <td
-                    className={cn(
-                      "border-r border-b border-[#9aa9bb] px-3 py-3 text-center text-base font-extrabold",
-                      event.impact === "High"
-                        ? "text-[#b51f1f]"
-                        : event.impact === "Medium"
-                          ? "text-[#c27a00]"
-                          : "text-[#52627a]",
-                    )}
-                  >
-                    {impactText(event.impact)}
-                  </td>
-                  <td className="border-r border-b border-[#9aa9bb] px-3 py-3 font-medium">
-                    {row?.goldImpact || fallbackComparison || "—"}
-                  </td>
-                  <td className="border-b border-[#9aa9bb] px-3 py-3 font-semibold text-[#103f89]">
-                    {row?.responsePlan ||
-                      (lang === "th"
-                        ? "รอผลจริงและสัญญาณราคายืนยัน"
-                        : "Wait for actual data and price confirmation")}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+      <div className="grid gap-3 bg-background/70 p-3 sm:p-4 lg:grid-cols-2 xl:grid-cols-4">
+        {groupedDays.map(([date, dayEvents]) => {
+          const directions = dayEvents.map((event) => {
+            const visual = findVisual(event.releaseId);
+            const comparison = result.forecastVsPrevious.find(
+              (item) => item.releaseId === event.releaseId,
+            )?.comparison;
+            return goldDirectionFromText(visual?.goldImpact || comparison, result.goldOutlook.direction);
+          });
+          const positives = directions.filter((direction) => direction === "positive").length;
+          const negatives = directions.filter((direction) => direction === "negative").length;
+          const dayDirection: GoldDirection =
+            positives > negatives ? "positive" : negatives > positives ? "negative" : "neutral";
+
+          return (
+            <section key={date} className="flex min-w-0 flex-col overflow-hidden rounded-md border border-primary/55 bg-card/75 shadow-[var(--shadow-glass)]">
+              <h3 className="border-b border-primary/45 bg-surface/80 px-3 py-2.5 text-center text-base font-bold text-gold-bright">
+                {new Date(`${date}T00:00:00Z`).toLocaleDateString(lang === "th" ? "th-TH" : "en-US", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "short",
+                  timeZone: "UTC",
+                })}
+              </h3>
+              <div className="flex flex-1 flex-col gap-2 p-2">
+                {dayEvents.map((event) => {
+                  const row = findVisual(event.releaseId);
+                  const fallbackComparison = result.forecastVsPrevious.find(
+                    (item) => item.releaseId === event.releaseId,
+                  )?.comparison;
+                  const narrative = row?.goldImpact || fallbackComparison;
+                  const direction = goldDirectionFromText(narrative, result.goldOutlook.direction);
+                  return (
+                    <article key={event.releaseId} className="rounded-md border border-info/45 bg-background/70 p-3">
+                      <div className="flex min-w-0 items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="num text-xs font-bold text-info">{bkkTime(event.nextReleaseUtc)} · USD</p>
+                          <h4 className="mt-1 break-words text-sm font-semibold leading-snug">
+                            {eventLabel(event.event, lang)}
+                          </h4>
+                        </div>
+                        <span className={cn("shrink-0 rounded-sm border px-1.5 py-0.5 text-[9px] font-bold", event.impact === "High" ? "border-negative/50 text-negative" : event.impact === "Medium" ? "border-primary/50 text-primary" : "border-border text-muted-foreground")}>{impactText(event.impact)}</span>
+                      </div>
+                      <p className="num mt-2 text-xs text-muted-foreground">
+                        {event.actual ? `A ${event.actual} · ` : ""}F {event.marketForecast ?? "—"} · P {event.previous ?? "—"}
+                      </p>
+                      <div className="mt-2 flex items-start gap-2">
+                        <DirectionIcon direction={direction} className={cn("mt-0.5 size-7 shrink-0", directionTone(direction).split(" ").at(-1))} />
+                        <div className="min-w-0">
+                          <p className={cn("text-sm font-extrabold", directionTone(direction).split(" ").at(-1))}>
+                            {directionLabel(direction)}
+                          </p>
+                          <p className="mt-0.5 text-[10px] leading-relaxed text-muted-foreground">
+                            {narrative || (lang === "th" ? "รอผลจริงเพื่อยืนยันทิศทาง" : "Awaiting actual data to confirm direction")}
+                          </p>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+              <div className={cn("m-2 mt-0 flex items-center justify-center gap-2 rounded-md border px-3 py-2 text-xs font-bold", directionTone(dayDirection))}>
+                <span>{lang === "th" ? "ภาพรวมวัน:" : "Daily outlook:"}</span>
+                <DirectionIcon direction={dayDirection} className="size-5" />
+                <span>{directionLabel(dayDirection)}</span>
+              </div>
+            </section>
+          );
+        })}
       </div>
 
-      <footer className="grid gap-3 bg-[linear-gradient(135deg,#03132d,#082d5e)] px-5 py-4 text-white sm:grid-cols-[1fr_auto] sm:items-center">
-        <div>
-          <p className="text-[10px] font-bold tracking-[0.18em] text-[#e9bb4c]">
+      <footer className="border-t border-primary/70 bg-background/90 px-4 py-4 sm:px-7">
+        <div className="grid gap-3 sm:grid-cols-[auto_1fr_auto] sm:items-center">
+          <span className="auric-icon flex size-10 items-center justify-center rounded-md text-primary">
+            <Target className="size-5" aria-hidden />
+          </span>
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold text-primary">
             {lang === "th" ? "ภาพรวมและการบริหารความเสี่ยง" : "MARKET & RISK CONTEXT"}
-          </p>
-          <p className="mt-1 text-xs text-blue-100">
-            {result.visualSummary?.marketContext || result.confidence.reason}
-          </p>
+            </p>
+            <p className="mt-1 text-sm font-semibold leading-relaxed">
+              {result.visualSummary?.marketContext || result.confidence.reason}
+            </p>
+          </div>
+          <div className={cn("flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-extrabold", directionTone(weeklyDirection))}>
+            <DirectionIcon direction={weeklyDirection} className="size-6" />
+            {directionLabel(weeklyDirection)}
+          </div>
         </div>
-        <span className="rounded border border-[#e9bb4c]/70 px-3 py-1.5 text-xs font-bold text-[#e9bb4c]">
-          {lang === "th" ? "ความมั่นใจ" : "Confidence"}: {result.confidence.level}
-        </span>
-        <p className="text-[9px] text-blue-200 sm:col-span-2">{result.disclaimer}</p>
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border/70 pt-3 text-[9px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1"><BarChart3 className="size-3 text-info" aria-hidden /> {lang === "th" ? "Actual เทียบ Forecast และ Previous" : "Actual vs forecast and previous"}</span>
+          <span className="inline-flex items-center gap-1"><Sparkles className="size-3 text-primary" aria-hidden /> {lang === "th" ? "รอราคาและ USD Yield ยืนยัน" : "Await price and USD yield confirmation"}</span>
+          <span>{result.disclaimer}</span>
+        </div>
       </footer>
     </div>
   );
