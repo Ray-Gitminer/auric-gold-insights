@@ -189,6 +189,33 @@ export type Database = {
           },
         ]
       }
+      market_candles_m5: {
+        Row: {
+          close: number
+          high: number
+          low: number
+          open: number
+          timestamp: string
+          updated_at: string
+        }
+        Insert: {
+          close: number
+          high: number
+          low: number
+          open: number
+          timestamp: string
+          updated_at?: string
+        }
+        Update: {
+          close?: number
+          high?: number
+          low?: number
+          open?: number
+          timestamp?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       mt5_accounts: {
         Row: {
           account_type: string | null
