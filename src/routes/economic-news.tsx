@@ -360,6 +360,28 @@ function EconomicNewsWorkspace() {
     setImportedRows((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
   }
 
+  const [clipboardDenied, setClipboardDenied] = useState(false);
+
+  // Read an image straight from the clipboard via a user click (works even
+  // when Ctrl+V is swallowed by the preview frame or browser focus).
+  async function pasteFromClipboard() {
+    setClipboardDenied(false);
+    try {
+      const items = await navigator.clipboard.read();
+      for (const item of items) {
+        const imageType = item.types.find((type) => type.startsWith("image/"));
+        if (imageType) {
+          const blob = await item.getType(imageType);
+          await importScreenshot(new File([blob], "clipboard.png", { type: imageType }));
+          return;
+        }
+      }
+      setClipboardDenied(true);
+    } catch {
+      setClipboardDenied(true);
+    }
+  }
+
   // Allow pasting a copied screenshot (Ctrl+V / Cmd+V) anywhere on this tab.
   useEffect(() => {
     if (tab !== "calendar") return;
