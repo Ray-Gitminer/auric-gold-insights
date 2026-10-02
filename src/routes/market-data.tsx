@@ -42,11 +42,10 @@ function bangkokTime(timestamp: number): string {
   }).format(new Date(timestamp));
 }
 
-type M5Row = { timestamp: string; open: number; high: number; low: number; close: number };
 
 function TwelveDataTest() {
   const [busy, setBusy] = useState(false);
-  const [row, setRow] = useState<M5Row | null>(null);
+  const [row, setRow] = useState<{ timestamp: string; open: number; high: number; low: number; close: number } | null>(null);
   const [status, setStatus] = useState<"idle" | "live" | "error">("idle");
   const [message, setMessage] = useState<string>("");
 

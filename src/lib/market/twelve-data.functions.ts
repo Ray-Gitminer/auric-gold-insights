@@ -6,7 +6,7 @@ export type TwelveDataResult =
   | { ok: false; error: string };
 
 type TdValue = { datetime?: string; open?: string; high?: string; low?: string; close?: string };
-type TdResponse = { status?: string; message?: string; code?: number; values?: TdValue[] };
+type TdResponse = { status?: string; code?: unknown; values?: TdValue[] };
 
 // Fetches XAU/USD M5 from Twelve Data and upserts into market_candles_m5.
 export const fetchXauCandles = createServerFn({ method: "POST" })
