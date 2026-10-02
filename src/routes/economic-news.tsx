@@ -1,7 +1,7 @@
 import { NewsIntelligenceView } from "@/components/auriq/NewsIntelligenceView";
 import { useEffect, useMemo, useRef, useState, type Ref } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarClock, ExternalLink, Loader2, RefreshCw, Send, Upload } from "lucide-react";
+import { CalendarClock, ClipboardPaste, ExternalLink, Loader2, RefreshCw, Send, Upload } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/contexts/I18nContext";
@@ -360,6 +360,28 @@ function EconomicNewsWorkspace() {
     setImportedRows((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
   }
 
+  const [clipboardDenied, setClipboardDenied] = useState(false);
+
+  // Read an image straight from the clipboard via a user click (works even
+  // when Ctrl+V is swallowed by the preview frame or browser focus).
+  async function pasteFromClipboard() {
+    setClipboardDenied(false);
+    try {
+      const items = await navigator.clipboard.read();
+      for (const item of items) {
+        const imageType = item.types.find((type) => type.startsWith("image/"));
+        if (imageType) {
+          const blob = await item.getType(imageType);
+          await importScreenshot(new File([blob], "clipboard.png", { type: imageType }));
+          return;
+        }
+      }
+      setClipboardDenied(true);
+    } catch {
+      setClipboardDenied(true);
+    }
+  }
+
   // Allow pasting a copied screenshot (Ctrl+V / Cmd+V) anywhere on this tab.
   useEffect(() => {
     if (tab !== "calendar") return;
@@ -506,12 +528,32 @@ function EconomicNewsWorkspace() {
                   className="sr-only"
                 />
               </label>
+              <button
+                type="button"
+                disabled={importing}
+                onClick={() => void pasteFromClipboard()}
+                className="inline-flex items-center gap-1.5 rounded-sm border border-info/50 bg-info/12 px-3 py-1.5 text-xs font-medium text-info hover:bg-info/20 disabled:opacity-50"
+              >
+                {importing ? (
+                  <Loader2 className="size-3 animate-spin" aria-hidden />
+                ) : (
+                  <ClipboardPaste className="size-3" aria-hidden />
+                )}
+                {lang === "th" ? "วางภาพจากคลิปบอร์ด" : "Paste from clipboard"}
+              </button>
               <span className="text-[11px] text-muted-foreground">
                 {lang === "th"
-                  ? "รองรับ PNG/JPG/WebP · หรือก๊อปปี้ภาพแล้วกด Ctrl+V วางได้เลย · AI จะไม่เดาตัวเลขที่อ่านไม่ชัด"
-                  : "PNG/JPG/WebP · or copy an image and press Ctrl+V to paste · unreadable values are never guessed"}
+                  ? "รองรับ PNG/JPG/WebP · ก๊อปปี้ภาพแล้วกดปุ่มวาง หรือกด Ctrl+V · AI จะไม่เดาตัวเลขที่อ่านไม่ชัด"
+                  : "PNG/JPG/WebP · copy an image, then click paste or press Ctrl+V · unreadable values are never guessed"}
               </span>
             </div>
+            {clipboardDenied ? (
+              <p className="mt-3 text-xs text-warning">
+                {lang === "th"
+                  ? "อ่านคลิปบอร์ดไม่ได้ — กรุณาคลิกที่หน้านี้ก่อนแล้วกด Ctrl+V หรือใช้ปุ่มอัปโหลดแทน (บางเบราว์เซอร์ต้องอนุญาตการเข้าถึงคลิปบอร์ด)"
+                  : "Clipboard read was blocked — click on this page first, then press Ctrl+V, or use the upload button (some browsers require clipboard permission)."}
+              </p>
+            ) : null}
             {importError ? (
               <p className="mt-3 text-xs text-negative">
                 {lang === "th"
