@@ -8,6 +8,8 @@ import { useI18n } from "@/contexts/I18nContext";
 import { GoldChart, type Timeframe } from "@/components/auriq/GoldChart";
 import { usePublicGold } from "@/hooks/use-public-gold";
 import { PageHeader, PanelCard, StatusBadge } from "@/components/auriq/primitives";
+import { supabase } from "@/integrations/supabase/client";
+import { fetchXauCandles } from "@/lib/market/twelve-data.functions";
 
 export const Route = createFileRoute("/market-data")({
   head: () => ({
@@ -38,6 +40,60 @@ function bangkokTime(timestamp: number): string {
     second: "2-digit",
     hour12: false,
   }).format(new Date(timestamp));
+}
+
+type M5Row = { timestamp: string; open: number; high: number; low: number; close: number };
+
+function TwelveDataTest() {
+  const [busy, setBusy] = useState(false);
+  const [row, setRow] = useState<M5Row | null>(null);
+  const [status, setStatus] = useState<"idle" | "live" | "error">("idle");
+  const [message, setMessage] = useState<string>("");
+
+  async function run() {
+    setBusy(true);
+    setMessage("");
+    try {
+      const result = await fetchXauCandles();
+      const { data, error } = await supabase
+        .from("market_candles_m5" as never)
+        .select("timestamp,open,high,low,close")
+        .order("timestamp", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const latest = (data as M5Row | null) ?? null;
+      setRow(latest);
+      const fresh = latest && Date.now() - new Date(latest.timestamp).getTime() < 30 * 60_000;
+      if (!result.ok) { setStatus("error"); setMessage(result.error); }
+      else if (error || !latest) { setStatus("error"); setMessage("Could not read latest candle"); }
+      else if (!fresh) { setStatus("error"); setMessage("Latest candle is stale (market may be closed)"); }
+      else { setStatus("live"); setMessage(`Upserted ${result.upserted} candles`); }
+    } catch (e) {
+      setStatus("error");
+      setMessage(e instanceof Error ? e.message : "Request failed (sign in required)");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <PanelCard
+      title="Twelve Data · XAU/USD M5"
+      action={status === "idle" ? undefined : <StatusBadge tone={status === "live" ? "gold" : "negative"}>{status === "live" ? "LIVE" : "ERROR"}</StatusBadge>}
+    >
+      <div className="space-y-2 text-xs">
+        <button type="button" onClick={run} disabled={busy} className="rounded-sm border border-primary/40 px-3 py-1.5 text-primary disabled:opacity-50">
+          {busy ? "…" : "Test Twelve Data"}
+        </button>
+        {row ? (
+          <p className="num text-muted-foreground">
+            {new Date(row.timestamp).toISOString().replace("T", " ").slice(0, 16)} UTC · O {num(row.open, 2)} H {num(row.high, 2)} L {num(row.low, 2)} C {num(row.close, 2)}
+          </p>
+        ) : null}
+        {message ? <p className={status === "error" ? "text-negative" : "text-muted-foreground"}>{message}</p> : null}
+      </div>
+    </PanelCard>
+  );
 }
 
 function MarketDataPage() {
@@ -92,6 +148,8 @@ function MarketDataPage() {
           />
         )}
       </PanelCard>
+
+      <TwelveDataTest />
 
       <PanelCard title={t("md.sourceTitle")}>
         <ul className="space-y-2 text-xs text-muted-foreground">
