@@ -33,20 +33,28 @@ export const fetchXauCandles = createServerFn({ method: "POST" })
       return { ok: false, error: "Provider request failed" };
     }
     if (body.status === "error") {
-      return { ok: false, error: `Provider error ${body.code ?? ""}: ${(body.message ?? "").replace(/apikey=\S+/gi, "")}`.slice(0, 300) };
+      const code = typeof body.code === "number" ? body.code : 0;
+      return { ok: false, error: `Provider error code ${code}` };
     }
 
-    const rows = (body.values ?? []).flatMap((v) => {
-      if (!v.datetime) return [];
+    const pos = (v: unknown): number | null => {
+      if (typeof v !== "string" || v.trim() === "") return null;
+      const n = Number(v);
+      return Number.isFinite(n) && n > 0 ? n : null;
+    };
+    const now = new Date().toISOString();
+    const rows = (Array.isArray(body.values) ? body.values : []).flatMap((v) => {
+      if (typeof v.datetime !== "string" || !/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(v.datetime)) return [];
       const ts = new Date(`${v.datetime.replace(" ", "T")}Z`);
-      const o = Number(v.open), h = Number(v.high), l = Number(v.low), c = Number(v.close);
-      if (Number.isNaN(ts.getTime()) || ![o, h, l, c].every(Number.isFinite) || h < l) return [];
-      return [{ timestamp: ts.toISOString(), open: o, high: h, low: l, close: c, updated_at: new Date().toISOString() }];
+      const o = pos(v.open), h = pos(v.high), l = pos(v.low), c = pos(v.close);
+      if (Number.isNaN(ts.getTime()) || o === null || h === null || l === null || c === null) return [];
+      if (h < l || o > h || o < l || c > h || c < l) return [];
+      return [{ timestamp: ts.toISOString(), open: o, high: h, low: l, close: c, updated_at: now }];
     });
     if (rows.length === 0) return { ok: false, error: "Provider returned no valid candles" };
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("market_candles_m5" as never).upsert(rows as never, { onConflict: "timestamp" });
+    const { error } = await supabaseAdmin.from("market_candles_m5").upsert(rows, { onConflict: "timestamp" });
     if (error) return { ok: false, error: "Database write failed" };
 
     const latest = rows.reduce((a, b) => (a.timestamp > b.timestamp ? a : b)).timestamp;
