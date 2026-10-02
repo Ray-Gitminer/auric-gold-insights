@@ -1,7 +1,7 @@
 import { NewsIntelligenceView } from "@/components/auriq/NewsIntelligenceView";
 import { useEffect, useMemo, useRef, useState, type Ref } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarClock, ExternalLink, Loader2, RefreshCw, Send, Upload } from "lucide-react";
+import { CalendarClock, ClipboardPaste, ExternalLink, Loader2, RefreshCw, Send, Upload } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/contexts/I18nContext";
