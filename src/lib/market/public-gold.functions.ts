@@ -56,7 +56,7 @@ export const fetchPublicGold = createServerFn({ method: "GET" })
     const cached = cache.get(timeframe);
     if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.feed;
 
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/XAUUSD%3DX?range=${config.range}&interval=${config.interval}`;
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/GC%3DF?range=${config.range}&interval=${config.interval}`;
     const response = await fetch(url, {
       headers: { "User-Agent": "Mozilla/5.0 (compatible; AURIQ/1.0)", Accept: "application/json" },
     });
@@ -80,12 +80,12 @@ export const fetchPublicGold = createServerFn({ method: "GET" })
     if (candles.length < 2) throw new Error("Public feed returned no usable candles");
 
     const feed: PublicGoldFeed = {
-      symbol: "XAUUSD",
+      symbol: "GC=F",
       source: "Yahoo Finance (public)",
-      sourceUrl: "https://finance.yahoo.com/quote/XAUUSD=X",
+      sourceUrl: "https://finance.yahoo.com/quote/GC=F",
       fetchedAt: Date.now(),
       candles: config.bucketHours ? bucketCandles(candles, config.bucketHours) : candles,
-      note: "Free public feed · may be delayed ~15 min · not for order execution",
+      note: "Free public feed · COMEX gold futures · may be delayed ~10 min · not for order execution",
     };
     cache.set(timeframe, { at: Date.now(), feed });
     return feed;

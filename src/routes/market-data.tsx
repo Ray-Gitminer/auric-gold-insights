@@ -64,7 +64,7 @@ function MarketDataPage() {
       />
 
       <PanelCard
-        title="XAUUSD · Gold Spot"
+        title={t("md.chartTitle")}
         subtitle={feed ? `${t("md.updated")} ${bangkokTime(feed.fetchedAt)} ICT` : t("md.loading")}
         action={
           last ? (
