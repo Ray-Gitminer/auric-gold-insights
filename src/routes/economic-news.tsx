@@ -1,7 +1,21 @@
 import { NewsIntelligenceView } from "@/components/auriq/NewsIntelligenceView";
 import { useEffect, useMemo, useRef, useState, type Ref } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarClock, ClipboardPaste, ExternalLink, Loader2, RefreshCw, Send, Upload } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowRight,
+  ArrowUp,
+  BarChart3,
+  CalendarClock,
+  ClipboardPaste,
+  ExternalLink,
+  Loader2,
+  RefreshCw,
+  Send,
+  Sparkles,
+  Target,
+  Upload,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/contexts/I18nContext";
@@ -191,6 +205,24 @@ function DirectionText({ direction }: { direction: "Bullish" | "Bearish" | "Neut
       {direction}
     </span>
   );
+}
+
+type GoldDirection = "positive" | "negative" | "neutral";
+
+function goldDirectionFromText(text: string | undefined, fallback: WeeklyAnalysisResult["goldOutlook"]["direction"]): GoldDirection {
+  const value = text?.toLocaleLowerCase() ?? "";
+  const positive = ["บวกทอง", "หนุนทอง", "ทองขึ้น", "bullish", "positive for gold", "supports gold"];
+  const negative = ["ลบทอง", "กดดันทอง", "ทองลง", "bearish", "negative for gold", "weighs on gold"];
+  const hasPositive = positive.some((term) => value.includes(term));
+  const hasNegative = negative.some((term) => value.includes(term));
+
+  if (hasPositive && !hasNegative) return "positive";
+  if (hasNegative && !hasPositive) return "negative";
+  if (!value.trim()) {
+    if (fallback === "Bullish") return "positive";
+    if (fallback === "Bearish") return "negative";
+  }
+  return "neutral";
 }
 
 function EconomicNewsWorkspace() {
