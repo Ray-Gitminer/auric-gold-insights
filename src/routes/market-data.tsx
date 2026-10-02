@@ -52,21 +52,23 @@ function TwelveDataTest() {
 
   async function run() {
     setBusy(true);
+    setStatus("idle");
     setMessage("");
     try {
       const result = await fetchXauCandles();
       const { data, error } = await supabase
-        .from("market_candles_m5" as never)
+        .from("market_candles_m5")
         .select("timestamp,open,high,low,close")
         .order("timestamp", { ascending: false })
         .limit(1)
         .maybeSingle();
-      const latest = (data as M5Row | null) ?? null;
+      const latest = data ?? null;
       setRow(latest);
-      const fresh = latest && Date.now() - new Date(latest.timestamp).getTime() < 30 * 60_000;
+      const age = latest ? Date.now() - new Date(latest.timestamp).getTime() : NaN;
+      const fresh = Number.isFinite(age) && age >= -2 * 60_000 && age < 30 * 60_000;
       if (!result.ok) { setStatus("error"); setMessage(result.error); }
       else if (error || !latest) { setStatus("error"); setMessage("Could not read latest candle"); }
-      else if (!fresh) { setStatus("error"); setMessage("Latest candle is stale (market may be closed)"); }
+      else if (!fresh) { setStatus("error"); setMessage("Latest candle is stale or has an invalid time"); }
       else { setStatus("live"); setMessage(`Upserted ${result.upserted} candles`); }
     } catch (e) {
       setStatus("error");
